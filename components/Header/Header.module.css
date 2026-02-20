@@ -1,0 +1,387 @@
+/* Header.module.css – exact styling from your image + adjustments for pixel-perfect match */
+
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #3BB77E;
+    --primary-hover: #29a56c;
+    --text-main: #253D4E;
+    --text-muted: #7E7E7E;
+    --border-color: #ececec;
+    --bg-light: #f7f8f9;
+    --white: #ffffff;
+    --font-main: 'Quicksand', sans-serif;
+    --transition: all 0.3s ease;
+}
+
+.header {
+    width: 100%;
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    font-family: var(--font-main);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+}
+
+/* ----- TOP BAR (exact: phone | location | promo) ----- */
+.topBar {
+    background: #f7f8f9;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    height: 48px;
+    color: #7e7e7e;
+    font-weight: 500;
+}
+
+.topBar :global(*) {
+    box-sizing: border-box;
+}
+
+.topBarLeft,
+.topBarRight {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.contactItem,
+.topBarLink {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.contactItem svg,
+.topBarLink svg {
+    color: var(--primary);
+}
+
+.topBarLink:hover {
+    color: var(--primary);
+}
+
+.divider {
+    color: #adadad;
+    font-size: 10px;
+}
+
+.topBarCenter {
+    color: #7e7e7e;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.topBarCenter strong {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.topBarCenter a {
+    color: var(--primary);
+    font-weight: 700;
+    margin-left: 5px;
+    border-bottom: 1px dashed var(--primary);
+    text-decoration: none;
+}
+
+.topBarCenter a:hover {
+    color: var(--primary-hover);
+}
+
+/* ----- MAIN HEADER (Evaria®, search, hotline) ----- */
+.mainHeader {
+    padding: 25px 0;
+    /* adjusted to match spacing */
+}
+
+.mainHeader :global(*) {
+    box-sizing: border-box;
+}
+
+.logoWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logoText {
+    font-size: 38px;
+    font-weight: 800;
+    color: #253D4E;
+    letter-spacing: -1px;
+    font-family: 'Quicksand', sans-serif;
+    line-height: 1;
+}
+
+.leafIcon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+    /* subtle alignment */
+}
+
+/* search bar */
+.searchBar {
+    flex: 1;
+    max-width: 550px;
+    margin: 0 30px;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e9f0;
+    border-radius: 60px;
+    height: 52px;
+    padding: 0 5px 0 20px;
+    background: white;
+    transition: var(--transition);
+}
+
+.searchContainer:hover {
+    border-color: var(--primary);
+}
+
+.categorySelect {
+    background: none;
+    border: none;
+    font-weight: 700;
+    font-size: 15px;
+    color: #253D4E;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: var(--font-main);
+    padding: 0 5px 0 0;
+}
+
+.searchDivider {
+    margin: 0 12px;
+    color: #adadad;
+    font-size: 20px;
+    font-weight: 200;
+    line-height: 1;
+}
+
+.searchContainer input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-weight: 500;
+    background: transparent;
+    min-width: 150px;
+}
+
+.searchContainer input::placeholder {
+    color: #b5b5b5;
+    font-weight: 400;
+}
+
+.searchIcon {
+    color: var(--primary);
+    cursor: pointer;
+    margin-right: 15px;
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.searchIcon:hover {
+    color: var(--primary-hover);
+}
+
+/* hotline inside main header (right side) */
+.headerHotline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 60px;
+}
+
+.headerHotline .hotlineText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.headerHotline .hotlineText span {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.headerHotline .hotlineText strong {
+    font-size: 22px;
+    color: var(--text-main);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* action items after search (Wishlist, Cart) */
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.actionItem {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.actionItem:hover {
+    transform: translateY(-2px);
+}
+
+.iconBadge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: #253D4E;
+}
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: var(--primary);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+
+/* ----- NAV BAR (Browse Categories + menu + hotline) ----- */
+.navBar {
+    height: 68px;
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    background: white;
+}
+
+.navBar :global(*) {
+    box-sizing: border-box;
+}
+
+.browseCategories {
+    background: var(--primary);
+    color: white;
+    padding: 0 24px;
+    height: 48px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.browseCategories:hover {
+    background: var(--primary-hover);
+}
+
+.mainNav ul {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding-left: 30px;
+    list-style: none;
+}
+
+.mainNav li {
+    font-weight: 600;
+    font-size: 16px;
+    color: #253D4E;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.mainNav li.active,
+.mainNav li:hover {
+    color: var(--primary);
+}
+
+/* hotline in navbar (right side) */
+.hotline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #253D4E;
+    background: #f3f7fa;
+    padding: 8px 20px;
+    border-radius: 60px;
+}
+
+.hotline .hotlineText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.hotline .hotlineText span {
+    font-size: 11px;
+    color: #7e7e7e;
+    font-weight: 500;
+}
+
+.hotline .hotlineText strong {
+    font-size: 18px;
+    color: var(--text-main);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* responsive tweaks (keep clean) */
+@media (max-width: 1200px) {
+    .topBarCenter {
+        display: none;
+    }
+}
+
+@media (max-width: 992px) {
+
+    .mainNav,
+    .hotline,
+    .headerHotline {
+        display: none;
+    }
+
+    .searchBar {
+        margin: 0 15px;
+    }
+}
