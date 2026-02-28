@@ -9,17 +9,16 @@ import { Navigation, Thumbs, Zoom, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
-import "aos/dist/aos.css";
 
 
 const colors = [
-  "#e63946",
-  "#f6fe52",
-  "#ffffff",
-  "#ffb703",
-  "#00a8e8",
-  "#90bd3c",
-  "#ff66c4",
+  "var(--red-color)",
+  "var(--yellow-color)",
+  "var(--white)",
+  "var(--blue-color)",
+  "var(--star-rating)",
+  "var(--green-color)",
+  "var(--pink-color)",
 ];
 const sizes = ["S", "M", "L", "XL", "XXL"];
 const images = [
@@ -87,7 +86,7 @@ export default function ProductViewPage() {
   const [activeThumbIndex, setActiveThumbIndex] = useState<number | null>(null);
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [priceRange, setPriceRange] = useState({ min: 16, max: 300 });
-const [isDragging, setIsDragging] = useState({ min: false, max: false });
+  const [isDragging, setIsDragging] = useState({ min: false, max: false });
 
 
 
@@ -121,9 +120,7 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
             {/* Product Image and Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-10">
               <div>
-                {/* Main Image Swiper with Autoplay */}
-                <div
-                  className="relative w-full !h-[280px] sm:!h-[350px] md:!h-[400px] lg:!h-[450px]"
+                <div className="relative w-full !h-[280px] sm:!h-[350px] md:!h-[400px] lg:!h-[450px]"
 
                   onMouseEnter={() => {
                     mainSwiper?.autoplay?.stop();
@@ -164,7 +161,6 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
                   </Swiper>
                 </div>
 
-                {/* Thumbnail Swiper */}
                 <div
                   className="relative"
                   onMouseEnter={() => {
@@ -295,26 +291,25 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
                   </li>
                 </ul>
 
-{/* Color Selection */}
-<div className="!mb-6 flex items-center gap-4">
-  <p className="text-sm font-medium w-16" style={{ color: 'var(--text-main)' }}>Color</p>
-  <div className="flex items-center gap-2">
-    {colors.map((color) => (
-      <button
-        key={color}
-        onClick={() => setSelectedColor(color)}
-        className={`w-7 h-7 rounded-full border-2 transition-all duration-200 relative ${
-          selectedColor === color ? "border-gray-100 scale-110" : "border-gray-100"
-        }`}
-        style={{ backgroundColor: color }}
-      >
-        {selectedColor === color && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--primary)]"></span>
-        )}
-      </button>
-    ))}
-  </div>
-</div>
+                {/* Color Selection */}
+                <div className="!mb-6 flex items-center gap-4">
+                  <p className="text-sm font-medium w-16" style={{ color: 'var(--text-main)' }}>Color</p>
+                  <div className="flex items-center gap-2">
+                    {colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all duration-200 relative ${selectedColor === color ? "border-gray-100 scale-110" : "border-gray-100"
+                          }`}
+                        style={{ backgroundColor: color }}
+                      >
+                        {selectedColor === color && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--primary)]"></span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 {/* Size Selection */}
                 <div className="!mb-6 flex items-center gap-4">
                   <p className="text-sm font-medium w-16" style={{ color: 'var(--text-main)' }}>Size</p>
@@ -887,8 +882,6 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
             <div className="!mt-12 !mb-18">
               <h2 className="text-2xl font-bold !mb-6" style={{ color: 'var(--text-main)' }}>Related products</h2>
               <div className="w-full h-[1px]  relative !mb-6" style={{ backgroundColor: 'var(--border-color)' }}>
-
-                {/* Small green line */}
                 <div className="absolute left-0 top-0 h-[2px] w-16 sm:w-20 bg-[var(--primary)]"></div>
 
               </div>
@@ -1390,7 +1383,6 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
                 className="absolute inset-0 w-full h-full object-cotain rounded-lg"
               />
 
-              {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-white/20 transition-all duration-300 rounded-lg"></div>
 
               {/* Content */}
@@ -1445,154 +1437,152 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
                   <li className="hover:text-[var(--primary)] cursor-pointer transition-colors transition-all duration-200 bg-white hover:translate-x-1">Accessories</li>
                 </ul>
               </div>
+              <div className="mb-0 lg:mb-8 border rounded-lg !p-5" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="!mb-6">
+                  <div className="relative">
+                    <h2
+                      className="font-bold text-base sm:text-lg !mb-4 sm:!mb-5 !pb-3"
+                      style={{
+                        color: 'var(--text-main)',
+                        borderBottom: '1px solid var(--border-color)'
+                      }}
+                    >
+                      FILL BY PRICE
+                    </h2>
 
+                    {/* Dual Range Slider */}
+                    <div className="relative !mb-8 !pt-8 !px-1">
 
-  <div className="mb-0 lg:mb-8 border rounded-lg !p-5" style={{ borderColor: 'var(--border-color)' }}>
-  <div className="!mb-6">
-    <div className="relative">
-      <h2
-        className="font-bold text-base sm:text-lg !mb-4 sm:!mb-5 !pb-3"
-        style={{
-          color: 'var(--text-main)',
-          borderBottom: '1px solid var(--border-color)'
-        }}
-      >
-        FILL BY PRICE
-      </h2>
-      
-      {/* Dual Range Slider */}
-      <div className="relative !mb-8 !pt-8 !px-1">
-        
-        <div className="w-full h-1 bg-gray-200 rounded-full" style={{ backgroundColor: 'var(--border-color)' }}></div>
-        <div 
-          className="absolute h-1 rounded-full"
-          style={{
-            backgroundColor: 'var(--primary)',
-            left: `${(priceRange.min / 400) * 100}%`,
-            width: `${((priceRange.max - priceRange.min) / 400) * 100}%`,
-            top: '32px',
-            pointerEvents: 'none'
-          }}
-        ></div>
+                      <div className="w-full h-1 bg-gray-200 rounded-full" style={{ backgroundColor: 'var(--border-color)' }}></div>
+                      <div
+                        className="absolute h-1 rounded-full"
+                        style={{
+                          backgroundColor: 'var(--primary)',
+                          left: `${(priceRange.min / 400) * 100}%`,
+                          width: `${((priceRange.max - priceRange.min) / 400) * 100}%`,
+                          top: '32px',
+                          pointerEvents: 'none'
+                        }}
+                      ></div>
 
-        <div className="absolute top-[26px] left-0 w-full" style={{ pointerEvents: 'none' }}>
-          <div 
-            className="absolute w-4 h-4 bg-white border-2 rounded-full -mt-1.5 transition-transform duration-150 cursor-pointer"
-            style={{
-              borderColor: isDragging.min ? 'var(--primary)' : 'var(--border-color)',
-              left: `${(priceRange.min / 400) * 100}%`,
-              transform: `translateX(-50%) ${isDragging.min ? 'scale(1.2)' : 'scale(1)'}`,
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              zIndex: 20,
-              pointerEvents: 'auto',
-              cursor: 'grab'
-            }}
-            onMouseDown={() => setIsDragging(prev => ({ ...prev, min: true }))}
-            onMouseUp={() => setIsDragging(prev => ({ ...prev, min: false }))}
-          ></div>
-        </div>
+                      <div className="absolute top-[26px] left-0 w-full" style={{ pointerEvents: 'none' }}>
+                        <div
+                          className="absolute w-4 h-4 bg-white border-2 rounded-full -mt-1.5 transition-transform duration-150 cursor-pointer"
+                          style={{
+                            borderColor: isDragging.min ? 'var(--primary)' : 'var(--border-color)',
+                            left: `${(priceRange.min / 400) * 100}%`,
+                            transform: `translateX(-50%) ${isDragging.min ? 'scale(1.2)' : 'scale(1)'}`,
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            zIndex: 20,
+                            pointerEvents: 'auto',
+                            cursor: 'grab'
+                          }}
+                          onMouseDown={() => setIsDragging(prev => ({ ...prev, min: true }))}
+                          onMouseUp={() => setIsDragging(prev => ({ ...prev, min: false }))}
+                        ></div>
+                      </div>
 
-        <div className="absolute top-[26px] left-0 w-full" style={{ pointerEvents: 'none' }}>
+                      <div className="absolute top-[26px] left-0 w-full" style={{ pointerEvents: 'none' }}>
 
-          <div 
-            className="absolute w-4 h-4 bg-white border-2 rounded-full -mt-1.5 transition-transform duration-150 cursor-pointer"
-            style={{
-              borderColor: isDragging.max ? 'var(--primary)' : 'var(--border-color)',
-              left: `${(priceRange.max / 400) * 100}%`,
-              transform: `translateX(-50%) ${isDragging.max ? 'scale(1.2)' : 'scale(1)'}`,
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-              zIndex: 20,
-              pointerEvents: 'auto',
-              cursor: 'grab'
-            }}
-            onMouseDown={() => setIsDragging(prev => ({ ...prev, max: true }))}
-            onMouseUp={() => setIsDragging(prev => ({ ...prev, max: false }))}
-          ></div>
-        </div>
+                        <div
+                          className="absolute w-4 h-4 bg-white border-2 rounded-full -mt-1.5 transition-transform duration-150 cursor-pointer"
+                          style={{
+                            borderColor: isDragging.max ? 'var(--primary)' : 'var(--border-color)',
+                            left: `${(priceRange.max / 400) * 100}%`,
+                            transform: `translateX(-50%) ${isDragging.max ? 'scale(1.2)' : 'scale(1)'}`,
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            zIndex: 20,
+                            pointerEvents: 'auto',
+                            cursor: 'grab'
+                          }}
+                          onMouseDown={() => setIsDragging(prev => ({ ...prev, max: true }))}
+                          onMouseUp={() => setIsDragging(prev => ({ ...prev, max: false }))}
+                        ></div>
+                      </div>
 
-        <input
-          type="range"
-          min="16"
-          max="400"
-          value={priceRange.min}
-          onChange={(e) => {
-            const value = Math.min(Number(e.target.value), priceRange.max - 1);
-            setPriceRange(prev => ({ ...prev, min: value }));
-          }}
-          className="absolute top-[26px] w-full h-1 opacity-0 cursor-pointer"
-          style={{ pointerEvents: 'auto', zIndex: 25 }}
-        />
-        
-        <input
-          type="range"
-          min="16"
-          max="400"
-          value={priceRange.max}
-          onChange={(e) => {
-            const value = Math.max(Number(e.target.value), priceRange.min + 1);
-            setPriceRange(prev => ({ ...prev, max: value }));
-          }}
-          className="absolute top-[26px] w-full h-1 opacity-0 cursor-pointer"
-          style={{ pointerEvents: 'auto', zIndex: 25 }}
-        />
-      </div>
-      
-      {/* Range display */}
-      <div className="flex justify-between items-center !mt-4">
-        <p className="text-sm" >Range:</p>
-        <p className="text-sm font-semibold" >
-          ${priceRange.min} - ${priceRange.max}
-        </p>
-      </div>
-    </div>
-  
-</div>
-  
-  <div className="mb-6">
-    <h2 className="font-bold text-base sm:text-lg !mb-4 sm:mb-5 !mt-5" style={{ color: 'var(--text-main)' }}>Color</h2>
-    <ul className="!space-y-3 text-sm" style={{ color: 'var(--text-muted)' }}>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>Red (56)</span>
-      </li>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>Green (78)</span>
-      </li>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>Blue (54)</span>
-      </li>
-    </ul>
-  </div>
+                      <input
+                        type="range"
+                        min="16"
+                        max="400"
+                        value={priceRange.min}
+                        onChange={(e) => {
+                          const value = Math.min(Number(e.target.value), priceRange.max - 1);
+                          setPriceRange(prev => ({ ...prev, min: value }));
+                        }}
+                        className="absolute top-[26px] w-full h-1 opacity-0 cursor-pointer"
+                        style={{ pointerEvents: 'auto', zIndex: 25 }}
+                      />
 
-  <div className="mb-6">
-    <h2 className="font-bold text-base sm:text-lg !mb-4 sm:mb-5 !mt-5" style={{ color: 'var(--text-main)' }}>Item Condition</h2>
-    <ul className="!space-y-3 text-sm" style={{ color: 'var(--text-muted)' }}>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>New (1506)</span>
-      </li>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>Refurbished (27)</span>
-      </li>
-      <li className="flex items-center gap-2 cursor-pointer transition-colors">
-        <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
-        <span>Used (17)</span>
-      </li>
-      <button
-        className="!px-10 !py-2 !mt-6 rounded text-white flex items-center justify-center gap-2 w-full"
-        style={{ backgroundColor: 'var(--primary)' }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-      >
-        <Filter size={18} />
-        Filter
-      </button>
-    </ul>
-  </div>
-</div>
+                      <input
+                        type="range"
+                        min="16"
+                        max="400"
+                        value={priceRange.max}
+                        onChange={(e) => {
+                          const value = Math.max(Number(e.target.value), priceRange.min + 1);
+                          setPriceRange(prev => ({ ...prev, max: value }));
+                        }}
+                        className="absolute top-[26px] w-full h-1 opacity-0 cursor-pointer"
+                        style={{ pointerEvents: 'auto', zIndex: 25 }}
+                      />
+                    </div>
+
+                    {/* Range display */}
+                    <div className="flex justify-between items-center !mt-4">
+                      <p className="text-sm" >Range:</p>
+                      <p className="text-sm font-semibold" >
+                        ${priceRange.min} - ${priceRange.max}
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className="mb-6">
+                  <h2 className="font-bold text-base sm:text-lg !mb-4 sm:mb-5 !mt-5" style={{ color: 'var(--text-main)' }}>Color</h2>
+                  <ul className="!space-y-3 text-sm" style={{ color: 'var(--text-muted)' }}>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>Red (56)</span>
+                    </li>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>Green (78)</span>
+                    </li>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>Blue (54)</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mb-6">
+                  <h2 className="font-bold text-base sm:text-lg !mb-4 sm:mb-5 !mt-5" style={{ color: 'var(--text-main)' }}>Item Condition</h2>
+                  <ul className="!space-y-3 text-sm" style={{ color: 'var(--text-muted)' }}>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>New (1506)</span>
+                    </li>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>Refurbished (27)</span>
+                    </li>
+                    <li className="flex items-center gap-2 cursor-pointer transition-colors">
+                      <input type="checkbox" className="w-4 h-4 accent-[var(--primary)]" />
+                      <span>Used (17)</span>
+                    </li>
+                    <button
+                      className="!px-10 !py-2 !mt-6 rounded text-white flex items-center justify-center gap-2 w-full"
+                      style={{ backgroundColor: 'var(--primary)' }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                    >
+                      <Filter size={18} />
+                      Filter
+                    </button>
+                  </ul>
+                </div>
+              </div>
 
               <div className="mb-0 lg:mb-8 border rounded-lg !p-6" style={{ borderColor: 'var(--border-color)' }}>
 
@@ -1736,7 +1726,8 @@ const [isDragging, setIsDragging] = useState({ min: false, max: false });
                     style={{ color: 'var(--primary)' }}
                   >
                     Shop Now
-                    <span className="text-2xl">→</span>
+                    <ArrowRight size={16} />
+                    
                   </a>
                 </div>
               </div>

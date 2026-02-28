@@ -14,6 +14,11 @@
   --background: #ffffff;
  --foreground : #253D4E;
  --star-rating: #ffb703;
+ --red-color: #e63946;
+  --yellow-color: #f6fe52;
+  --blue-color:#00a8e8;
+  --green-color:#90bd3c;
+  --pink-color:#ff66c4;
 }
 
 * {
