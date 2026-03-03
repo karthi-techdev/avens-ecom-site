@@ -18,7 +18,7 @@ import blogimagerightsix from "@/public/images/offer.png"
 const BlogtechnologyPage = () => {
     return (
         <section className="w-full">
-            <div className="w-full bg-gray-100">
+            <div className="w-full bg-[var(--bg-light)]">
                 <div className="max-w-7xl !mx-auto h-[55px] flex items-center gap-3  !pl-[10px]">
 
                     <a href="#" className="text-sm flex items-center gap-2 !text-[var(--blog-text)] ">
@@ -40,7 +40,7 @@ const BlogtechnologyPage = () => {
 
                     <div className="lg:col-span-3 space-y-6 lg:!pr-3">
                         <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-[var(--blog-text)] ">Our Blog</h1>
-                        <ul className="text-sm flex gap-5 !mt-3 font-medium text-[var(--blog-text)]">
+                        <ul className="text-[12px] lg:text-sm flex gap-5 !mt-3 font-medium text-[var(--blog-text)]">
                             <li >32 Sub Categories </li>
                             <li className="relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full ">1020k Article </li>
                             <li className="relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full ">3480 Authors </li>
@@ -62,7 +62,7 @@ const BlogtechnologyPage = () => {
                             <h1 className="!p-4 text-3xl font-bold hover:text-[var(--blog-text)] ">Barcelona: marathan; south korean pulls away for a grueling surprise</h1>
                             <p className="!p-4 font-small">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi-million dollar home currently.</p>
                             <ul className="flex justify-between !p-4">
-                                <li className="text-sm text-[var(--blog-text)]">By <a href="" className="">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
+                                <li className=" text-[12px] lg:text-sm text-[var(--blog-text)]">By <a href="" className="">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
                                 <li className="text-[var(--white)]"><a href="" className="w-35 h-12 flex justify-center items-center !bg-[var(--blog-text)] rounded-lg border-2 border-white text-sm font-bold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
                             </ul>
                         </div>
@@ -317,7 +317,7 @@ const BlogtechnologyPage = () => {
                             <div className="w-full border-b-1 border-[var(--border-color)] !mt-9 ">
                                 <h1 className="uppercase font-bold !pb-2">Popular tags</h1>
                             </div>
-                            <div className="w-full flex flex-col md:flex-col">
+                            <div className="w-full flex flex-col md:flex-row lg:flex-col">
                                 <div className="flex gap-3">
                                     <a href="" className="text-sm flex border-1 !border-[var(--border-color)] rounded-md w-20 h-8 justify-center items-center !mt-3">beautiful</a>
                                     <a href="" className="text-sm flex border-1 !border-[var(--border-color)] rounded-md w-20 h-8 justify-center items-center !mt-3">New York</a>
