@@ -51,7 +51,7 @@ input[type="checkbox"] {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
-    border: 1px solid var( --text-main);
+    border: 1px solid var( --text-muted);
     border-radius: 3px;
     outline: none;
     cursor: pointer;
@@ -79,11 +79,11 @@ input[type="checkbox"]:checked::before {
 .main{
 
 max-width:1400px;
-margin: 30px auto 0 auto;
+margin: 40px auto 0 auto;
 padding: 0 15px;
 
 }
-/* Add this to your global CSS or component styles */
+
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
