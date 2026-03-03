@@ -12,7 +12,13 @@
   --font-main: 'Quicksand', sans-serif;
   --transition: all 0.3s ease;
   --background: #ffffff;
-  --foreground: #253D4E;
+ --foreground : #253D4E;
+ --star-rating: #ffb703;
+ --red-color: #e63946;
+  --yellow-color: #f6fe52;
+  --blue-color:#00a8e8;
+  --green-color:#90bd3c;
+  --pink-color:#ff66c4;
 }
 
 * {
@@ -21,11 +27,13 @@
   margin: 0;
 }
 
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-main);
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 a {
@@ -37,3 +45,90 @@ a {
 ul {
   list-style: none;
 }
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var( --text-main);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+input[type="checkbox"]:checked::before {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+.swiper-slide-thumb-active img {
+  border: 2px solid var(--primary);
+}
+.main{
+
+max-width:1400px;
+margin: 30px auto 0 auto;
+padding: 0 15px;
+
+}
+/* Add this to your global CSS or component styles */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  pointer-events: auto;
+  margin-top: -6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  opacity: 0; 
+}
+
+input[type=range]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  opacity: 0; 
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: transparent;
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: transparent;
+}
+
+
+
