@@ -12,6 +12,11 @@
   --font-main: 'Quicksand', sans-serif;
   --transition: all 0.3s ease;
   --background: #ffffff;
+  --foreground: #253D4E;
+  --blog-text:#088178;
+  --blog-hover: #046e69;
+  --contact-bg:#cee8e0;
+  --contact-border:#046963;
  --foreground : #253D4E;
  --star-rating: #ffb703;
  --red-color: #e63946;
