@@ -26,11 +26,11 @@
   --pink-color:#ff66c4;
 }
 
-* {
+/* * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-}
+} */
 
 
 body {
@@ -135,5 +135,18 @@ input[type=range]::-moz-range-track {
   background: transparent;
 }
 
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--primary) !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: var(--primary) !important;
+}
+
+.swiper-pagination-bullet {
+  background-color: var(--primary) !important;
+  opacity: 0.3;
+}
 
 
