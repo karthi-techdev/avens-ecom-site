@@ -81,6 +81,9 @@ input[type="checkbox"]:checked::before {
 .swiper-slide-thumb-active img {
   border: 2px solid var(--primary);
 }
+.logos-carousel .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
 .main{
 
 max-width:1400px;
