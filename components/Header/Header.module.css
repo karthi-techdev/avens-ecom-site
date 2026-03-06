@@ -30,7 +30,11 @@
     justify-content: space-between;
     height: 100%;
     width: 100%;
+
+    /* ✅ IMPORTANT FIX */
+    flex-wrap: wrap;
 }
+
 
 /* ----- TOP BAR (exact: phone | location | promo) ----- */
 .topBar {
@@ -383,5 +387,6 @@
 
     .searchBar {
         margin: 0 15px;
+        max-width: 100%;
     }
 }
