@@ -4,6 +4,7 @@ import "./globals.css";
 import Footer from "@/components/Footer/Footer";
 import { usePathname } from "next/navigation";
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
