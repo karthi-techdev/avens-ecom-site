@@ -24,7 +24,7 @@ const Blogfullwidthpage = () => {
 
                 </div>
             </div>
-            <div className=" w-full !pl-10 !pr-10 md:!pl-10 md:!pr-10  lg:!pl-[250px] lg:!pr-[160px] !mt-10">
+            <div className=" w-full !pl-10 !pr-10 md:!pl-10 md:!pr-10  lg:!pl-[200px] lg:!pr-[160px] !mt-10">
                 <div className="w-full lg:max-w-[90%] mx-auto">
                     <h1 className="!py-1 text-[35px] md:text-[45px] lg:text-[45px] leading-tight font-medium text-[var(--text-main)]">Best smartwatch 2026: the top wearables you can buy today</h1>
                     <div className="flex justify-between !mt-5 border-b-1 border-[var(--border-color)] !pb-6">
