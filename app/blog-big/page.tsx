@@ -1,13 +1,8 @@
 
-import { MessageSquareText, ChevronRight, Eye, Usb, ArrowRight, Clock, Search } from "lucide-react"
+import { MessageSquareText, ChevronRight, Eye, Usb, ArrowRight, Bookmark, Search } from "lucide-react"
 import Image from "next/image";
-import blogimageone from "@/public/images/blog-6.png"
+import blogimageone from "@/public/images/blog-9.png"
 import blogimagetwo from "@/public/images/blog-7.png"
-import blogimagethree from "@/public/images/blog-8.png"
-import blogimagefour from "@/public/images/blog-2.png"
-import blogimagefive from "@/public/images/blog-3.png"
-import blogimagesix from "@/public/images/blog-4.png"
-import blogimageseven from "@/public/images/blog-9.png"
 import blogimagerightone from "@/public/images/blog-1.jpg"
 import blogimagerighttwo from "@/public/images/blog-2.png"
 import blogimagerightthree from "@/public/images/blog-3.png"
@@ -15,7 +10,7 @@ import blogimagerightfour from "@/public/images/blog-4.png"
 import blogimagerightfive from "@/public/images/blog-5.png"
 import blogimagerightsix from "@/public/images/offer.png"
 
-const BlogtechnologyPage = () => {
+const BlogbigPage = () => {
     return (
         <section className="w-full">
             <div className="w-full bg-[var(--bg-light)]">
@@ -48,11 +43,34 @@ const BlogtechnologyPage = () => {
                         </ul>
                         <div className="!mt-10  border border-[var(--border-color)] !pb-5
                         transition-all duration-500 hover:-translate-y-2 hover:shadow-lg ">
-                            <div className="group overflow-hidden ">
+                            <div className="group overflow-hidden relative">
                                 <Image
                                     src={blogimageone}
                                     alt="images"
                                     className=" w-full object-cover transition duration-300 ease-in-out group-hover:scale-110 " />
+                                <div className="flex absolute bottom-3 right-5 text-[var(--white)] bg-[var(--black-color)] w-7 h-7  rounded items-center justify-center "><Bookmark size={15} className="font-bold" /></div>
+                            </div>
+
+                            <ul className="flex justify-between !p-4">
+                                <li className="text-sm uppercase font-bold relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-1 before:w-2 before:h-2 before:border  before:border-[var(--blog-text)] before:rounded-full !text-[var(--blog-text)] ">Mobile Phone</li>
+                                <li className="flex"><span className="!pr-10 font-small flex text-[var(--text-muted)] "><Eye size={25} className="!p-1 !mr-1" />23k</span> <span className="!pr-8 font-small flex !text-[var(--text-muted)]"><MessageSquareText size={25} className="!p-1 !mr-1" />18k</span> <span className="!pr-6 font-small flex !text-[var(--text-muted)]"><Usb size={23} className="!p-1 !mr-1" />17k</span></li>
+                            </ul>
+                            <h1 className="!p-4 text-3xl font-bold text-[var(--text-main)] hover:text-[var(--blog-text)] ">Low-Cost Steroid Is First Drug Shown to Reduce Virus Deaths, Study Says</h1>
+                            <p className="!p-4 font-small">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi-million dollar home currently.</p>
+                            <ul className="flex justify-between !p-4">
+                                <li className=" text-[12px] lg:text-sm text-[var(--text-muted)]">By <a href="" className="!text-[var(--blog-text)]">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
+                                <li className="text-[var(--white)]"><a href="" className="w-30 h-10 flex justify-center items-center !bg-[var(--blog-text)] rounded  text-sm font-semibold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
+                            </ul>
+                        </div>
+
+                        <div className="!mt-10  border border-[var(--border-color)] !pb-5
+                        transition-all duration-500 hover:-translate-y-2 hover:shadow-lg ">
+                            <div className="group overflow-hidden relative">
+                                <Image
+                                    src={blogimagerightfive}
+                                    alt="images"
+                                    className=" w-full object-cover transition duration-300 ease-in-out group-hover:scale-110 " />
+                                <div className="flex absolute bottom-3 right-5 text-[var(--white)] bg-[var(--black-color)] w-7 h-7  rounded items-center justify-center "><Bookmark size={15} className="font-bold" /></div>
                             </div>
 
                             <ul className="flex justify-between !p-4">
@@ -67,113 +85,50 @@ const BlogtechnologyPage = () => {
                             </ul>
                         </div>
 
-                        <div className="flex flex-col md:flex-row gap-6 !mt-5">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> Politic</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagetwo}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">The litigants on the screen are not actors</h1>
-                                <p className="!p-2">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
+                        <div className="!mt-10  border border-[var(--border-color)] !pb-5
+                        transition-all duration-500 hover:-translate-y-2 hover:shadow-lg ">
+                            <div className="group overflow-hidden relative">
+                                <Image
+                                    src={blogimagetwo}
+                                    alt="images"
+                                    className=" w-full object-cover transition duration-300 ease-in-out group-hover:scale-110 " />
+                                <div className="flex absolute bottom-3 right-5 text-[var(--white)] bg-[var(--black-color)] w-7 h-7  rounded items-center justify-center "><Bookmark size={15} className="font-bold" /></div>
                             </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">global</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagethree}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
 
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Essential Qualities of Highly Successful Music</h1>
-                                <p className="!p-2">Graduating from a top accelerator or incubator can be as career-defining for a startup founder as an elite university diploma. The intensive programmes, which</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
+                            <ul className="flex justify-between !p-4">
+                                <li className="text-sm uppercase font-bold relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-1 before:w-2 before:h-2 before:border  before:border-[var(--blog-text)] before:rounded-full !text-[var(--blog-text)] ">Mobile Phone</li>
+                                <li className="flex"><span className="!pr-10 font-small flex text-[var(--text-muted)] "><Eye size={25} className="!p-1 !mr-1" />23k</span> <span className="!pr-8 font-small flex !text-[var(--text-muted)]"><MessageSquareText size={25} className="!p-1 !mr-1" />18k</span> <span className="!pr-6 font-small flex !text-[var(--text-muted)]"><Usb size={23} className="!p-1 !mr-1" />17k</span></li>
+                            </ul>
+                            <h1 className="!p-4 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Tainted food in china cited in cyclist’s failed doping test</h1>
+                            <p className="!p-4 font-small">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi-million dollar home currently.</p>
+                            <ul className="flex justify-between !p-4">
+                                <li className=" text-[12px] lg:text-sm text-[var(--text-muted)]">By <a href="" className="!text-[var(--blog-text)]">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
+                                <li className="text-[var(--white)]"><a href="" className="w-30 h-10 flex justify-center items-center !bg-[var(--blog-text)] rounded  text-sm font-semibold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
+                            </ul>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-6 !mt-3">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> sport</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagefour}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
 
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">9 Things I Love About Shaving My Head</h1>
-                                <p className="!p-2">At the Emmys, broadcast scripted shows created by people of color gained ground relative to those pitched by White show creators, while broadcast scripted shows.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]" ><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a></li>
-                                </ul>
+                        <div className="!mt-10  border border-[var(--border-color)] !pb-5
+                        transition-all duration-500 hover:-translate-y-2 hover:shadow-lg ">
+                            <div className="group overflow-hidden relative">
+                                <Image
+                                    src={blogimagerightfour}
+                                    alt="images"
+                                    className=" w-full object-cover transition duration-300 ease-in-out group-hover:scale-110 " />
+                                <div className="flex absolute bottom-3 right-5 text-[var(--white)] bg-[var(--black-color)] w-7 h-7  rounded items-center justify-center "><Bookmark size={15} className="font-bold" /></div>
                             </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-25 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">Technology</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagefive}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
 
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Why Teamwork Really Makes The Dream Work</h1>
-                                <p className="!p-2">We live in a world where disruption and dynamism reign supreme and businesses must be ready to adapt to the many unpredictable changes that come with this.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
+                            <ul className="flex justify-between !p-4">
+                                <li className="text-sm uppercase font-bold relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-1 before:w-2 before:h-2 before:border  before:border-[var(--blog-text)] before:rounded-full !text-[var(--blog-text)] ">Mobile Phone</li>
+                                <li className="flex"><span className="!pr-10 font-small flex text-[var(--text-muted)] "><Eye size={25} className="!p-1 !mr-1" />23k</span> <span className="!pr-8 font-small flex !text-[var(--text-muted)]"><MessageSquareText size={25} className="!p-1 !mr-1" />18k</span> <span className="!pr-6 font-small flex !text-[var(--text-muted)]"><Usb size={23} className="!p-1 !mr-1" />17k</span></li>
+                            </ul>
+                            <h1 className="!p-4 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)] ">Off the Coast of Maine, the Time Is Right for Racing in Bulky, Plodding Boats</h1>
+                            <p className="!p-4 font-small">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi-million dollar home currently.</p>
+                            <ul className="flex justify-between !p-4">
+                                <li className=" text-[12px] lg:text-sm text-[var(--text-muted)]">By <a href="" className="!text-[var(--blog-text)]">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
+                                <li className="text-[var(--white)]"><a href="" className="w-30 h-10 flex justify-center items-center !bg-[var(--blog-text)] rounded  text-sm font-semibold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
+                            </ul>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-6 !mt-3">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">watch</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagesix}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
 
-                                <h1 className="!p-2 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">The World Caters to Average People</h1>
-                                <p className="!p-2">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell oney.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative  transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> Politic</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimageseven}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Essential Qualities of Highly Successful Music</h1>
-                                <p className="!p-2">Graduating from a top accelerator or incubator can be as career-defining for a startup founder as an elite university diploma. The intensive programmes, which...</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                        </div>
                         <div className="flex flex-wrap gap-3 !mt-10">
                             <div className="w-8 h-8  flex justify-center items-center bg-[var(--blog-text)] rounded-lg text-md font-extrabold text-[var(--white)] "><a href="">01</a></div>
                             <div className="w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold text-[var(--text-muted)] hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="">02</a></div>
@@ -344,4 +299,4 @@ const BlogtechnologyPage = () => {
 }
 
 
-export default BlogtechnologyPage;
+export default BlogbigPage;
