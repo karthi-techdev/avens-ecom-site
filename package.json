@@ -9,9 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
     "animate.css": "^4.1.1",
     "aos": "^2.3.4",
+    "country-list": "^2.4.1",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.574.0",
     "next": "16.1.6",
     "react": "19.2.3",
@@ -21,16 +22,16 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/aos": "^3.0.7",
+    "@types/country-list": "^2.1.4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "swiper": "^12.1.2",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "swiper": "^12.1.2",
     "wowjs": "^1.1.3"
-    
   }
 }
