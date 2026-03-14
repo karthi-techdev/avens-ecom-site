@@ -57,7 +57,6 @@ export default function ProductCompareTable() {
     <table className="min-w-full w-full text-center border border-[var(--border-color)] border-collapse text-sm md:text-base lg:text-md">
         <tbody>
 
-          {/* PREVIEW */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Preview</td>
 
@@ -74,7 +73,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* NAME */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Name</td>
 
@@ -85,7 +83,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* PRICE */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Price</td>
 
@@ -96,7 +93,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* RATING */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Rating</td>
 
@@ -119,7 +115,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* DESCRIPTION */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Description</td>
 
@@ -134,7 +129,6 @@ export default function ProductCompareTable() {
             </td>
           </tr>
 
-          {/* COLOR */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Color</td>
 
@@ -153,7 +147,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* SIZES */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Sizes Available</td>
 
@@ -173,7 +166,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* STOCK */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Stock status</td>
 
@@ -191,7 +183,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* WEIGHT */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Weight</td>
 
@@ -202,7 +193,6 @@ export default function ProductCompareTable() {
             ))}
           </tr>
 
-          {/* DIMENSIONS */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Dimensions</td>
 
@@ -211,7 +201,6 @@ export default function ProductCompareTable() {
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">N/A</td>
           </tr>
 
-          {/* BUY */}
           <tr className="block md:table-row   border md:border-0 border-[var(--border-color)]">
             <td className="p-4 md:p-6 text-[var(--text-muted)] border border-[var(--border-color)] font-bold block md:table-cell text-center md:text-center">Buy now</td>
 
