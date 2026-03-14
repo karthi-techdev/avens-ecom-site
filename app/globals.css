@@ -20,6 +20,12 @@
   --transition: all 0.3s ease;
   --background: #ffffff;
   --foreground: #253D4E;
+  --green-light:#e8f6ea;
+  --green-border:#cce7d0;
+  --orange-light:#fde1bd;
+  --pink-dark:#ff75a0;
+  --yellow:#ffb300;
+  --black:rgb(0, 0, 0);
   --blog-text: #088178;
   --blog-hover: #046e69;
   --contact-bg: #cee8e0;
