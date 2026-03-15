@@ -3,12 +3,10 @@ import { Star } from 'lucide-react';
 import Image from 'next/image';
 import { Filter,Search,Heart,ArrowUpDown, ChevronDown, Check,LayoutGrid,RefreshCw, ShoppingBag,ChevronRight,List,Grid3X3 } from "lucide-react";
 import { useState } from 'react';
-import QuickViewModal from '../shop-grid/QuickViewModal/QuickViewModal';
+import QuickViewModal from '../shop-grid-right/QuickViewModal/QuickViewModal';
 import { useRouter, usePathname } from 'next/navigation';
-// import Link from 'next/link';
 
 export default function ProductLeftListage() {
-
   const router = useRouter();
   const pathname = usePathname();
    const products = [
@@ -304,7 +302,6 @@ export default function ProductLeftListage() {
                    
                   <div className="!space-y-6 ">
                    
-                    {/* Product 1 */}
                     <div className="flex gap-3 items-center group cursor-pointer !pb-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
                       <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                         <Image
@@ -334,7 +331,6 @@ export default function ProductLeftListage() {
                       </div>
                     </div>
 
-                    {/* Product 2 */}
                     <div className="flex gap-3 items-center group cursor-pointer !pb-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
                       <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                         <Image
@@ -353,20 +349,17 @@ export default function ProductLeftListage() {
                         <p className="text-sm font-semibold" >
                           $89.50
                         </p>
-                        {/* Star Rating */}
                         <div className="flex items-center gap-1 !mb-1">
                           <div className="flex">
                             {[...Array(4)].map((_, i) => (
                               <Star key={i} className="w-3 h-3 fill-current" style={{ color: '#ffb703' }} />
                             ))}
-                            {/* 5th star - plain/gray */}
                             <Star className="w-3 h-3" style={{ color: '#d1d5db' }} /> 
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Product 3 */}
                     <div className="flex gap-3 items-center group cursor-pointer">
                       <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                         <Image
@@ -385,13 +378,11 @@ export default function ProductLeftListage() {
                         <p className="text-sm font-semibold">
                           $25
                         </p>
-                        {/* Star Rating */}
                         <div className="flex items-center gap-1 !mb-1">
                           <div className="flex">
                             {[...Array(3)].map((_, i) => (
                               <Star key={i} className="w-3 h-3 fill-current" style={{ color: '#ffb703' }} />
                             ))}
-                            {/* 5th star - plain/gray */}
                             <Star className="w-3 h-3" style={{ color: '#d1d5db' }} /> 
                             <Star className="w-3 h-3" style={{ color: '#d1d5db' }} />
                           </div>
@@ -402,7 +393,6 @@ export default function ProductLeftListage() {
                 </div>
               </div>
 
-              {/* Women Zone Banner */}
               <div
                 className="relative z-10 p-5 flex flex-col justify-center h-full"
                 style={{
@@ -410,12 +400,10 @@ export default function ProductLeftListage() {
                   backgroundImage: 'url("shop/new-product-4.jpg")',
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  // minHeight: '380px',
                 }}
               >
 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-white/20 transition-all duration-300"></div>
-                {/* Content */}
                 <div className="relative z-10 !p-5 flex flex-col justify-center h-full min-h-[380px]">
                   <h3 className="text-sm !mb-3" style={{ color: 'var(--text-main)' }}>Women Zone</h3>
                   <p className="text-xl font-bold !mb-3 transform transition-transform duration-300 group-hover:translate-x-4">
@@ -441,7 +429,6 @@ export default function ProductLeftListage() {
           {/* Right Sidebar */}
           <div className="col-span-12 lg:col-span-9 order-1 lg:order-2">
               <div className="col-span-12 lg:col-span-9 order-1">
-                {/* --- 1. FILTER HEADER --- */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 !mb-6">
                     <p className="text-[var(--text-muted)] text-sm sm:text-lg font-semibold">
                     We found <span className="text-[var(--primary)] font-bold">{products.length}</span> items for you!
@@ -454,7 +441,6 @@ export default function ProductLeftListage() {
                         className="flex items-center gap-2 !px-5 !py-3 border border-gray-200 rounded-full bg-white transition-colors"
                         style={{ borderColor: 'var(--border-color)' }}
                       >
-                        {/* Dynamic Icon */}
                         {pathname.includes('list') ? (
                           <List size={16} className="text-[var(--text-muted)]" />
                         ) : (
@@ -473,7 +459,6 @@ export default function ProductLeftListage() {
                         />
                       </button>
 
-                      {/* Options Menu */}
                       {isViewOpen && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setIsViewOpen(false)} />
@@ -503,7 +488,6 @@ export default function ProductLeftListage() {
                         </>
                       )}
                         </div>
-                    {/* Show Options Dropdown */}
                     <div className="relative inline-block text-left font-['Quicksand']">
                         <button
                         onClick={() => setIsShowOpen(!isShowOpen)}
@@ -535,9 +519,7 @@ export default function ProductLeftListage() {
                         )}
                     </div>
 
-                    {/* Sort By Dropdown */}
                      <div className="relative inline-block text-left">
-                    {/* Trigger Button */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 !px-5 !py-3 border border-gray-200 rounded-full bg-white transition-colors"
@@ -555,10 +537,8 @@ export default function ProductLeftListage() {
                 />
               </button>
 
-              {/* Options Menu */}
               {isOpen && (
                 <>
-                  {/* Invisible backdrop to close when clicking outside */}
                   <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
                   
                   <ul 
@@ -574,7 +554,6 @@ export default function ProductLeftListage() {
                         }}
                         className="group flex items-center !px-4 !py-2.5 text-sm text-[var(--text-main)] hover:bg-[var(--primary-hover)] hover:text-white transition-colors cursor-pointer"
                       >
-                        {/* Icon Container */}
                         <div className="w-5 flex shrink-0 items-center">
                           {selected === option && (
                             <Check 
@@ -597,23 +576,19 @@ export default function ProductLeftListage() {
                     </div>
                 </div>
 
-                {/* --- 2. PRODUCT LIST (HORIZONTAL VIEW) --- */}
                 <div className="flex flex-col gap-6">
                     {currentProducts.map((product, index) => (
                     <div
                         key={index}
                         className="group relative w-full bg-white rounded-2xl overflow-hidden transition-all duration-300 flex flex-col md:flex-row p-4 sm:p-6"
                     >
-                        {/* Badge */}
                         {product.badge && (
                         <span className={`absolute top-15 left-15 z-20 px-3 py-1 rounded-full text-[.80rem] text-white ${product.badgeColor}`}>
                             {product.badge}
                         </span>
                         )}
 
-                        {/* Left: Image Container */}
                         <div className="relative aspect-square overflow-hidden rounded-xl bg-white !mx-4 cursor-pointer border border-[#ececec] p-3">
-                          {/* Primary Image */}
                           <Image
                             src={product.image}
                             alt={product.title}
@@ -622,7 +597,6 @@ export default function ProductLeftListage() {
                             className="w-full h-full object-contain transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 rounded-xl"
                           />
               
-                          {/* Hover Image: Fades in perfectly over the primary */}
                           <Image
                             src={product.hoverImage}
                             alt={`${product.title} hover`}
@@ -631,11 +605,8 @@ export default function ProductLeftListage() {
                             className="absolute inset-0 w-full h-full object-contain transition-all duration-700 opacity-0 group-hover:opacity-100 group-hover:scale-105"
                           />
               
-                          {/* Hover Action Bar - Appears on Group Hover */}
                           <div className="hidden lg:flex absolute inset-0 items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-30 pointer-events-none group-hover:pointer-events-auto">
                             <div className="flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                              
-                              {/* Quick View Button */}
                               <button 
                                 onClick={() => setIsModalOpen(true)}
                                 className="relative p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white hover:mb-2 rounded-full shadow-md transition-all duration-300 flex items-center justify-center group/tool"
@@ -647,8 +618,6 @@ export default function ProductLeftListage() {
                                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[var(--primary)]"></div>
                                 </span>
                               </button>
-              
-                              {/* Wishlist Button */}
                               <button 
                                 onClick={() => console.log("Add to Wishlist")}
                                 className="relative p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white hover:mb-2 rounded-full shadow-md transition-all duration-300 flex items-center justify-center group/tool"
@@ -659,8 +628,6 @@ export default function ProductLeftListage() {
                                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[var(--primary)]"></div>
                                 </span>
                               </button>
-              
-                              {/* Compare Button */}
                               <button 
                                 onClick={() => console.log("Add to Compare")}
                                 className="relative p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white hover:mb-2 rounded-full shadow-md transition-all duration-300 flex items-center justify-center group/tool"
@@ -675,8 +642,6 @@ export default function ProductLeftListage() {
                             </div>
                           </div>    
                         </div>
-
-                        {/* Right: Content */}
                         <div className="flex-1 mt-2 md:mt-0 md:ml-8 flex flex-col justify-center">
                         <p className="text-sm text-[var(--text-muted)] mb-1">{product.category}</p>
                         
@@ -699,20 +664,16 @@ export default function ProductLeftListage() {
                           onClick={() => console.log("Added to Cart")}
                           className="relative px-6 py-2.5 bg-[var(--primary)] text-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center gap-2 group/tool hover:bg-[#29a56c] active:scale-95"
                         >
-                          {/* 1. Icon with Plus Sign */}
                           <div className="relative flex items-center justify-center">
                             <ShoppingBag size={18} strokeWidth={2.5} className="text-white"/>
                           </div>
 
-                          {/* 2. Button Text */}
                           <span className="text-[15px] font-bold whitespace-nowrap">
                             Add to Cart
                           </span>
 
-                          {/* 3. Your Existing Tooltip Wrapper */}
                           <span className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[var(--primary)] text-white font-semibold text-[.85rem] p-2 rounded opacity-0 group-hover/tool:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 shadow-sm">
                             Buy now
-                            {/* Little Arrow Tooltip */}
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[var(--primary)]"></div>
                           </span>
                         </button>
@@ -731,9 +692,7 @@ export default function ProductLeftListage() {
                     ))}
                 </div>
 
-                {/* --- 3. PAGINATION (DESIGN MATCHED) --- */}
                 <div className="flex items-center gap-2 mt-12 mb-10">
-                    {/* Page Numbers */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
                     const isActive = currentPage === pageNum;
                     return (
@@ -754,7 +713,6 @@ export default function ProductLeftListage() {
                     );
                     })}
 
-                    {/* Dots and Last Page (Static styling to match design) */}
                     {totalPages > 3 && (
                     <>
                         <span className="text-[#7E7E7E] px-2 font-bold">...</span>
@@ -764,7 +722,6 @@ export default function ProductLeftListage() {
                     </>
                     )}
 
-                    {/* Next Page Arrow */}
                     <button 
                     onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
                     className="w-11 h-11 rounded-lg flex items-center justify-center bg-[#f2f3f4] text-[#253D4E] hover:bg-[var(--primary)] hover:text-white transition-all"
@@ -779,7 +736,6 @@ export default function ProductLeftListage() {
       </div>
       {isModalOpen && (
           <QuickViewModal 
-            // product={product} 
             onClose={() => setIsModalOpen(false)} 
           />
        )}
