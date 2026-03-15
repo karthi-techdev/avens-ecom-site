@@ -175,8 +175,8 @@ input[type="checkbox"]:checked::before {
   font-weight: bold;
 }
 
-.swiper-slide-thumb-active img {
-  border: 2px solid var(--primary);
+.swiper-slide-thumb-active .gallery-thumb-inner {
+  border-color: var(--primary) !important;
 }
 
 .logos-carousel .swiper-wrapper {

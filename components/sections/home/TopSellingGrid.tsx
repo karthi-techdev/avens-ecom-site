@@ -1,0 +1,69 @@
+import { MdOutlineArrowRightAlt } from "react-icons/md";
+import banner10 from '../../../public/home/banner-10.jpg';
+import thumbnail1 from '../../../public/home/thumbnail-1.jpg';
+import thumbnail2 from '../../../public/home/thumbnail-2.jpg';
+import thumbnail3 from '../../../public/home/thumbnail-3.jpg';
+import thumbnail4 from '../../../public/home/thumbnail-4.jpg';
+import thumbnail5 from '../../../public/home/thumbnail-5.jpg';
+import thumbnail6 from '../../../public/home/thumbnail-6.jpg';
+import thumbnail7 from '../../../public/home/thumbnail-7.jpg';
+import thumbnail8 from '../../../public/home/thumbnail-8.jpg';
+import thumbnail9 from '../../../public/home/thumbnail-9.jpg';
+
+const TopSellingGrid = () => {
+    const listData = [
+        {
+            title: 'Deals & Outlet',
+            items: [
+                { img: thumbnail1.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail2.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail3.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+            ]
+        },
+        {
+            title: 'Top Selling',
+            items: [
+                { img: thumbnail4.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail5.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail6.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+            ]
+        },
+        {
+            title: 'Hot Releases',
+            items: [
+                { img: thumbnail7.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail8.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+                { img: thumbnail9.src, name: 'Fish Print Patched T-shirt', price: '$238.85', oldPrice: '$245.8' },
+            ]
+        }
+    ];
+
+    return (
+        <section className='!px-[1rem] !py-[0.8rem] sm:!px-[2rem]  sm:!py-[1rem] md:!px-[4rem] md:!py-[1rem] lg:!px-[6rem] lg:!py-[2rem] grid-cols-1  md:grid-cols-2 grid lg:grid-cols-[1fr_1fr_1fr_1fr] gap-[1.5rem]'>
+            <div className='relative group bg-center h-[24rem] w-full md:h-full bg-no-repeat !ps-[2rem] !pt-[4rem] !pb-[2rem] bg-cover' style={{backgroundImage:`url(${banner10.src})`}}>
+                <div className='absolute'>
+                    <h3 className=' text-[0.9rem] !mb-[0.4rem]  text-[var(--text-muted)]'>Big Offer</h3>
+                    <h1 className='font-semibold group-hover:!ml-[0.5rem] transition-all duration-500 text-[1.3rem] w-full max-w-[10rem] !text-black leading-[1.6rem]'>Save 20% on Women's socks</h1>
+                    <a href='#' className='!mt-[0.9rem] inline-block  text-[0.9rem]  !text-[var(--primary)] !py-[0.5rem] capitalize  rounded-sm group/icon'>Shop now<MdOutlineArrowRightAlt className='inline-block !ml-[0.4rem] transition-all duration-500 group-hover/icon:!ml-[0.8rem]'/></a>
+                </div>
+            </div>
+            
+            {listData.map((list, idx) => (
+                <div key={idx} className='grid grid-cols-1 gap-[1.5rem]'>
+                    <h1 className=" font-semibold !text-black relative before:content-[''] before:absolute before:left-0 before:bottom-0 !mb-[1rem] !pb-[0.5rem] before:w-full before:h-[0.5px] before:bg-[#dfdfdf] before:block after:content-[''] after:absolute after:block after:left-0 after:bottom-0 after:bg-[var(--primary)] after:h-[1px] after:w-[18%]">{list.title}</h1>
+                    {list.items.map((item, i) => (
+                        <div key={i} className='grid grid-cols-1 md:grid-cols-[1fr_3fr] gap-[0.4rem] md:gap-[1rem]'>
+                            <div><img src={item.img} alt={item.name}/></div>
+                            <div className='!p-[0.6rem]'>
+                                <a href='#' className='inline-block !text-black font-medium'>{item.name}</a>
+                                <h5 className='text-[var(--text-muted)]'><span className='text-[var(--primary)] font-medium !mr-[0.4rem]'>{item.price} </span> {item.oldPrice}</h5>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ))}
+        </section>
+    );
+};
+
+export default TopSellingGrid;
