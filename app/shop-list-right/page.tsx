@@ -7,7 +7,7 @@ import ProductCard from '@/components/ui/ProductCard';
 import QuickViewModal from '@/components/ui/QuickViewModal';
 import { shopProducts } from '@/lib/constants';
 
-export default function ProductLeftListPage() {
+export default function ProductListRightPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -24,22 +24,19 @@ export default function ProductLeftListPage() {
     return (
         <main className="w-full !overflow-x-hidden !mt-9">
             <div className='max-w-[1600px] !mx-auto !px-4 sm:!px-6 lg:!px-10 !py-6'>
-                <button
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="flex items-center gap-2 !px-4 !py-2 mb-2 rounded border transition-all lg:hidden"
-                    style={{ borderColor: "var(--border-color)" }}
-                >
-                    <Menu size={18} style={{ color: "var(--primary)" }} />
-                </button>
+                <div className="flex justify-end lg:hidden">
+                    <button
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="flex items-center gap-2 !px-4 !py-2 mb-2 rounded border transition-all"
+                        style={{ borderColor: "var(--border-color)" }}
+                    >
+                        <Menu size={18} style={{ color: "var(--primary)" }} />
+                    </button>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
-                    {/* Sidebar */}
-                    <aside className={`col-span-12 lg:col-span-3 ${isSidebarOpen ? "block" : "hidden"} lg:block`}>
-                        <ShopSidebar />
-                    </aside>
-
                     {/* Main Content */}
-                    <div className={`col-span-12 ${isSidebarOpen ? "lg:col-span-9" : "lg:col-span-12"}`}>
+                    <div className={`col-span-12 ${isSidebarOpen ? "lg:col-span-9" : "lg:col-span-12"} lg:order-1 order-2`}>
                         <ShopHeader totalItems={shopProducts.length} />
 
                         {/* Product List */}
@@ -73,6 +70,11 @@ export default function ProductLeftListPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Sidebar */}
+                    <aside className={`col-span-12 lg:col-span-3 ${isSidebarOpen ? "block" : "hidden"} lg:block lg:order-2 order-1`}>
+                        <ShopSidebar />
+                    </aside>
                 </div>
 
                 <QuickViewModal isOpen={isQuickViewOpen} onClose={closeQuickView} />
