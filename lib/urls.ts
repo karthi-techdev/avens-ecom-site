@@ -1,7 +1,9 @@
 const LIVE = process.env.NODE_ENV === "production";
 
 const SITEURL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com/";
-const LIVEURL = LIVE ? SITEURL : (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/");
+const LIVEURL = LIVE
+  ? SITEURL
+  : process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/";
 const ROOTURL = `${LIVEURL}api/v1/`;
 const FILEURL = LIVEURL;
 const SETTINGS_ID = "68ad8844bfdf0cec7f623bc2";
@@ -24,6 +26,9 @@ export const API = {
   listCategory: `${ROOTURL}admin/categories/`,
   // Product endpoints
   listProduct: `${ROOTURL}admin/products/`,
+
+  // Promotion endpoints
+  listPromotions: `${ROOTURL}admin/promotions`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };

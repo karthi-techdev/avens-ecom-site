@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Hero from '@/components/sections/home/Hero';
-import Features from '@/components/sections/home/Features';
+import PromotionSection from '@/components/sections/home/PromotionSection';
 import ProductsListing from '@/components/sections/home/ProductsListing';
 import ServicesBanner from '@/components/sections/home/ServicesBanner';
 import CategoriesCarousel from '@/components/sections/home/CategoriesCarousel';
@@ -24,7 +24,7 @@ export default function Home() {
     return (
         <>
             <Hero />
-            <Features />
+            <PromotionSection />
             <ProductsListing onQuickView={openQuickView} />
             <ServicesBanner />
             <CategoriesCarousel />
@@ -32,6 +32,7 @@ export default function Home() {
             <NewArrivals onQuickView={openQuickView} />
             <OfferTimings />
             <BrandsCarousel />
+
             <MonthlyBestSell onQuickView={openQuickView} />
             <BlogSection />
             <SaleBanner />
