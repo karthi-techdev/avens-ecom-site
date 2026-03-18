@@ -5,7 +5,8 @@ import ShopSidebar from '@/components/sections/shop/ShopSidebar';
 import ShopHeader from '@/components/sections/shop/ShopHeader';
 import ProductCard from '@/components/ui/ProductCard';
 import QuickViewModal from '@/components/ui/QuickViewModal';
-import { shopProducts } from '@/lib/constants';
+import { useEffect } from 'react';
+import { useProductStore } from '@/store/useProductStore';
 
 export default function ProductLeftGridPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -13,10 +14,14 @@ export default function ProductLeftGridPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
 
-    const totalPages = Math.ceil(shopProducts.length / itemsPerPage);
+    const { products, fetchFilteredProducts } = useProductStore();
+    useEffect(() => {
+        fetchFilteredProducts("featured");
+    }, []);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentProducts = shopProducts.slice(indexOfFirstItem, indexOfLastItem);
+    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
 
     const openQuickView = () => setIsQuickViewOpen(true);
     const closeQuickView = () => setIsQuickViewOpen(false);
@@ -40,13 +45,13 @@ export default function ProductLeftGridPage() {
 
                     {/* Main Content */}
                     <div className={`col-span-12 ${isSidebarOpen ? "lg:col-span-9" : "lg:col-span-12"} order-2`}>
-                        <ShopHeader totalItems={shopProducts.length} />
+                        <ShopHeader totalItems={products.length} />
 
                         {/* Product Grid */}
                         <div className={`grid grid-cols-1 sm:grid-cols-2 ${isSidebarOpen ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-6`}>
                             {currentProducts.map((product) => (
                                 <ProductCard 
-                                    key={product.id} 
+                                    key={product._id}
                                     product={product} 
                                     onQuickView={openQuickView} 
                                 />
