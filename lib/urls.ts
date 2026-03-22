@@ -22,8 +22,21 @@ export const API = {
   // You can add more as needed following the pattern
   // Category endpoints
   listCategory: `${ROOTURL}admin/categories/`,
-  // Product endpoints
+
+
+
+
+    // ---------------- Product endpoints ----------------
+  addProduct: `${ROOTURL}admin/products/`,
   listProduct: `${ROOTURL}admin/products/`,
+  getProductById: `${ROOTURL}admin/products/getProductById/`,
+  updateProduct: `${ROOTURL}admin/products/updateProduct/`,
+  softDeleteProduct: `${ROOTURL}admin/products/softDelete/`,
+  permanentDeleteProduct: `${ROOTURL}admin/products/permanentDelete/`,
+  restoreProduct: `${ROOTURL}admin/products/restore/`,
+  toggleProductStatus: `${ROOTURL}admin/products/toggleStatus/`,
+  trashProducts: `${ROOTURL}admin/products/trash`,
+  checkProductSlug: `${ROOTURL}admin/products/checkSlugExist`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
