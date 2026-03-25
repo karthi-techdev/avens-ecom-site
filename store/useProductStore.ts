@@ -2,59 +2,50 @@ import { create } from 'zustand';
 import apiClient from '@/lib/api-client';
 import { API } from '@/lib/urls';
 
-export interface Product {
-  _id: string;
-  name: string;
-  thumbnail: string;
-  price: number;
-  discountPrice?: number;
-}
-
 interface ProductState {
-  products: Product[];
-  loading: boolean;
-  error: string | null;
-
-  fetchFilteredProducts: (tag: string) => Promise<void>;
-  fetchNewProducts: () => Promise<void>;
+  products: any[];
+  isLoading: boolean;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  fetchProducts: (type: string) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
   products: [],
-  loading: false,
-  error: null,
+  isLoading: false,
+  activeTab: "featured",
 
-  fetchFilteredProducts: async (tag: string) => {
-    set({ loading: true, error: null });
+  setActiveTab: (tab) => set({ activeTab: tab }),
+
+  fetchProducts: async (type) => {
+    set({ isLoading: true });
+
     try {
-      const res = await apiClient.get(`${API.filterProducts}?tag=${tag}`);
+      let url = API.filterProducts;
 
-      set({
-        products: res.data.data || [],
-        loading: false
-      });
-    } catch (err: any) {
-      set({
-        error: err.message || 'Error fetching products',
-        loading: false
-      });
-    }
-  },
+      if (type === "new") {
+        url = `${API.filterProducts}?type=new`;
+      } else {
+        url = `${API.filterProducts}?type=${type}`;
+      }
 
-  fetchNewProducts: async () => {
-    set({ loading: true, error: null });
-    try {
-      const res = await apiClient.get(API.newProducts);
+      const res = await apiClient.get(url);
+      console.log("🌍 API URL:", url);
+      console.log("🔥 FULL RESPONSE:", res);
+      console.log("🔥 API DATA ONLY:", res.data);
+      let data = [];
 
-      set({
-        products: res.data.data || [],
-        loading: false
-      });
-    } catch (err: any) {
-      set({
-        error: err.message || 'Error fetching new products',
-        loading: false
-      });
+      if (res.data.data) {
+        data = res.data.data;
+      } else if (Array.isArray(res.data)) {
+        data = res.data;
+      }
+
+      set({ products: data, isLoading: false });
+
+    } catch (err) {
+      console.log(err);
+      set({ isLoading: false });
     }
   }
 }));

@@ -1,23 +1,25 @@
 const LIVE = process.env.NODE_ENV === "production";
 
 const SITEURL = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com/";
-const LIVEURL = LIVE ? SITEURL : (process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/");
+const LIVEURL = LIVE
+  ? SITEURL
+  : process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/";
 const ROOTURL = `${LIVEURL}api/v1/`;
 const FILEURL = LIVEURL;
 const SETTINGS_ID = "68ad8844bfdf0cec7f623bc2";
 
 export const API = {
   // ---------------- Brand endpoints ----------------
-  addBrand: `${ROOTURL}brands/`,
-  listBrand: `${ROOTURL}brands/`,
-  getBrand: `${ROOTURL}brands/getBrandById/`,
-  updateBrand: `${ROOTURL}brands/updateBrand/`,
-  softDeleteBrand: `${ROOTURL}brands/softDeleteBrand/`,
-  restoreBrand: `${ROOTURL}brands/restore`,
-  hardDeleteBrand: `${ROOTURL}brands/permanentDelete`,
-  toggleBrandStatus: `${ROOTURL}brands/togglestatus`,
-  trashBrands: `${ROOTURL}brands/trash`,
-  checkDuplicateBrand: `${ROOTURL}brands/check-duplicate`,
+  addBrand: `${ROOTURL}admin/brands/`,
+  listBrand: `${ROOTURL}admin/brands/`,
+  getBrand: `${ROOTURL}admin/brands/getBrandById/`,
+  updateBrand: `${ROOTURL}admin/brands/updateBrand/`,
+  softDeleteBrand: `${ROOTURL}admin/brands/softDeleteBrand/`,
+  restoreBrand: `${ROOTURL}admin/brands/restore`,
+  hardDeleteBrand: `${ROOTURL}admin/brands/permanentDelete`,
+  toggleBrandStatus: `${ROOTURL}admin/brands/togglestatus`,
+  trashBrands: `${ROOTURL}admin/brands/trash`,
+  checkDuplicateBrand: `${ROOTURL}admin/brands/check-duplicate`,
 
   // You can add more as needed following the pattern
   // Category endpoints
@@ -34,8 +36,11 @@ export const API = {
   toggleProductStatus: `${ROOTURL}admin/products/toggleStatus/`,
   trashProducts: `${ROOTURL}admin/products/trash`,
   checkProductSlug: `${ROOTURL}admin/products/checkSlugExist`,
-  filterProducts: `${ROOTURL}products/filter`,
-  newProducts: `${ROOTURL}products/new`,
+  filterProducts: `${ROOTURL}admin/products/filter`,
+  newProducts: `${ROOTURL}admin/products/new`,
+
+  // Promotion endpoints
+  listPromotions: `${ROOTURL}admin/promotions`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
