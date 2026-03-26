@@ -21,11 +21,16 @@ export const API = {
   trashBrands: `${ROOTURL}admin/brands/trash`,
   checkDuplicateBrand: `${ROOTURL}admin/brands/check-duplicate`,
 
+  // Settings endpoints
+  getSettings: `${ROOTURL}admin/settings/`,
+  updateSettings: `${ROOTURL}admin/settings/`,
+
   // You can add more as needed following the pattern
   // Category endpoints
   listCategory: `${ROOTURL}admin/categories/`,
 
-  // ---------------- Product endpoints ----------------
+
+    // ---------------- Product endpoints ----------------
   addProduct: `${ROOTURL}admin/products/`,
   listProduct: `${ROOTURL}admin/products/`,
   getProductById: `${ROOTURL}admin/products/getProductById/`,
