@@ -46,6 +46,8 @@ export const API = {
 
   // Promotion endpoints
   listPromotions: `${ROOTURL}admin/promotions`,
+  // Offer endpoints
+  listOffers: `${ROOTURL}admin/offers/`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
