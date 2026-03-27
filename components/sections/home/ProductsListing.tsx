@@ -38,7 +38,7 @@ const ProductsListing = ({ onQuickView }: { onQuickView: () => void }) => {
                     );
                 })}
             </div>
-        </section>
+        </section>                                     
     );
 };
 
