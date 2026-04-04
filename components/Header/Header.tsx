@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import React, { useState , useMemo , useEffect} from "react";
+import URLs from '../../lib/urls';
 import {
   Search,
   Heart,
@@ -23,6 +25,7 @@ import {
   Baby,
   Sun,
 } from "lucide-react";
+import { useSettingsStore } from '../../store/useSettingsStore';
 
 const Header = () => {
 //login 
@@ -35,6 +38,27 @@ const Header = () => {
   const [isSinglePostOpen, setIsSinglePostOpen] = useState(false);
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const { settings, fetchSettings } = useSettingsStore();
+
+  useEffect(() => {
+    if (!settings) {
+      fetchSettings();
+    }
+  }, [fetchSettings, settings]);
+
+  const siteLogoUrl = useMemo(() => {
+    const logoPath = settings?.branding?.siteLogo;
+    console.log("sitelogo",logoPath)
+    if (logoPath) {
+
+      const baseUrl = URLs.FILEURL.replace(/\/$/, ""); 
+      
+      const cleanPath = logoPath.startsWith('/') ? logoPath : `/${logoPath}`;
+      return `${baseUrl}${cleanPath}?t=${new Date().getTime()}`;
+    }
+
+    return "/evara.svg"; 
+  }, [settings?.branding?.siteLogo]);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -140,6 +164,7 @@ const cartItems = [
     setIsLoggedIn(false);
     router.push("/login"); 
   };
+  
 
 
     return (
@@ -257,11 +282,17 @@ const cartItems = [
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex items-center justify-between">
 
           <div className="flex items-center gap-2">
-            <img
-              src="/evara.svg"
-              alt="Evaria Logo"
-              className="h-8 object-contain"
-            />
+                  <img
+                      key={siteLogoUrl} // Important: Forces the image to swap immediately on update
+                      src={siteLogoUrl}
+                      alt="Site Logo"
+                      className="h-8 object-contain"
+                      onError={(e) => {
+                        // Extra safety: if the image fails to load, revert to fallback
+                        (e.target as HTMLImageElement).src = "/evara.svg";
+                      }}
+                    />
+
           </div>
 
 <div className="hidden lg:flex items-center w-full max-w-[700px] border-b-3 border-gray-800 bg-transparent relative h-[45px] ml-10">
