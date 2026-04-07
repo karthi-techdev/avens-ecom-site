@@ -2,12 +2,14 @@
 import { useState } from 'react';
 import { Star, ShoppingBag, Heart, RefreshCw, BadgeCheck, RefreshCcw } from 'lucide-react';
 import { Check } from 'lucide-react';
-
+import {toast,Bounce,ToastContainer} from 'react-toastify';
+import { useCartStore } from '../../../store/cartStore';
 interface ProductInfoProps {
     product: any;
 }
-
 const ProductInfo = ({ product }: ProductInfoProps) => {
+    const authenticated=localStorage.getItem('token');
+    const {addCart}=useCartStore();
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('M');
     const [selectedColor, setSelectedColor] = useState('#3bb77e');
@@ -19,7 +21,49 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     const unitPrice = product.price - (product.price * (product.discountPrice || 0) / 100);
     const totalPrice = Math.round(unitPrice * quantity);
     const totalOriginalPrice = product.price * quantity;
-
+    const increaseFunc=()=>{
+        if(quantity<product.stockQuantity){
+            setQuantity(quantity+1);
+        }
+        else{
+            toast.warn('Stock max reached!', {
+position: "top-right",
+autoClose: 5000,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "light",
+transition: Bounce,
+});
+        }
+    }
+    const addToCart=async()=>{
+      try {
+         await addCart({
+      quantity,
+      selectedColor,
+      selectedSize,
+      totalPrice,
+      product,
+    });
+toast.success('Added to cart!', {
+position: "top-right",
+autoClose: 5000,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "light",
+transition: Bounce,
+})
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    
     return (
         <div className="flex flex-col gap-6">
 
@@ -60,7 +104,19 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     </div>
                 )}
             </div>
-
+<ToastContainer
+position="top-right"
+autoClose={5000}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+transition={Bounce}
+/>
             {/* DESCRIPTION */}
             <p className="text-[var(--text-muted)] line-clamp-3">
                 {product.shortDescription || "No description available"}
@@ -114,10 +170,10 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 font-bold">-</button>
                     <span className="w-12 text-center font-bold">{quantity}</span>
                     {/* Increase Button: Price increases when clicked */}
-                    <button onClick={() => setQuantity(q => q + 1)} className="px-2 font-bold">+</button>
+                    <button onClick={increaseFunc} className="px-2 font-bold">+</button>
                 </div>
 
-                <button className="flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold">
+                <button onClick={addToCart} className={`${authenticated?'flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold':'hidden' }`}>
                     <ShoppingBag size={20} />
                     Add to Cart
                 </button>

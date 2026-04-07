@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import React, { useState , useMemo , useEffect} from "react";
 import URLs from '../../lib/urls';
 import {
@@ -22,8 +22,9 @@ import {
   Sun,
 } from "lucide-react";
 import { useSettingsStore } from '../../store/useSettingsStore';
-
+import { useCartStore } from "@/store/cartStore";
 const Header = () => {
+  const authenticated=localStorage.getItem('token');
   const [isOpen, setIsOpen] = useState(false);
   const [listIsOpen, setListIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -32,13 +33,27 @@ const Header = () => {
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const { settings, fetchSettings } = useSettingsStore();
-
+  const {getAllCart,cartItems}=useCartStore();
   useEffect(() => {
     if (!settings) {
       fetchSettings();
     }
   }, [fetchSettings, settings]);
-
+  useEffect(()=>{
+    if(authenticated){
+      const getCartData=async()=>{
+      try {
+        const userId='69d0848c0792d677d5f7953e';
+        await getAllCart(userId);
+      } catch (error) {
+        console.log('ERROR',error)
+      }
+    }
+    getCartData();
+      
+    }
+    
+  },[getAllCart])
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
     console.log("sitelogo",logoPath)
@@ -90,10 +105,7 @@ const Header = () => {
     promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
   }
 };
-const cartItems = [
-    { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
-    { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
-  ];
+
   const CategoryMegaMenu = () => {
     const categories = [
       { name: "Women's Clothing", icon: <Shirt size={18} />, hasSub: true },
@@ -273,7 +285,6 @@ const cartItems = [
     placeholder="Search for items..."
     className="flex-1 px-4 py-2 outline-none text-[14px] text-[#253D4E] placeholder-gray-400 bg-transparent"
   />
-
 </div>
 
           <div className="flex items-center gap-6">
@@ -286,7 +297,7 @@ const cartItems = [
       </span>
     </div>
 
-    <div className="relative group py-4"> 
+    <div className={`${authenticated?'relative group py-4':'hidden'}`}> 
       <div className="relative cursor-pointer">
         <ShoppingCart size={24} />
         <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
@@ -294,16 +305,16 @@ const cartItems = [
         </span>
       </div>
 
-      <div className="absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50">
+      <div className={`${authenticated?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
         <ul className="space-y-4">
-          {cartItems.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-4">
+          {cartItems.map((item:any) => (
+            <li key={item._id} className="flex items-center justify-between gap-4">
               <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                <img src={` http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.name}</h4>
-                <p className="text-gray-500 text-xs">{item.qty} × ${item.price.toFixed(2)}</p>
+                <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
+                <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price/item.quantity).toFixed(2)}</p>
               </div>
               <button className="text-gray-400 hover:text-red-500">
                 <X size={16} />
@@ -315,12 +326,12 @@ const cartItems = [
         <div className="mt-6 pt-4 border-t border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-500 font-medium">Total</span>
-            <span className="text-[#3BB77E] font-bold text-lg">$4000.00</span>
+            <span className="text-[#3BB77E] font-bold text-lg">{"$"+cartItems.reduce((acc,item:any)=>acc+item.price,0)}</span>
           </div>
           
           <div className="flex gap-2">
             <button className="flex-1 border border-[#3BB77E] text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:text-white transition-colors">
-              View cart
+              <Link href='/cart'>View cart</Link>
             </button>
             <button className="flex-1 bg-[#3BB77E] text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
               Checkout
