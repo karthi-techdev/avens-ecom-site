@@ -1,78 +1,133 @@
 'use client';
 import { useState } from 'react';
-import { Star, MessageCircle, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
+import { Star } from 'lucide-react';
 
 interface ProductTabsProps {
     description?: string;
-    additionalInfo?: any;
-    reviews?: any[];
+    product?: any;
 }
 
-const ProductTabs = ({ description, additionalInfo, reviews }: ProductTabsProps) => {
+const ProductTabs = ({ description, product }: ProductTabsProps) => {
     const [activeTab, setActiveTab] = useState("DESCRIPTION");
 
-    const tabs = [
-        { id: "DESCRIPTION", label: "DESCRIPTION" },
-        { id: "ADDITIONAL", label: "ADDITIONAL INFO" },
-        { id: "REVIEWS", label: "REVIEWS (3)" },
+    //  Review Form States
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
+    const [form, setForm] = useState({
+        name: '',
+        email: '',
+        comment: '',
+        website: ''
+    });
+    const [errors, setErrors] = useState<any>({});
+
+    const additionalInfo = [
+        { label: "Weight", value: product?.weight ? `${product.weight}kg` : "1kg" },
+        { label: "Color", value: product?.colors?.join(", ") || "Black" },
+        { label: "SKU", value: product?.sku || "N/A" },
+        { label: "Stock Status", value: product?.stockQuantity > 0 ? "In Stock" : "Out of Stock" },
+        { label: "Category", value: product?.mainCategoryId || "General" }
     ];
 
+    //  Handle form input change + live error removal
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
+
+        // Remove error if value exists
+        setErrors((prev: any) => {
+            let newErrors = { ...prev };
+
+            if (value.trim() !== '' && name !== 'email') {
+                delete newErrors[name];
+            }
+
+            // Special handling for email
+            if (name === 'email') {
+                if (value.trim() === '') {
+                    newErrors.email = "Email is required";
+                } else if (!/\S+@\S+\.\S+/.test(value)) {
+                    newErrors.email = "Invalid email";
+                } else {
+                    delete newErrors.email;
+                }
+            }
+
+            return newErrors;
+        });
+    };
+
+    //  Validate before submit
+    const validate = () => {
+        let newErrors: any = {};
+
+        if (!rating) newErrors.rating = "Please select rating";
+        if (!form.comment.trim()) newErrors.comment = "Comment is required";
+        if (!form.name.trim()) newErrors.name = "Name is required";
+
+        if (!form.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+            newErrors.email = "Invalid email";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    //  Handle submit
+    const handleSubmit = () => {
+        if (!validate()) return;
+
+        alert("Review Submitted");
+
+        // Reset form
+        setForm({ name: '', email: '', comment: '', website: '' });
+        setRating(0);
+        setErrors({});
+    };
+
     return (
-        <div className="!mt-10">
-            <div className="relative !mb-6 border-b border-[var(--border-color)]">
-                <div className="flex gap-8">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`pb-3 relative font-semibold text-sm transition-all duration-200 ${
-                                activeTab === tab.id ? "text-[var(--primary)]" : "text-[var(--text-main)]"
+        <div className="mt-10">
+
+            {/* TABS */}
+            <div className="border-b mb-6 flex gap-8 border-[#ececec]">
+                {["DESCRIPTION", "ADDITIONAL", "REVIEWS"].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`pb-3 font-semibold text-sm transition-all ${activeTab === tab
+                            ? "text-green-600 border-b-2 border-green-600"
+                            : "text-gray-400"
                             }`}
-                        >
-                            {tab.label}
-                            {activeTab === tab.id && (
-                                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--primary)]" />
-                            )}
-                        </button>
-                    ))}
-                </div>
+                    >
+                        {tab === "ADDITIONAL" ? "ADDITIONAL INFO" : tab}
+                    </button>
+                ))}
             </div>
 
-            <div className="!mb-10">
+            <div className="min-h-[200px]">
+
+                {/* DESCRIPTION */}
                 {activeTab === "DESCRIPTION" && (
-                    <div className="animate-in fade-in duration-300">
-                        <p className="text-sm md:text-base leading-relaxed !mb-4 text-[var(--text-muted)]">
-                            {description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque scelerisque diam non nisi semper, et scelerisque lorem bibendum."}
-                        </p>
-                        <ul className="!space-y-3 text-sm text-[var(--text-muted)] mt-6">
-                            <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-muted)] !mt-2 flex-shrink-0"></span>
-                                <span className="font-medium w-32 text-[var(--text-main)]">Type Of Packing</span>
-                                <span>Bottle</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[var(--text-muted)] !mt-2 flex-shrink-0"></span>
-                                <span className="font-medium w-32 text-[var(--text-main)]">Color</span>
-                                <span>Green, Pink, Powder Blue, Purple</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <p className="text-gray-500 leading-relaxed max-w-3xl">
+                        {description || "No description available"}
+                    </p>
                 )}
 
+                {/* ADDITIONAL */}
                 {activeTab === "ADDITIONAL" && (
-                    <div className="border rounded-lg overflow-hidden animate-in fade-in duration-300 border-[var(--border-color)]">
-                        <table className="w-full text-sm text-[var(--text-main)]">
+                    <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
+                        <table className="w-full text-sm">
                             <tbody>
-                                {[
-                                    ["Frame", "Aluminum"],
-                                    ["Weight", "20 LBS"],
-                                    ["Color", "Black, Blue, Red, White"],
-                                    ["Size", "M, S"]
-                                ].map(([label, value], i) => (
-                                    <tr key={i} className="border-b last:border-0 border-[var(--border-color)]">
-                                        <td className="!py-3 !px-4 font-medium border-r border-[var(--border-color)] bg-[var(--bg-light)] w-1/3">{label}</td>
-                                        <td className="!py-3 !px-4">{value}</td>
+                                {additionalInfo.map((item, index) => (
+                                    <tr key={index} className={`border-b border-[#ececec] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                                        <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">
+                                            {item.label}
+                                        </td>
+                                        <td className="p-4 text-gray-600">
+                                            {item.value}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -80,38 +135,116 @@ const ProductTabs = ({ description, additionalInfo, reviews }: ProductTabsProps)
                     </div>
                 )}
 
+                {/* REVIEWS */}
                 {activeTab === "REVIEWS" && (
-                    <div className="animate-in fade-in duration-300">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div>
-                                <h3 className="text-xl font-bold !mb-6 text-[var(--text-main)]">Customer reviews</h3>
-                                {[1, 2].map((review) => (
-                                    <div key={review} className="!mb-6 pb-6 border-b last:border-0 border-[var(--border-color)] flex gap-4">
-                                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                                            <div className="w-full h-full bg-[var(--primary)] flex items-center justify-center text-white font-bold">U</div>
-                                        </div>
-                                        <div>
-                                            <div className="flex text-[#ffb703] !mb-1">
-                                                {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
-                                            </div>
-                                            <p className="text-sm font-semibold text-[var(--text-main)]">John Doe</p>
-                                            <p className="text-xs text-[var(--text-muted)] !mb-2">December 4, 2026</p>
-                                            <p className="text-sm text-[var(--text-muted)]">Great product, highly recommend!</p>
-                                        </div>
-                                    </div>
-                                ))}
+                    <div className="max-w-3xl">
+
+                        {/* CUSTOMER REVIEWS */}
+                        <h3 className="font-semibold text-lg mb-4">Customer Reviews</h3>
+
+                        {[1, 2].map(i => (
+                            <div key={i} className="border-b border-[#ececec] pb-4 mb-4">
+                                <div className="flex mb-2">
+                                    {[...Array(5)].map((_, index) => (
+                                        <Star
+                                            key={index}
+                                            size={14}
+                                            stroke="#dddddd"
+                                            fill="#ffc107"
+                                        />
+                                    ))}
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                    Good quality and fast delivery!
+                                </p>
                             </div>
-                            <div>
-                                <h3 className="text-xl font-bold !mb-6 text-[var(--text-main)]">Add a review</h3>
-                                <div className="space-y-4">
-                                    <textarea rows={4} className="w-full !p-3 border rounded-lg text-sm border-[var(--border-color)] focus:outline-none focus:border-[var(--primary)]" placeholder="Write your review..."></textarea>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <input type="text" className="!p-3 border rounded-lg text-sm border-[var(--border-color)] focus:outline-none focus:border-[var(--primary)]" placeholder="Name" />
-                                        <input type="email" className="!p-3 border rounded-lg text-sm border-[var(--border-color)] focus:outline-none focus:border-[var(--primary)]" placeholder="Email" />
-                                    </div>
-                                    <button className="!px-8 !py-3 rounded bg-[var(--primary)] text-white font-bold hover:bg-[#29a56c] transition-all">Submit Review</button>
+                        ))}
+
+                        {/* ADD REVIEW FORM */}
+                        <div className="mt-8">
+                            <h3 className="font-semibold text-lg mb-3">Add a review</h3>
+
+                            {/* INTERACTIVE STAR */}
+                            <div className="flex mb-2">
+                                {[...Array(5)].map((_, i) => {
+                                    const value = i + 1;
+                                    return (
+                                        <Star
+                                            key={i}
+                                            size={20}
+                                            className="cursor-pointer"
+                                            stroke="#dddddd"
+                                            fill={value <= (hover || rating) ? "#ffc107" : "none"}
+                                            onClick={() => {
+                                                setRating(value);
+                                                setErrors((prev: any) => {
+                                                    const newErrors = { ...prev };
+                                                    delete newErrors.rating;
+                                                    return newErrors;
+                                                });
+                                            }}
+                                            onMouseEnter={() => setHover(value)}
+                                            onMouseLeave={() => setHover(0)}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            {errors.rating && <p className="text-red-500 text-sm mb-2">{errors.rating}</p>}
+
+                            {/* COMMENT */}
+                            <textarea
+                                name="comment"
+                                value={form.comment}
+                                onChange={handleChange}
+                                placeholder="Write Comment"
+                                className="w-full border border-[#ececec] p-3 mb-2 h-32 focus:outline-none focus:border-green-500"
+                            />
+                            {errors.comment && <p className="text-red-500 text-sm mb-2">{errors.comment}</p>}
+
+                            {/* NAME + EMAIL */}
+                            <div className="grid grid-cols-2 gap-4 mb-2">
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={form.name}
+                                        onChange={handleChange}
+                                        placeholder="Name"
+                                        className="border border-[#ececec] p-3 w-full focus:outline-none focus:border-green-500"
+                                    />
+                                    {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+                                </div>
+
+                                <div>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={form.email}
+                                        onChange={handleChange}
+                                        placeholder="Email"
+                                        className="border border-[#ececec] p-3 w-full focus:outline-none focus:border-green-500"
+                                    />
+                                    {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                                 </div>
                             </div>
+
+                            {/* WEBSITE */}
+                            <input
+                                type="text"
+                                name="website"
+                                value={form.website}
+                                onChange={handleChange}
+                                placeholder="Website"
+                                className="w-full border border-[#ececec] p-3 mb-4 focus:outline-none focus:border-green-500"
+                            />
+
+                            {/* SUBMIT BUTTON */}
+                            <button
+                                onClick={handleSubmit}
+                                className="bg-green-600 text-white px-6 py-3 font-semibold hover:bg-green-700 transition"
+                            >
+                                Submit Review
+                            </button>
                         </div>
                     </div>
                 )}

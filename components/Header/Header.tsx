@@ -1,5 +1,9 @@
 "use client";
 
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import React, { useState , useMemo , useEffect} from "react";
 import URLs from '../../lib/urls';
 import {
@@ -24,6 +28,9 @@ import {
 import { useSettingsStore } from '../../store/useSettingsStore';
 
 const Header = () => {
+//login 
+ const router = useRouter();
+
   const [isOpen, setIsOpen] = useState(false);
   const [listIsOpen, setListIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -52,6 +59,43 @@ const Header = () => {
 
     return "/evara.svg"; 
   }, [settings?.branding?.siteLogo]);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+  //login
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  // Logout handler...
+  const handleLogout = () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from this session",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#3BB77E",
+    cancelButtonColor: "#d33",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("loginSuccess");
+      setIsLoggedIn(false);
+      router.push("/login");
+      Swal.fire({
+        title: "Logged Out!",
+        text: "You have successfully logged out.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  });
+};
+
 
   const categories = [
     { icon: <Shirt size={18} />, name: "Women's Clothing" },
@@ -109,6 +153,17 @@ const cartItems = [
     ];
 
 
+    //login
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("loginSuccess");
+    setIsLoggedIn(false);
+    router.push("/login"); 
+  };
   
 
 
@@ -200,9 +255,25 @@ const cartItems = [
               English <ChevronDown size={14} />
             </div>
             <span>|</span>
-            <div className="cursor-pointer hover:text-[var(--primary)] transition">
-              Log In / Sign Up
-            </div>
+
+            {/* //for login */}
+            <div className="flex items-center gap-2">
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-[var(--primary)] font-medium cursor-pointer"
+                >
+                  Logout
+                </button>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-[var(--primary)]">Login</Link>
+                  <span>/</span>
+                  <Link href="/register" className="hover:text-[var(--primary)]">Sign Up</Link>
+                </>
+              )}
+            </div> 
+          
           </div>
         </div>
       </div>
