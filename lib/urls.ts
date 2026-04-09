@@ -29,8 +29,7 @@ export const API = {
   // Category endpoints
   listCategory: `${ROOTURL}admin/categories/`,
 
-
-    // ---------------- Product endpoints ----------------
+  // ---------------- Product endpoints ----------------
   addProduct: `${ROOTURL}admin/products/`,
   listProduct: `${ROOTURL}admin/products/`,
   getProductById: `${ROOTURL}admin/products/getProductById/`,
@@ -43,6 +42,9 @@ export const API = {
   checkProductSlug: `${ROOTURL}admin/products/checkSlugExist`,
   filterProducts: `${ROOTURL}admin/products/filter`,
   newProducts: `${ROOTURL}admin/products/new`,
+
+  listReviews: `${ROOTURL}reviews`, // GET
+  addReviews: `${ROOTURL}reviews`, //POST
 
   // Promotion endpoints
   listPromotions: `${ROOTURL}admin/promotions`,
