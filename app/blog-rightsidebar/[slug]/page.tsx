@@ -1,14 +1,35 @@
-import { ChevronRight, ArrowRight, Search, Facebook, Twitter, Instagram, Star } from "lucide-react";
+"use client";
+
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useBlogStore } from "@/store/useBlogStore";
+
+import { ChevronRight, ArrowRight, Search, Facebook, Twitter, Instagram, Star  } from "lucide-react";
 import Image from "next/image";
+import { FaWhatsapp } from "react-icons/fa6";
+
 import blogimagerightone from "@/public/images/blog-1.jpg"
 import blogimagerighttwo from "@/public/images/blog-2.png"
 import blogimagerightthree from "@/public/images/blog-3.png"
 import blogimagerightfour from "@/public/images/blog-4.png"
 import blogimagerightfive from "@/public/images/blog-5.png"
 import blogimagerightsix from "@/public/images/offer.png"
-import blogbanner from "@/public/images/banner.png"
+
 
 const BlogrightsidebarPage = () => {
+
+     const { slug } = useParams();
+    
+    const { blog, fetchBlogBySlug, isLoading } = useBlogStore();
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    useEffect(() => {
+        if (slug) {
+            fetchBlogBySlug(slug as string);
+        }
+    }, [slug]);
+    if (isLoading) return <p>Loading...</p>;
+    if (!blog) return <p>No blog found</p>;
+
     return (
         <section>
             <div className="w-full bg-[var(--bg-light)] ">
@@ -31,7 +52,7 @@ const BlogrightsidebarPage = () => {
             <div className="max-w-7xl !mx-auto !px-4 !py-10 !pt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 ">
                     <div className="lg:col-span-3 space-y-6 lg:!pr-3 lg:!pl-5 ">
-                        <h1 className="!py-1 text-[35px] md:text-[45px] lg:text-[45px] leading-tight font-medium text-[var(--text-main)]">Best smartwatch 2026: the top wearables you can buy today</h1>
+                        <h1 className="!py-1 text-[35px] md:text-[45px] lg:text-[45px] leading-tight font-medium text-[var(--text-main)]">{blog.name}</h1>
                         <div className="flex justify-between !mt-5 border-b-1 border-[var(--border-color)] !pb-6">
                             <ul className="text-[12px]  flex gap-3  !mt-3 font-medium text-[var(--text-muted)]">
                                 <li >By <a href="" className="!text-[var(--blog-text)] ">Jonh</a></li>
@@ -40,149 +61,28 @@ const BlogrightsidebarPage = () => {
                                 <li className="relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-1 before:h-1 before:bg-[var(--text-muted)] before:rounded-full ">29k Views</li>
                             </ul>
                             <div className="text-[var(--text-muted)] flex font-bold sm:text-sm sm:!mt-[10px] ">Share this: <span className="flex">
-                                <a href=""><Facebook size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1 " /></a>
-                                <a href=""><Twitter size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
-                                <a href=""><Instagram size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
-                                <a href=""><Facebook size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
+                                 <a href={currentUrl} target="_blank"><Facebook size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1 " /></a>
+                            <a href={currentUrl} target="_blank"><Twitter size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
+                            <a href={currentUrl} target="_blank"><Instagram size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
+                            <a href={currentUrl} target="_blank"><FaWhatsapp size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
                             </span>
                             </div>
                         </div>
-                        <div className="w-full  !mt-5">
-                            <Image
-                                src={blogimagerightfive}
-                                alt="images" className="w-full object-cover rounded-lg" />
-                        </div>
-                        <div className="w-full ">
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">The best smartwatch needs to be able to monitor your health, track your location when exercising, offer a variety of other apps that you wouldn't normally see on your smartphone, sport good battery life and, perhaps most importantly, have an affordable price.</p>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">We've reviewed and ranked all of the best smartwatches on the market right now, and we've made a definitive list of the top 10 devices you can buy today. One of the 10 picks below may just be your perfect next smartwatch.</p>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Those top-end wearables span from the Apple Watch to Fitbits, Garmin watches to Tizen-sporting Samsung watches. There's also Wear OS which is Google's own wearable operating system in the vein of Apple's watchOS - you’ll see it show up in a lot of these devices.</p>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Throughout our review process, we look at the design, features, battery life, spec, price and more for each smartwatch, rank it against the competition and enter it into the list you'll find below.</p>
-                        </div>
-
-                        <div>
-                            <h1 className="text-2xl  font-bold text-[var(--text-main)] !mt-5">1. Apple Watch SE</h1>
-                            <ul className="!mt-5 text-[var(--text-muted)] relative">
-                                <li className="!mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:border-2  before:border-[var(--text-muted)] before:rounded-full">Updated content on a regular basis</li>
-                                <li className="!mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:border-2  before:border-[var(--text-muted)] before:rounded-full">Secure & hassle-free payment</li>
-                                <li className="!mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:border-2  before:border-[var(--text-muted)] before:rounded-full">1-click checkout</li>
-                                <li className="!mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:border-2  before:border-[var(--text-muted)] before:rounded-full">Easy access & smart user dashboard</li>
-
-                            </ul>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl  font-bold text-[var(--text-main)] !mt-5">2. Samsung Galaxy Watch 3</h1>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque esse eos minima. Eius quo autem impedit quibusdam maiores, voluptatum quae sunt sit nisi voluptatem sed, esse quisquam labore, at est!</p>
-                            <div className="border  overflow-hidden !mt-6 border-[var(--border-color)]">
-                                <table className="w-full text-sm text-[var(--text-muted)]">
-                                    <tbody>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', width: '40%', borderColor: 'var(--border-color)', height: '65px' }}>Stand Up</td>
-                                            <td className="!py-3 !px-4">35″L x 24″W x 37-45″H(front to back wheel)</td>
-                                        </tr>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)', height: '65px' }}>Folded (w/o wheels)</td>
-                                            <td className="!py-3 !px-4">32.5″L x 18.5″W x 16.5″H</td>
-                                        </tr>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)', height: '65px' }}>Folded (w/wheels)</td>
-                                            <td className="!py-3 !px-4">32.5″L x 24″W x 18.5″H</td>
-                                        </tr>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)', height: '65px' }}>Door Pass Through</td>
-                                            <td className="!py-3 !px-4">24</td>
-                                        </tr>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)', height: '65px' }}>Frame</td>
-                                            <td className="!py-3 !px-4">Aluminum</td>
-                                        </tr>
-                                        <tr className="border-b border-[var(--border-color)]">
-                                            <td className="!py-3 !px-4 font-medium border-r" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)', height: '65px' }}>Weight (w/o wheels)</td>
-                                            <td className="!py-3 !px-4">20 LBS</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-[var(--text-main)] !mt-5">3. Apple Watch 6</h1>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque esse eos minima. Eius quo autem impedit quibusdam maiores, voluptatum quae sunt sit nisi voluptatem sed, esse quisquam labore, at est!</p>
-                            <div className="flex !mt-2">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Type Of Packing</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Bottle</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Color</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Green, Pink, Powder Blue, Purple</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Quantity Per Case</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">100ml</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Ethyl Alcohol</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">70%</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Piece In One</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Carton</span>
-                            </div>
-
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-[var(--text-main)] !mt-5">4. Fitbit Versa 3</h1>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque esse eos minima. Eius quo autem impedit quibusdam maiores, voluptatum quae sunt sit nisi voluptatem sed, esse quisquam labore, at est!</p>
-                            <div className="relative !mt-3">
-                                <Image
-                                    src={blogbanner}
-                                    alt="images"
-                                    className="w-full object-cover rounded-lg" />
-                                <div className="absolute top-5 md:top-7 lg:top-14 left-8">
-                                    <h1 className=" text-sm  md:text-md lg:text-xl text-[var(--text-main)] font-medium uppercase">Repair Services</h1>
-                                    <h1 className="text-md  md:text-xl lg:text-2xl text-[var(--text-main)] !mt-2 font-bold">We're an Apple</h1>
-                                    <h1 className="text-md  md:text-xl lg:text-2xl text-[var(--text-main)] font-bold">Authorised Service Provider</h1>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-[var(--text-main)] !mt-5">5. Samsung Galaxy Watch Active 2</h1>
-                            <p className="!pt-6 text-md  text-[var(--text-muted)] line-clamp-2 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque esse eos minima. Eius quo autem impedit quibusdam maiores, voluptatum quae sunt sit nisi voluptatem sed, esse quisquam labore, at est!</p>
-                            <div className="flex !mt-2">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Type Of Packing</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Bottle</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Color</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Green, Pink, Powder Blue, Purple</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Quantity Per Case</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">100ml</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Ethyl Alcohol</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">70%</span>
-                            </div>
-                            <div className="flex">
-                                <p className="flex-[1] text-[var(--text-muted)] !mt-2 relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-[7px] before:bg-[var(--text-muted)] before:rounded-full">Piece In One</p>
-                                <span className="flex-[4] !mt-2 text-[var(--text-muted)]">Carton</span>
-                            </div>
-
-                        </div>
-                        <div className="flex justify-between !mt-10 !mb-10 border-b border-t border-[var(--border-color)] !pt-5 !pb-13">
-                            <div className=" flex gap-3">
-                                <a href="" className="h-10 w-20 bg-[var(--blog-text)] flex justify-center items-center !text-white font-bold rounded-lg  hover:-translate-y-1 hover:shadow-lg transition">deer</a>
-                                <a href="" className="h-10 w-20 bg-[var(--blog-text)] flex justify-center items-center !text-white font-bold rounded-lg  hover:-translate-y-1 hover:shadow-lg transition">nature</a>
-                                <a href="" className="h-10 w-20 bg-[var(--blog-text)] flex justify-center items-center !text-white font-bold rounded-lg  hover:-translate-y-1 hover:shadow-lg transition">conserve</a>
-                            </div>
-                            <div className="text-[var(--text-muted)] flex font-bold sm:text-sm sm:!mt-[10px] ">Share this: <span className="flex">
-                                <a href=""><Facebook size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1 " /></a>
-                                <a href=""><Twitter size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
-                                <a href=""><Instagram size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
-                                <a href=""><Facebook size={16} className="text-[var(--text-muted)] hover:text-[var(--blog-text)] !m-1" /></a>
-                            </span>
-                            </div>
-                        </div>
+                         <div className="w-full mt-5">
+                                                <Image
+                                                    src={blog.image}
+                        
+                                                    alt={blog.name}
+                                                    width={1400}
+                                                    height={600}
+                                                    unoptimized
+                                                    className="w-full h-auto rounded-lg"
+                                                />
+                                            </div>
+                                            <div className="w-full !mt-19">
+                                                <div dangerouslySetInnerHTML={{ __html: blog.description }} />
+                                            </div>
+                       
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-15 border-b border-[var(--border-color)] !mt-10">
                             <div>
                                 <h1 className="text-xl font-bold !mb-6 text-[var(--text-main)] ">Customer questions & answers</h1>
