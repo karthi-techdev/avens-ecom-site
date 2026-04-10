@@ -7,8 +7,30 @@ import {
   Youtube,
 } from "lucide-react";
 import { Mail } from 'lucide-react';
+import { useSettingsStore } from '../../store/useSettingsStore'; 
+import { useEffect } from "react";
+import URLs from "@/lib/urls";
 
 const Footer: React.FC = () => {
+   const { generalSettings, fetchSettings, isLoading, branding } = useSettingsStore();
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  useEffect(() => {
+    if (!branding.siteLogo) {
+      fetchSettings();
+    }
+  }, []);
+
+   const getImageUrl = (path: string) => {
+    if (!path) return "/evara.svg"; // Fallback to static if no DB path
+    const baseUrl = URLs.FILEURL.endsWith('/') ? URLs.FILEURL.slice(0, -1) : URLs.FILEURL;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${cleanPath}`;
+  };
+
   return (
     <>
       <section className="bg-[#D8E4E1] py-10 px-4">
@@ -51,36 +73,38 @@ const Footer: React.FC = () => {
       
       {/* Column 1 */}
       <div className="space-y-4">
-        <img
-          src="/evara.svg"
-          alt="Evora Logo"
-          className="h-8 object-contain"
-        />
+         <img
+      src={getImageUrl(branding.siteLogo)}
+      alt="Logo"
+      className="h-8 object-contain"
+      onError={(e) => (e.currentTarget.src = "/evara.svg")} // Fallback if image fails to load
+    />
 
         <p className="font-semibold text-[var(--text-muted)]">Contact</p>
 
         <div className="text-[15px] leading-relaxed space-y-0">
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Address:
-            </span>{" "}
-            562 Wellington Road, Street 32, San Francisco
-          </p>
+      <p>
+        <span className="font-semibold text-[var(--text-main)]">
+          Address:
+        </span>{" "}
+        {/* 3. Replace static text with store data */}
+        {isLoading ? "Loading..." : generalSettings.address}
+      </p>
 
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Phone:
-            </span>{" "}
-            +01 2222 365 / (+91) 01 2345 6789
-          </p>
+      <p>
+        <span className="font-semibold text-[var(--text-main)]">
+          Phone:
+        </span>{" "}
+        {isLoading ? "Loading..." : generalSettings.phone}
+      </p>
 
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Hours:
-            </span>{" "}
-            10:00 - 18:00, Mon - Sat
-          </p>
-        </div>
+      <p>
+        <span className="font-semibold text-[var(--text-main)]">
+          Hours:
+        </span>{" "}
+        {isLoading ? "Loading..." : generalSettings.workingHours}
+      </p>
+    </div>
 
         <div>
           <p className="font-semibold text-[var(--text-muted)] mb-3">
