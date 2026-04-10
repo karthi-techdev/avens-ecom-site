@@ -29,7 +29,7 @@ export const API = {
   // Category endpoints
   listCategory: `${ROOTURL}admin/categories/`,
   // Product endpoints
-  listProduct: `${ROOTURL}admin/products/`,
+  fetchProducts: `${ROOTURL}admin/products/`,
 
   // Promotion endpoints
   listPromotions: `${ROOTURL}admin/promotions`,

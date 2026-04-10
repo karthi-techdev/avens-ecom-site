@@ -53,7 +53,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await apiClient.get(API.getSettings);
-            console.log("res",response)
+            // console.log("res",response)
             // Handle both { data: {...} } and { data: { data: {...} } } structures
             // Exactly like the Brand Store data extraction logic
             let settingsData = null;
