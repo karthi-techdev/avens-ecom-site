@@ -1,20 +1,32 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useBlogStore } from "@/store/useBlogStore";
 
-import { ChevronRight, ArrowRight, Search, Facebook, Twitter, Instagram, Star  } from "lucide-react";
+import { ChevronRight, ArrowRight, Search, Facebook, Twitter, Instagram, Star } from "lucide-react";
 import Image from "next/image";
 import { FaWhatsapp } from "react-icons/fa6";
+import apiClient from "@/lib/api-client";
+import { API } from "@/lib/urls";
 
 
 const Blogfullwidthpage = () => {
 
+
+
     const { slug } = useParams();
-    
+
     const { blog, fetchBlogBySlug, isLoading } = useBlogStore();
     const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+     const [form, setForm] = useState({
+        name: "",
+        email: "",
+        comment: "",
+        website: "",
+        rating: 0,
+        image: null as File | null,
+    });
     useEffect(() => {
         if (slug) {
             fetchBlogBySlug(slug as string);
@@ -22,6 +34,59 @@ const Blogfullwidthpage = () => {
     }, [slug]);
     if (isLoading) return <p>Loading...</p>;
     if (!blog) return <p>No blog found</p>;
+
+   
+    const handleChange = (e: any) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+    const handleFile = (e: any) => {
+        setForm({ ...form, image: e.target.files[0] });
+    };
+    const handleRating = (value: number) => {
+        setForm({ ...form, rating: value });
+    };
+    const handleSubmit = async () => {
+        if (!form.name || !form.email || !form.comment || !form.rating) {
+            alert("All fields including rating are required");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("blogId", blog._id); 
+        formData.append("userId", user._id);
+        formData.append("name", form.name);
+        formData.append("email", form.email);
+        formData.append("comment", form.comment);
+        formData.append("website", form.website);
+        formData.append("rating", String(form.rating));
+
+        if (form.image) {
+            formData.append("image", form.image);
+        }
+
+        try {
+           await apiClient.post(API.addComment, formData);
+
+            alert("Comment submitted successfully!");
+
+            // reset form
+            setForm({
+                name: "",
+                email: "",
+                comment: "",
+                website: "",
+                rating: 0,
+                image: null,
+            });
+
+        } catch (error: any) {
+    console.log(error.response?.data || error.message);
+    alert(error.response?.data?.message || "Failed to submit comment");
+}
+    };
+    const user = typeof window !== "undefined"
+  ? JSON.parse(localStorage.getItem("user") || "null")
+  : null;
 
     return (
         <section>
@@ -299,7 +364,14 @@ const Blogfullwidthpage = () => {
 
                             <div className="flex gap-1 !mt-3" style={{ color: '#ecece3' }}>
                                 {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-5 h-5 fill-current cursor-pointer hover:scale-110 transition-transform" />
+                                    <Star
+                                        key={i}
+                                        onClick={() => handleRating(i + 1)}
+                                        className={`w-5 h-5 cursor-pointer ${i < form.rating
+                                            ? "text-yellow-400 fill-yellow-400"
+                                            : "text-gray-300"
+                                            }`}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -307,9 +379,12 @@ const Blogfullwidthpage = () => {
                             <div>
 
                                 <textarea
+
                                     rows={4}
                                     className="w-full !p-3 border  text-sm border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)] !mt-5"
                                     placeholder="Write comment"
+                                    name="comment"
+                                    onChange={handleChange}
                                 ></textarea>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,6 +394,8 @@ const Blogfullwidthpage = () => {
                                         type="text"
                                         className="w-full !p-3 border text-sm border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)]"
                                         placeholder="Name"
+                                        name="name"
+                                        onChange={handleChange}
                                     />
                                 </div>
                                 <div>
@@ -327,8 +404,19 @@ const Blogfullwidthpage = () => {
                                         type="email"
                                         className="w-full !p-3 border text-sm border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)]"
                                         placeholder="Email"
+                                        name="email"
+                                        onChange={handleChange}
                                     />
                                 </div>
+                            </div>
+                            <div>
+
+                                <input
+                                    type="file"
+                                    className="w-full !p-3 border text-sm border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)]"
+                                    placeholder="Img"
+                                    onChange={handleFile}
+                                />
                             </div>
                             <div>
 
@@ -336,9 +424,12 @@ const Blogfullwidthpage = () => {
                                     type="url"
                                     className="w-full !p-3 border text-sm border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)]"
                                     placeholder="Website"
+                                    name="website"
+                                    onChange={handleChange}
                                 />
                             </div>
-                            <button className="flex justify-center items-center h-13 w-40 bg-[var(--blog-text)] text-white font-bold rounded-lg !mb-10">
+
+                            <button className="flex justify-center items-center h-13 w-40 bg-[var(--blog-text)] text-white font-bold rounded-lg !mb-10 "onClick={handleSubmit}>
                                 Post Comment
                             </button>
                         </div>

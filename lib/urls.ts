@@ -60,6 +60,8 @@ export const API = {
   listPromotions: `${ROOTURL}admin/promotions`,
   // Offer endpoints
   listOffers: `${ROOTURL}admin/offers/`,
+//comments
+  addComment: `${ROOTURL}admin/comments/`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
