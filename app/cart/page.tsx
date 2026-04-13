@@ -1,9 +1,11 @@
 "use client";
 import { ChevronRight, Trash, Handbag, Shuffle, X, Tag, CreditCard, FingerprintPattern } from "lucide-react";
 import { useState,useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { getNames } from "country-list";
 import {toast,Bounce,ToastContainer} from 'react-toastify';
 import { useCartStore } from "../../store/cartStore";
+import Swal from "sweetalert2";
 export default function CartPage() {
   const countries = getNames();
  interface ProductDetails {
@@ -20,66 +22,96 @@ interface CartItem {
   quantity: number;
   productId: ProductDetails;
 }
-const userId='69d0848c0792d677d5f7953e'
-  //const [cartItems,setCartItems]=useState<CartItem[]>([]);
-  const authenticated=localStorage.getItem('token');
-  const {getAllCart,removeCart,cartItems,updateQuantity,clearCart}=useCartStore();
+  const token=JSON.parse(localStorage.getItem("user")||'{}');
+   const router = useRouter();
+  const {getAllCart,removeCart,cartItems,updateQuantity,updateCart}=useCartStore();
   useEffect(()=>{
-    if(authenticated){
-    const fetchProduct= async()=>{
-      try {
-        
-        await getAllCart(userId);
-      }
-      catch(error){
-        console.log(error)
-      }
-    }
-    console.log(cartItems,'checking data')
-    fetchProduct();
+     if (token?._id) {
+    getAllCart(token._id);
+   
   }
-  },[authenticated, getAllCart])
+   else
+      router.replace("/");
+}, [token._id]);
   const deleteCartItem=async(id:string)=>{
-    try {
-     await removeCart(id);
-      toast.error('Cart item removed!', {
-position: "top-right",
-autoClose: 5000,
-hideProgressBar: false,
-closeOnClick: false,
-pauseOnHover: true,
-draggable: true,
-progress: undefined,
-theme: "light",
-transition: Bounce,
+   
+      const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "!bg-[var(--red-color)] !p-[1rem] !text-[var(--white)] text-[1.1rem] font-semibold",
+    cancelButton: "!bg-[var(--primary)] !p-[1rem] !text-[var(--white)] !mr-[0.6rem] text-[1.1rem] font-semibold  "
+  },
+  buttonsStyling: false
 });
-    } catch (error) {
-       console.error("ERROR:", error);
+swalWithBootstrapButtons.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Yes, delete it!",
+  cancelButtonText: "No, cancel!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed)
+  {
+    removeCart(id);
+    swalWithBootstrapButtons.fire({
+    title: "Deleted!",
+    text: "Your cart item has been deleted.",
+    icon: "success"
+  });
+  }
+     
+  else if (result.dismiss === Swal.DismissReason.cancel) swalWithBootstrapButtons.fire({
+    title: "Cancelled",
+    text: "Your cart item is safe :)",
+    icon: "error"
+  });
+});
+    
+  }
+
+    const increaseFunc=async(id:string)=>{
+      let filterCart=cartItems.find(item=>item._id===id);
+      let value=Number(filterCart?.quantity);
+      value++;
+      if(filterCart && value>filterCart.productId.stockQuantity){
+        toast.warn('Stock max reached');
+        return;
+      }
+      updateQuantity(id,value)
+      if(filterCart){
+         await updateCart(id,{'quantity':value,'userId':token._id,'price':((filterCart.productId.price-(filterCart.productId.price*(filterCart.productId.discountPrice/100))) * (value)).toFixed(2)})
+      }
     }
-  }
+    const decreaseFunc=async(id:string)=>{
+      let filterCart = cartItems.find(item => item._id == id);
+      let quants=Number(filterCart?.quantity);
+     let value=Math.max(1,--quants);
+     console.log(value)
+      updateQuantity(id,value);
+      if(filterCart)
+      await updateCart(id,{'quantity':value,'userId':token._id,'price':((filterCart.productId.price-(filterCart.productId.price*(filterCart.productId.discountPrice/100))) * (value)).toFixed(2)})
+    }
 
-  const clearCartData=async()=>{
-    await clearCart(userId);
-  }
-
- const handleQuantityChange = (id: string, value: number | string) => {
-  let filterCart = cartItems.find(item => item._id == id);
-
-  if (filterCart && Number(value) > filterCart.productId.stockQuantity) {
-    toast.warn('Stock max reached!');
-    return;
-  }
-
-  updateQuantity(id, Number(value));
-};
-  if(cartItems.length==0){
-     return <p className="text-center mt-20 text-xl">No items</p>;
-  }
 
   return (
     <>
+     <ToastContainer
+position="top-right"
+autoClose={5000}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+transition={Bounce}
+/>
       {/* Breadcrumb */}
-      <nav className="flex items-center text-sm !mb-6 !px-8 sm:!px-18 !py-4 rounded bg-[var(--bg-light)] text-[var(--text-muted)]">
+      {cartItems.length==0?<p className="text-center mt-20 text-xl">No items</p>:(<>
+        <nav className="flex items-center text-sm !mb-6 !px-8 sm:!px-18 !py-4 rounded bg-[var(--bg-light)] text-[var(--text-muted)]">
         <a href="/" className="!text-[var(--primary)]">Home</a>
         <span className="!mx-2">
           <ChevronRight size={16} />
@@ -93,19 +125,7 @@ transition: Bounce,
 
       <main className="main">
         <div className="max-w-[1400px] mx-auto !px-3 sm:!px-6 md:!px-10 lg:!px-[60px] !py-5">
-      <ToastContainer
-position="top-right"
-autoClose={5000}
-hideProgressBar={false}
-newestOnTop={false}
-closeOnClick={false}
-rtl={false}
-pauseOnFocusLoss
-draggable
-pauseOnHover
-theme="light"
-transition={Bounce}
-/>
+     
 
           {/* table*/}
           <div >
@@ -162,15 +182,13 @@ transition={Bounce}
                         </span>
 
                         <div className="flex justify-center">
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              handleQuantityChange(item._id, e.target.value || 1)
-                            }
-                            className="w-16 border border-[var(--border-color)] rounded text-center !py-1"
-                          />
+                             <div className="flex items-center border border-[var(--border-color)] rounded-lg px-4 py-2">
+                    {/* Decrease Button: Price reduces when clicked */}
+                    <button onClick={() => decreaseFunc(item._id)} className="px-2 font-bold cursor-pointer">-</button>
+                    <span className="w-12 text-center font-bold">{item.quantity}</span>
+                    {/* Increase Button: Price increases when clicked */}
+                    <button  onClick={()=>increaseFunc(item._id)} className="px-2 font-bold cursor-pointer">+</button>
+                </div>
                         </div>
 
                       </div>
@@ -185,7 +203,7 @@ transition={Bounce}
                         </span>
 
                         <span className="text-[var(--primary)] font-semibold">
-                          ${(item.productId.price-(item.productId.price*(item.productId.discountPrice/100))) * (item.quantity).toFixed(2)}
+                          ${((item.productId.price-(item.productId.price*(item.productId.discountPrice/100))) * (item.quantity)).toFixed(2)}
                         </span>
 
                       </div>
@@ -202,7 +220,7 @@ transition={Bounce}
                         </span>
 
                         <div className="flex justify-center">
-                          <button onClick={()=>deleteCartItem(item._id)} className="inline-flex justify-center text-[var(--text-muted)] hover:text-[var(--red-color)] transition-colors">
+                          <button onClick={()=>deleteCartItem(item._id)} className="inline-flex justify-center text-[var(--text-muted)] hover:text-[var(--red-color)] cursor-pointer transition-colors">
                             <Trash size={18} />
                           </button>
                         </div>
@@ -214,10 +232,10 @@ transition={Bounce}
               </tbody>
             </table>
             <div className="text-right !mt-6">
-              <div className="flex items-center justify-end sm:justify-end w-full sm:w-auto cursor-pointer text-[var(--text-muted)]">
+              {/* <div className="flex items-center justify-end sm:justify-end w-full sm:w-auto cursor-pointer text-[var(--text-muted)]">
                 <X size={18} className="mr-2" />
                 <button type="button" onClick={clearCartData} className="cursor-pointer"><span>Clear Cart</span></button>
-              </div>
+              </div> */}
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-end sm:justify-end !mt-6">
                 <button
@@ -340,6 +358,8 @@ transition={Bounce}
 
         </div>
       </main >
+      </>)}
+      
 
     </>
   )

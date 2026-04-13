@@ -1,5 +1,5 @@
+import { toast } from 'react-toastify';
 import {create} from 'zustand';
-
 interface ProductDetails{
      name: string;
   price: number;
@@ -19,7 +19,7 @@ interface CartState{
     getAllCart:(userId:string)=>Promise<void>;
     removeCart:(id:string)=>Promise<void>;
     updateQuantity: (id: string, quantity: number) => void;
-    clearCart:(userId:string)=>Promise<void>;
+    updateCart:(id:string,data:any)=>Promise<void>;
 }
 export const useCartStore=create<CartState>((set,get)=>({
     cartItems:[],
@@ -28,7 +28,7 @@ export const useCartStore=create<CartState>((set,get)=>({
          await  fetch("http://localhost:5000/api/v1/cart/addtocart", {
   method: "POST",
   body: JSON.stringify({
-    userId: "69d0848c0792d677d5f7953e",
+    userId: data.userId,
     quantity:data.quantity,
     'color':data.selectedColor,
     'size':data.selectedSize,
@@ -39,7 +39,7 @@ export const useCartStore=create<CartState>((set,get)=>({
     "Content-type": "application/json; charset=UTF-8"
   }
 });
-    const res=await fetch(`http://localhost:5000/api/v1/cart/${'69d0848c0792d677d5f7953e'}`);
+    const res=await fetch(`http://localhost:5000/api/v1/cart/${data.userId}`);
         const updatedCart=await res.json();
         set({cartItems:updatedCart.data})
        } catch (error) {
@@ -72,14 +72,25 @@ export const useCartStore=create<CartState>((set,get)=>({
     ),
   }));
 },
-clearCart:async(userId:string)=>{
+updateCart:async(id:string,data:any)=>{
   try {
-    await  fetch(`http://localhost:5000/api/v1/cart/clearcart/${userId}`,{
-      method:"DELETE"
-     });
-     set({cartItems:[]})
+    console.log(id,data,'in cart store')
+      await  fetch(`http://localhost:5000/api/v1/cart/updateCart/${id}`, {
+  method: "PATCH",
+  body: JSON.stringify({
+    userId: data.userId,
+    quantity:data.quantity,
+    'price':data.price
+  }),
+  headers: {
+    "Content-type": "application/json; charset=UTF-8"
+  }
+});
+    const res=await fetch(`http://localhost:5000/api/v1/cart/${data.userId}`);
+        const updatedCart=await res.json();
+        set({cartItems:updatedCart.data})
   } catch (error) {
-    console.log(error)
+     console.log(error);
   }
 }
 }))

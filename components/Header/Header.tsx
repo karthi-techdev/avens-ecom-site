@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import React, { useState , useMemo , useEffect} from "react";
 import URLs from '../../lib/urls';
 import {
@@ -23,8 +25,13 @@ import {
 } from "lucide-react";
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useCartStore } from "@/store/cartStore";
+import { toast } from "react-toastify";
 const Header = () => {
-  const authenticated=localStorage.getItem('token');
+   const token=JSON.parse(localStorage.getItem("user")||'null');
+   const isAuthenticated = token && token._id;
+//login 
+ const router = useRouter();
+
   const [isOpen, setIsOpen] = useState(false);
   const [listIsOpen, setListIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -33,18 +40,17 @@ const Header = () => {
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const { settings, fetchSettings } = useSettingsStore();
-  const {getAllCart,cartItems}=useCartStore();
+  const {getAllCart,cartItems,removeCart}=useCartStore();
   useEffect(() => {
     if (!settings) {
       fetchSettings();
     }
   }, [fetchSettings, settings]);
   useEffect(()=>{
-    if(authenticated){
+    if(token){
       const getCartData=async()=>{
       try {
-        const userId='69d0848c0792d677d5f7953e';
-        await getAllCart(userId);
+        await getAllCart(token._id);
       } catch (error) {
         console.log('ERROR',error)
       }
@@ -52,8 +58,41 @@ const Header = () => {
     getCartData();
       
     }
-    
   },[getAllCart])
+  const deleteCart=async(id:string)=>{
+     const swalWithBootstrapButtons = Swal.mixin({
+     customClass: {
+       confirmButton: "!bg-[var(--red-color)] !p-[1rem] !text-[var(--white)] text-[1.1rem] font-semibold",
+       cancelButton: "!bg-[var(--primary)] !p-[1rem] !text-[var(--white)] !mr-[0.6rem] text-[1.1rem] font-semibold  "
+     },
+     buttonsStyling: false
+   });
+   swalWithBootstrapButtons.fire({
+     title: "Are you sure?",
+     text: "You won't be able to revert this!",
+     icon: "warning",
+     showCancelButton: true,
+     confirmButtonText: "Yes, delete it!",
+     cancelButtonText: "No, cancel!",
+     reverseButtons: true
+   }).then((result) => {
+     if (result.isConfirmed)
+     {
+       removeCart(id);
+       swalWithBootstrapButtons.fire({
+       title: "Deleted!",
+       text: "Your cart item has been deleted.",
+       icon: "success"
+     });
+     }
+        
+     else if (result.dismiss === Swal.DismissReason.cancel) swalWithBootstrapButtons.fire({
+       title: "Cancelled",
+       text: "Your cart item is safe :)",
+       icon: "error"
+     });
+   });
+  }
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
     console.log("sitelogo",logoPath)
@@ -67,6 +106,43 @@ const Header = () => {
 
     return "/evara.svg"; 
   }, [settings?.branding?.siteLogo]);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+  //login
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  // Logout handler...
+  const handleLogout = () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from this session",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#3BB77E",
+    cancelButtonColor: "#d33",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("loginSuccess");
+      setIsLoggedIn(false);
+      router.push("/login");
+      Swal.fire({
+        title: "Logged Out!",
+        text: "You have successfully logged out.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  });
+};
+
 
   const categories = [
     { icon: <Shirt size={18} />, name: "Women's Clothing" },
@@ -121,8 +197,19 @@ const Header = () => {
     ];
 
 
-  
+    //login
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("loginSuccess");
+    setIsLoggedIn(false);
+    router.push("/login"); 
+  };
+  
+  
 
     return (
       <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
@@ -212,9 +299,25 @@ const Header = () => {
               English <ChevronDown size={14} />
             </div>
             <span>|</span>
-            <div className="cursor-pointer hover:text-[var(--primary)] transition">
-              Log In / Sign Up
-            </div>
+
+            {/* //for login */}
+            <div className="flex items-center gap-2">
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-[var(--primary)] font-medium cursor-pointer"
+                >
+                  Logout
+                </button>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-[var(--primary)]">Login</Link>
+                  <span>/</span>
+                  <Link href="/register" className="hover:text-[var(--primary)]">Sign Up</Link>
+                </>
+              )}
+            </div> 
+          
           </div>
         </div>
       </div>
@@ -297,17 +400,17 @@ const Header = () => {
       </span>
     </div>
 
-    <div className={`${authenticated?'relative group py-4':'hidden'}`}> 
+    <div className={`${isAuthenticated ?'relative group py-4':'hidden'}`}> 
       <div className="relative cursor-pointer">
         <ShoppingCart size={24} />
         <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-          {cartItems.length}
+          {cartItems?cartItems.length:0}
         </span>
       </div>
 
-      <div className={`${authenticated?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
+      <div className={`${isAuthenticated ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
         <ul className="space-y-4">
-          {cartItems.map((item:any) => (
+          {cartItems?cartItems.map((item:any) => (
             <li key={item._id} className="flex items-center justify-between gap-4">
               <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                 <img src={` http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
@@ -316,17 +419,17 @@ const Header = () => {
                 <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
                 <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price/item.quantity).toFixed(2)}</p>
               </div>
-              <button className="text-gray-400 hover:text-red-500">
+              <button className="text-gray-400 hover:text-red-500" onClick={()=>deleteCart(item._id)}>
                 <X size={16} />
               </button>
             </li>
-          ))}
+          )):<div></div>}
         </ul>
 
         <div className="mt-6 pt-4 border-t border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-500 font-medium">Total</span>
-            <span className="text-[#3BB77E] font-bold text-lg">{"$"+cartItems.reduce((acc,item:any)=>acc+item.price,0)}</span>
+            <span className="text-[#3BB77E] font-bold text-lg">{"$"+(cartItems?cartItems.reduce((acc,item:any)=>acc+item.price,0):0)}</span>
           </div>
           
           <div className="flex gap-2">
