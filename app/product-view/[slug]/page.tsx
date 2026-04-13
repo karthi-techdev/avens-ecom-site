@@ -83,7 +83,10 @@ export default function ProductPage() {
                             <ProductInfo product={product} />
                         </div>
 
-                        <ProductTabs description={product.longDescription} />
+                        <ProductTabs
+                            description={product.longDescription}
+                            product={product}
+                        />
 
                         {/*  STATIC RELATED PRODUCTS SECTION ADDED HERE */}
                         <div className="mt-16 mb-20">
