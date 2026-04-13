@@ -154,11 +154,13 @@ setFooterSections(groupedArray);
         </div>
       </div>
 
-      {footerSections.map((section, index) => (
-        <div key={index}>
-          <h3 className="text-xl font-semibold text-[var(--text-main)] mb-4">
-            {section.title}
-          </h3>
+      {footerSections
+        .filter((section) => section.items && section.items.length > 0)
+        .map((section, index) => (
+          <div key={index}>
+            <h3 className="text-xl font-semibold text-[var(--text-main)] mb-4">
+              {section.title}
+            </h3>
 
           <ul className="space-y-2 text-[15px]">
             {section.items.map((item: any, idx: number) => (
