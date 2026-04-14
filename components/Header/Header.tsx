@@ -27,8 +27,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "react-toastify";
 const Header = () => {
-   const token=JSON.parse(localStorage.getItem("user")||'null');
-   const isAuthenticated = token && token._id;
+   
 //login 
  const router = useRouter();
 
@@ -41,24 +40,24 @@ const Header = () => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const { settings, fetchSettings } = useSettingsStore();
   const {getAllCart,cartItems,removeCart}=useCartStore();
+  const [token, setToken] = useState<any>(null);
+
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  setToken(user);
+}, []);
   useEffect(() => {
     if (!settings) {
       fetchSettings();
     }
   }, [fetchSettings, settings]);
   useEffect(()=>{
-    if(token){
-      const getCartData=async()=>{
-      try {
-        await getAllCart(token._id);
-      } catch (error) {
-        console.log('ERROR',error)
-      }
-    }
-    getCartData();
-      
-    }
-  },[getAllCart])
+    
+  if(token){
+    console.log("hii from token",token._id)
+    getAllCart(token._id);
+  }
+},[token])
   const deleteCart=async(id:string)=>{
      const swalWithBootstrapButtons = Swal.mixin({
      customClass: {
@@ -400,7 +399,7 @@ const Header = () => {
       </span>
     </div>
 
-    <div className={`${isAuthenticated ?'relative group py-4':'hidden'}`}> 
+    <div className={`${isLoggedIn ?'relative group py-4':'hidden'}`}> 
       <div className="relative cursor-pointer">
         <ShoppingCart size={24} />
         <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
@@ -408,7 +407,7 @@ const Header = () => {
         </span>
       </div>
 
-      <div className={`${isAuthenticated ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
+      <div className={`${isLoggedIn ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
         <ul className="space-y-4">
           {cartItems?cartItems.map((item:any) => (
             <li key={item._id} className="flex items-center justify-between gap-4">

@@ -86,9 +86,13 @@ updateCart:async(id:string,data:any)=>{
     "Content-type": "application/json; charset=UTF-8"
   }
 });
-    const res=await fetch(`http://localhost:5000/api/v1/cart/${data.userId}`);
-        const updatedCart=await res.json();
-        set({cartItems:updatedCart.data})
+    set((state) => ({
+  cartItems: state.cartItems.map((item) =>
+    item._id === id
+      ? { ...item, quantity: data.quantity }
+      : item
+  ),
+}));
   } catch (error) {
      console.log(error);
   }

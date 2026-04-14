@@ -77,7 +77,7 @@ swalWithBootstrapButtons.fire({
       if(filterCart && value>filterCart.productId.stockQuantity){
         toast.warn('Stock max reached');
         return;
-      }
+      } 
       updateQuantity(id,value)
       if(filterCart){
          await updateCart(id,{'quantity':value,'userId':token._id,'price':((filterCart.productId.price-(filterCart.productId.price*(filterCart.productId.discountPrice/100))) * (value)).toFixed(2)})
@@ -136,6 +136,7 @@ transition={Bounce}
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Price</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Quantity</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Subtotal</th>
+                  <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Stock Status</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Remove</th>
                 </tr>
               </thead>
@@ -184,10 +185,10 @@ transition={Bounce}
                         <div className="flex justify-center">
                              <div className="flex items-center border border-[var(--border-color)] rounded-lg px-4 py-2">
                     {/* Decrease Button: Price reduces when clicked */}
-                    <button onClick={() => decreaseFunc(item._id)} className="px-2 font-bold cursor-pointer">-</button>
+                    <button onClick={() => decreaseFunc(item._id)} disabled={item.quantity==1} className="px-2 font-bold cursor-pointer">-</button>
                     <span className="w-12 text-center font-bold">{item.quantity}</span>
                     {/* Increase Button: Price increases when clicked */}
-                    <button  onClick={()=>increaseFunc(item._id)} className="px-2 font-bold cursor-pointer">+</button>
+                    <button  onClick={()=>increaseFunc(item._id)}  className="px-2 font-bold cursor-pointer">+</button>
                 </div>
                         </div>
 
@@ -205,6 +206,21 @@ transition={Bounce}
                         <span className="text-[var(--primary)] font-semibold">
                           ${((item.productId.price-(item.productId.price*(item.productId.discountPrice/100))) * (item.quantity)).toFixed(2)}
                         </span>
+
+                      </div>
+                    </td>
+                    <td className="block md:table-cell text-center !py-2 border-b md:border-r border-[var(--border-color)]">
+                      <div className="relative">
+
+                        <span className="md:hidden font-semibold absolute left-3">
+                          Subtotal:
+                        </span>
+                                                {item.quantity>item.productId.stockQuantity?
+
+                        <span className="text-[var(--red-color)] font-semibold">Out of Stock
+                        </span>:<span className=" font-semibold">In Stock
+                        </span>
+}
 
                       </div>
                     </td>
