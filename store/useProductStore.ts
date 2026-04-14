@@ -30,9 +30,6 @@ export const useProductStore = create<ProductState>((set) => ({
       }
 
       const res = await apiClient.get(url);
-      console.log("🌍 API URL:", url);
-      console.log("🔥 FULL RESPONSE:", res);
-      console.log("🔥 API DATA ONLY:", res.data);
       let data = [];
 
       if (res.data.data) {
