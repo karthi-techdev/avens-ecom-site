@@ -8,9 +8,28 @@ import {
   Youtube,
 } from "lucide-react";
 import { Mail } from 'lucide-react';
+import { useSettingsStore } from '../../store/useSettingsStore'; 
+import URLs from "@/lib/urls";
 
 
 const Footer: React.FC = () => {
+    const { settings, fetchSettings, isLoading } = useSettingsStore();
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  // 2. Safely extract nested data with fallbacks to avoid "undefined" errors
+  const branding = settings?.branding;
+  const generalSettings = settings?.generalSettings;
+
+  const getImageUrl = (path?: string) => {
+    if (!path) return "/evara.svg"; // Fallback to static if no path exists
+    const baseUrl = URLs.FILEURL.endsWith('/') ? URLs.FILEURL.slice(0, -1) : URLs.FILEURL;
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${baseUrl}${cleanPath}`;
+  };
+
   const [footerSections, setFooterSections] = useState<any[]>([]);
   useEffect(() => {
     const fetchFooterPages = async () => {
@@ -102,36 +121,32 @@ setFooterSections(groupedArray);
       
       {/* Column 1 */}
       <div className="space-y-4">
-        <img
-          src="/evara.svg"
-          alt="Evora Logo"
-          className="h-8 object-contain"
-        />
+         <img
+                src={getImageUrl(branding?.siteLogo)}
+                alt="Logo"
+                className="h-8 object-contain"
+                onError={(e) => (e.currentTarget.src = "/evara.svg")}
+              />
+
 
         <p className="font-semibold text-[var(--text-muted)]">Contact</p>
 
         <div className="text-[15px] leading-relaxed space-y-0">
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Address:
-            </span>{" "}
-            562 Wellington Road, Street 32, San Francisco
-          </p>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Address:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.address || "N/A"}
+                </p>
 
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Phone:
-            </span>{" "}
-            +01 2222 365 / (+91) 01 2345 6789
-          </p>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Phone:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.phone || "N/A"}
+                </p>
 
-          <p>
-            <span className="font-semibold text-[var(--text-main)]">
-              Hours:
-            </span>{" "}
-            10:00 - 18:00, Mon - Sat
-          </p>
-        </div>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Hours:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.workingHours || "N/A"}
+                </p>
+              </div>
 
         <div>
           <p className="font-semibold text-[var(--text-muted)] mb-3">
