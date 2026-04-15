@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Facebook,
   Twitter,
@@ -8,8 +9,8 @@ import {
 } from "lucide-react";
 import { Mail } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore'; 
-import { useEffect } from "react";
 import URLs from "@/lib/urls";
+
 
 const Footer: React.FC = () => {
     const { settings, fetchSettings, isLoading } = useSettingsStore();
@@ -29,6 +30,55 @@ const Footer: React.FC = () => {
     return `${baseUrl}${cleanPath}`;
   };
 
+  const [footerSections, setFooterSections] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchFooterPages = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/v1/admin/page?page=1&limit=50"
+        );
+
+        const result = await res.json();
+        const pages = result.data.sort(
+          (a: any, b: any) =>
+            new Date(a.createdAt).getTime() -
+            new Date(b.createdAt).getTime()
+        );
+
+        console.log("Footer API:", pages);
+       const uniqueTitles = [
+        ...new Set(pages.map((item: any) => item.footerPageTitle)),
+      ].slice(0, 3) as string[];
+        const activePages = pages.filter((item: any) => {
+          return (
+            uniqueTitles.includes(item.footerPageTitle) &&
+            item.isActive === true
+          );
+        });
+        const groupedArray: any[] = [];
+
+          uniqueTitles.forEach((title: string) => {
+            const sectionItems = activePages.filter(
+              (item: any) => item.footerPageTitle === title
+            );
+
+            if (sectionItems.length > 0) {
+              groupedArray.push({
+                title,
+                items: sectionItems,
+              });
+            }
+          });
+
+setFooterSections(groupedArray);
+
+      } catch (error) {
+        console.error("Footer fetch error:", error);
+      }
+    };
+
+    fetchFooterPages();
+  }, []);
   return (
     <>
       <section className="bg-[#D8E4E1] py-10 px-4">
@@ -67,7 +117,7 @@ const Footer: React.FC = () => {
       <footer className="bg-[var(--bg-light)]">
   <div className="max-w-7xl mx-auto px-10 lg:px-16 py-14">
     
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.7fr_1fr_1fr_1.7fr] gap-8 lg:gap-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.5fr] gap-10">
       
       {/* Column 1 */}
       <div className="space-y-4">
@@ -119,65 +169,45 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Column 2 */}
-      <div>
-        <h3 className="text-xl font-semibold text-[var(--text-main)] mb-4">
-          About
-        </h3>
+      {footerSections
+        .filter((section) => section.items && section.items.length > 0)
+        .map((section, index) => (
+          <div key={index}>
+            <h3 className="text-xl font-semibold text-[var(--text-main)] mb-4">
+              {section.title}
+            </h3>
 
-        <ul className="space-y-2 text-[15px]">
-          {[
-            "About Us",
-            "Delivery Information",
-            "Privacy Policy",
-            "Terms & Conditions",
-            "Contact Us",
-            "Support Center",
-          ].map((item, index) => (
-            <li key={index} className="font-medium hover:text-[var(--primary)]">
-              <Link
-                href="#"
-                className="block text-[var(--text-main)] 
-                 
-                transition-all duration-300 hover:translate-x-1"
+          <ul className="space-y-2 text-[15px]">
+            {section.items.map((item: any, idx: number) => (
+              <li
+                key={idx}
+                className="font-medium hover:text-[var(--primary)]"
               >
-                {item}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Column 3 */}
-      <div>
-        <h3 className="text-xl font-semibold text-[var(--text-main)] mb-4">
-          My Account
-        </h3>
-
-        <ul className="space-y-2 text-[15px]">
-          {[
-            "Sign In",
-            "View Cart",
-            "My Wishlist",
-            "Track My Order",
-            "Help",
-            "Order",
-          ].map((item, index) => (
-            <li key={index} className="font-medium hover:text-[var(--primary)]">
-              <Link
-                href="#"
-                className="block text-[var(--text-main)] 
-                hover:text-[var(--primary)] 
-                transition-all duration-300 hover:translate-x-1"
-              >
-                {item}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Column 4 (IMAGES KEPT ✅) */}
+                {item.type === "content" ? (
+                  <Link
+                    href={`/page/${item.slug}`}
+                    className="block text-[var(--text-main)]
+                    transition-all duration-300 hover:translate-x-1"
+                  >
+                    {item.name}
+                  </Link>
+                ) : (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-[var(--text-main)]
+                    transition-all duration-300 hover:translate-x-1"
+                  >
+                    {item.name}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+   
       <div className="space-y-4">
         <div>
           <h3 className="text-xl font-semibold text-[var(--text-main)] mb-3">
