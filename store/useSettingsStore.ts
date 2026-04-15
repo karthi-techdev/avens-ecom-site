@@ -1,106 +1,112 @@
-import { create } from "zustand";
-import apiClient from "@/lib/api-client";
-import { API } from "@/lib/urls";
+import { create } from 'zustand';
+import apiClient from '@/lib/api-client';
+import { API } from '@/lib/urls';
 
-export interface GeneralSettings {
-  siteName: string;
-  siteDescription: string;
-  address: string;
-  phone: string;
-  email: string;
-  workingHours: string;
-  currency: string;
+// 1. Data Structure Interfaces
+export interface ISettings {
+  generalSettings: {
+    siteName: string;
+    siteDescription: string;
+    address: string;
+    phone: string;
+    email: string;
+    workingHours: string;
+    currency?: string; // Included from first snippet
+  };
+  branding: {
+    adminLogo: string;
+    siteLogo: string;
+    favicon: string;
+  };
+  mailConfiguration?: {
+    mailHost: string;
+    mailPort: number;
+    mailUsername: string;
+    mailPassword: string;
+    mailEncryption: string;
+    mailFromAddress: string;
+    mailFromName: string;
+  };
 }
 
-export interface Branding {
-  siteLogo: string;
-  adminLogo: string;
-  favicon: string;
+export interface SecuritySettingsFormData {
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 }
 
+// 2. State Interface
 interface SettingsState {
-  generalSettings: GeneralSettings;
-  branding: Branding; // ✅ Added branding
+  settings: ISettings | null;
   isLoading: boolean;
   error: string | null;
-  fetchSettings: () => Promise<any>;
-  updateSettings: (payload: any) => Promise<any>; // ✅ Changed to any to accept FormData or JSON
+  fetchSettings: () => Promise<ISettings | null>;
+  updateSettings: (
+    payload: FormData | Partial<ISettings> | SecuritySettingsFormData
+  ) => Promise<ISettings | null>;
 }
 
-const initialGeneral: GeneralSettings = {
-  siteName: '',
-  siteDescription: '',
-  address: '',
-  phone: '',
-  email: '',
-  workingHours: '',
-  currency: ''
-};
-
-const initialBranding: Branding = {
-  siteLogo: '',
-  adminLogo: '',
-  favicon: ''
-};
-
+// 3. Store Implementation
 export const useSettingsStore = create<SettingsState>((set) => ({
-  generalSettings: initialGeneral,
-  branding: initialBranding,
+  settings: null,
   isLoading: false,
   error: null,
 
-  // ✅ Fetch Settings (Handles both General and Branding)
   fetchSettings: async () => {
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.get(API.getSettings);
       
-      const data = response.data?.data || response.data;
-      
-      const general = data?.generalSettings || data || initialGeneral;
-      const branding = data?.branding || initialBranding;
+      // Robust data extraction logic
+      let settingsData = null;
+      const resData = response.data;
 
-      set({
-        generalSettings: general,
-        branding: branding,
-        isLoading: false,
-      });
+      if (resData.data && typeof resData.data === 'object' && !Array.isArray(resData.data)) {
+        // Standard: { data: { generalSettings: ... } }
+        settingsData = resData.data;
+      } else if (resData && typeof resData === 'object' && !Array.isArray(resData) && resData.generalSettings) {
+        // Flat: { generalSettings: ... }
+        settingsData = resData;
+      } else if (resData.data?.data) {
+        // Double nested: { data: { data: { ... } } }
+        settingsData = resData.data.data;
+      }
 
-      return { generalSettings: general, branding: branding };
+      set({ settings: settingsData, isLoading: false });
+      return settingsData;
     } catch (error: any) {
-      set({
-        error: error.response?.data?.message || "Failed to fetch settings",
-        isLoading: false,
-      });
+      const errorMessage = error.response?.data?.message || 'Failed to fetch settings';
+      set({ error: errorMessage, isLoading: false });
       return null;
     }
   },
 
-  // ✅ Update Settings (Handles JSON for General and FormData for Branding)
   updateSettings: async (payload) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.put(API.updateSettings, payload);
+      // Determine if we need 'multipart/form-data' (for logos) or 'application/json'
+      const config = payload instanceof FormData 
+        ? { headers: { 'Content-Type': 'multipart/form-data' } }
+        : {};
+
+      const response = await apiClient.put(API.updateSettings, payload, config);
       
-      const data = response.data?.data || response.data;
-      
-      // Update local state with whatever the server returned
-      const updatedGeneral = data?.generalSettings || (payload.generalSettings ? payload.generalSettings : null);
-      const updatedBranding = data?.branding || null;
+      // Extract updated data
+      const updatedData = response.data?.data || response.data;
 
       set((state) => ({
-        generalSettings: updatedGeneral || state.generalSettings,
-        branding: updatedBranding || state.branding,
+        // If the update response doesn't return the full object, 
+        // we merge or keep the old state
+        settings: updatedData && updatedData.generalSettings ? updatedData : state.settings,
         isLoading: false,
       }));
 
-      return data;
+      return updatedData;
     } catch (error: any) {
-      set({
-        error: error.response?.data?.message || "Failed to update settings",
-        isLoading: false,
-      });
-      throw error; 
+      const errorMessage = error.response?.data?.message || 'Failed to update settings';
+      set({ error: errorMessage, isLoading: false });
+      // Rethrow so the component can show a toast notification
+      throw error;
     }
   },
 }));

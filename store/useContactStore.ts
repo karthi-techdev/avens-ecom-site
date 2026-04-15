@@ -29,8 +29,6 @@ interface ContactState {
   // Actions
   fetchContacts: (page: number, limit: number) => Promise<void>;
   addContact: (data: Contact) => Promise<void>;
-  deleteContact: (id: string) => Promise<void>;
-  toggleStatusContact: (id: string) => Promise<void>;
 }
 
 export const useContactStore = create<ContactState>((set, get) => ({
@@ -46,7 +44,7 @@ export const useContactStore = create<ContactState>((set, get) => ({
 
     try {
       const response = await apiClient.get(
-        `${API.listContact}?page=${page}&limit=${limit}`
+        `${API.listContacts}?page=${page}&limit=${limit}`
       );
 
       const responseData = response.data;
@@ -83,39 +81,8 @@ export const useContactStore = create<ContactState>((set, get) => ({
         error: error.response?.data?.message || "Failed to send message",
         loading: false,
       });
-      throw error; // Re-throw so the UI component can show error toast
+      throw error; 
     }
   },
 
-  // ✅ Delete a contact
-  deleteContact: async (id: string) => {
-    try {
-      await apiClient.delete(`${API.deleteContact}/${id}`);
-      
-      // Update local state immediately
-      set((state) => ({
-        contacts: state.contacts.filter((c) => c._id !== id),
-      }));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Delete failed");
-    }
-  },
-
-  // ✅ Toggle contact status (Active/Inactive)
-  toggleStatusContact: async (id: string) => {
-    try {
-      await apiClient.patch(`${API.toggleContactStatus}/${id}`);
-      
-      // Update local state immediately for better UX
-      set((state) => ({
-        contacts: state.contacts.map((c) =>
-          c._id === id
-            ? { ...c, status: c.status === "active" ? "inactive" : "active" }
-            : c
-        ),
-      }));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || "Status update failed");
-    }
-  },
 }));

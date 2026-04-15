@@ -12,20 +12,18 @@ import { useEffect } from "react";
 import URLs from "@/lib/urls";
 
 const Footer: React.FC = () => {
-   const { generalSettings, fetchSettings, isLoading, branding } = useSettingsStore();
+    const { settings, fetchSettings, isLoading } = useSettingsStore();
 
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
 
-  useEffect(() => {
-    if (!branding.siteLogo) {
-      fetchSettings();
-    }
-  }, []);
+  // 2. Safely extract nested data with fallbacks to avoid "undefined" errors
+  const branding = settings?.branding;
+  const generalSettings = settings?.generalSettings;
 
-   const getImageUrl = (path: string) => {
-    if (!path) return "/evara.svg"; // Fallback to static if no DB path
+  const getImageUrl = (path?: string) => {
+    if (!path) return "/evara.svg"; // Fallback to static if no path exists
     const baseUrl = URLs.FILEURL.endsWith('/') ? URLs.FILEURL.slice(0, -1) : URLs.FILEURL;
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${baseUrl}${cleanPath}`;
@@ -74,37 +72,31 @@ const Footer: React.FC = () => {
       {/* Column 1 */}
       <div className="space-y-4">
          <img
-      src={getImageUrl(branding.siteLogo)}
-      alt="Logo"
-      className="h-8 object-contain"
-      onError={(e) => (e.currentTarget.src = "/evara.svg")} // Fallback if image fails to load
-    />
+                src={getImageUrl(branding?.siteLogo)}
+                alt="Logo"
+                className="h-8 object-contain"
+                onError={(e) => (e.currentTarget.src = "/evara.svg")}
+              />
+
 
         <p className="font-semibold text-[var(--text-muted)]">Contact</p>
 
         <div className="text-[15px] leading-relaxed space-y-0">
-      <p>
-        <span className="font-semibold text-[var(--text-main)]">
-          Address:
-        </span>{" "}
-        {/* 3. Replace static text with store data */}
-        {isLoading ? "Loading..." : generalSettings.address}
-      </p>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Address:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.address || "N/A"}
+                </p>
 
-      <p>
-        <span className="font-semibold text-[var(--text-main)]">
-          Phone:
-        </span>{" "}
-        {isLoading ? "Loading..." : generalSettings.phone}
-      </p>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Phone:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.phone || "N/A"}
+                </p>
 
-      <p>
-        <span className="font-semibold text-[var(--text-main)]">
-          Hours:
-        </span>{" "}
-        {isLoading ? "Loading..." : generalSettings.workingHours}
-      </p>
-    </div>
+                <p>
+                  <span className="font-semibold text-[var(--text-main)]">Hours:</span>{" "}
+                  {isLoading ? "Loading..." : generalSettings?.workingHours || "N/A"}
+                </p>
+              </div>
 
         <div>
           <p className="font-semibold text-[var(--text-muted)] mb-3">

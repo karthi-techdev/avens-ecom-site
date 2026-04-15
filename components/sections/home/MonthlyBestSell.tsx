@@ -5,18 +5,22 @@ import { Navigation, Autoplay } from "swiper/modules";
 import { PiLessThan, PiGreaterThan } from "react-icons/pi";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 import ProductCard from '@/components/ui/ProductCard';
-import { products } from '@/lib/constants';
+import { useEffect } from "react";
+import { useProductStore } from "@/store/useProductStore";
 import banner6 from '../../../public/home/banner-6.jpg';
 
 const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
-    const [activeTab, setActiveTab] = useState("feature");
+    const { products, activeTab, setActiveTab, fetchProducts } = useProductStore();
+    useEffect(() => {
+        fetchProducts(activeTab);
+    }, [activeTab, fetchProducts]);
 
     return (
         <section className='bg-[var(--bg-light)] !px-[1rem] !py-[0.8rem] sm:!px-[2rem] sm:!py-[1rem] md:!px-[4rem] md:!py-[1rem] lg:!px-[6rem] lg:!py-[3rem]'>
             <div className='flex justify-between !mb-[1rem]'>
                 <h1 className='text-[1.5rem] font-semibold !text-black !mb-[1rem]'><span className='text-[var(--primary)]'>Monthly </span> Best Sell</h1>
                 <div className='grid hidden md:inline-block grid-cols-2'>
-                    <button type='button' className={`${activeTab === 'feature' ? 'bg-[var(--orange-light)]' : 'bg-[var(--border-color)]'} !mr-[0.6rem] hover:-translate-y-2 transition-all duration-500 rounded-md !py-[0.4rem] !px-[1.2rem] text-[1.1rem] font-semibold capitalize text-[var(--primary)] cursor-pointer`} onClick={() => setActiveTab('feature')}>Featured</button>
+                    <button type='button' className={`${activeTab === 'featured' ? 'bg-[var(--orange-light)]' : 'bg-[var(--border-color)]'} !mr-[0.6rem] hover:-translate-y-2 transition-all duration-500 rounded-md !py-[0.4rem] !px-[1.2rem] text-[1.1rem] font-semibold capitalize text-[var(--primary)] cursor-pointer`} onClick={() => setActiveTab('featured')}>Featured</button>
                     <button type='button' className={`${activeTab === 'popular' ? 'bg-[var(--orange-light)]' : 'bg-[var(--border-color)]'} !mr-[0.6rem] hover:-translate-y-2 transition-all duration-500 rounded-md !py-[0.4rem] !px-[1.2rem] text-[1.1rem] font-semibold capitalize hover:text-[var(--primary)] cursor-pointer`} onClick={() => setActiveTab('popular')}>Popular</button>
                 </div>
             </div>
@@ -37,7 +41,7 @@ const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
                     </div>
                     <Swiper 
                         modules={[Navigation, Autoplay]}
-                        loop 
+                        loop={products.length > 4} 
                         breakpoints={{
                             0: { slidesPerView: 2 },
                             640: { slidesPerView: 2 },
@@ -46,7 +50,7 @@ const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
                             1240: { slidesPerView: 4 },
                         }}
                         spaceBetween={10}
-                        autoplay={{ delay: 2500, disableOnInteraction: true, pauseOnMouseEnter: true }}
+                        autoplay={{ delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true }}
                         navigation={{
                             nextEl: '.next-new',
                             prevEl: '.prev-new',
@@ -54,8 +58,8 @@ const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
                         observer={true}
                         observeParents={true}
                     >
-                        {products.map((product, index) => (
-                            <SwiperSlide key={index}>
+                        {products.map((product) => (
+                            <SwiperSlide key={product._id}>
                                 <div className="p-2">
                                 <ProductCard product={product} onQuickView={onQuickView} />
                                 </div>

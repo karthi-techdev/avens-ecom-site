@@ -26,14 +26,12 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // ✅ same pattern as brand (filter active + limit)
       const response = await apiClient.get(
         `${API.listCategory}?status=active&limit=100`
       );
 
       let categoryData: Category[] = [];
 
-      // ✅ handle all possible API structures
       if (response.data.data && Array.isArray(response.data.data)) {
         categoryData = response.data.data;
       } else if (Array.isArray(response.data)) {
@@ -42,7 +40,6 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         categoryData = response.data.data.data;
       }
 
-      // ✅ extra safety filter (like brand)
       const activeCategories = categoryData.filter(
         (cat: Category) => cat.status !== "inactive"
       );

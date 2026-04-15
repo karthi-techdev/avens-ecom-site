@@ -2,8 +2,11 @@
 import { useMainCategoryStore } from "../../store/useMainCategoryStore";
 import { useSubCategoryStore } from "../../store/useSubCategoryStore";
 import { useCategoryStore } from "../../store/useCategoryStore";
-import React, { useState,useEffect } from "react";
-import URLs from "../../lib/urls";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import React, { useState , useMemo , useEffect} from "react";
+import URLs from '../../lib/urls';
 import {
   Search,
   Heart,
@@ -19,8 +22,12 @@ import {
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
+import { useSettingsStore } from '../../store/useSettingsStore';
 
 const Header = () => {
+//login 
+ const router = useRouter();
+
   const [isOpen, setIsOpen] = useState(false);
   const [listIsOpen, setListIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -47,6 +54,63 @@ const filteredSubCategories = subCategories.filter(
   (sub) => sub.mainCategoryId === selectedMainCategory?._id
 );
  
+  const { settings, fetchSettings } = useSettingsStore();
+
+  useEffect(() => {
+    if (!settings) {
+      fetchSettings();
+    }
+  }, [fetchSettings, settings]);
+
+  const siteLogoUrl = useMemo(() => {
+    const logoPath = settings?.branding?.siteLogo;
+    console.log("sitelogo",logoPath)
+    if (logoPath) {
+
+      const baseUrl = URLs.FILEURL.replace(/\/$/, ""); 
+      
+      const cleanPath = logoPath.startsWith('/') ? logoPath : `/${logoPath}`;
+      return `${baseUrl}${cleanPath}?t=${new Date().getTime()}`;
+    }
+
+    return "/evara.svg"; 
+  }, [settings?.branding?.siteLogo]);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+  //login
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  // Logout handler...
+  const handleLogout = () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out from this session",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, Logout",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#3BB77E",
+    cancelButtonColor: "#d33",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("loginSuccess");
+      setIsLoggedIn(false);
+      router.push("/login");
+      Swal.fire({
+        title: "Logged Out!",
+        text: "You have successfully logged out.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  });
+};
   const navItems = [
     "Home",
     "About",
@@ -94,7 +158,6 @@ const validCol2 = col2.filter((sub) =>
       cat.subCategoryId?._id === sub._id
   )
 );
-
 
 return (
   <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
@@ -162,8 +225,36 @@ console.log("ICON:", cat.icon);
               </div>
             );
           })}
-        </div>
+          </div>
         )}
+        </div>
+    )};
+    </div>
+    )
+    
+    return (
+      <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
+        
+        <div className="w-1/4 border-r border-gray-100 py-2">
+          <ul className="text-sm text-gray-700">
+            {categories.map((cat, index) => (
+              <li 
+                key={index} 
+                className="group flex justify-between items-center px-4 py-[10.5px] hover:bg-gray-50 hover:text-[var(--primary)] cursor-pointer border-b border-gray-50 last:border-0"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg opacity-80">{cat.icon}</span>
+                  <span className="font-medium">{cat.name}</span>
+                </div>
+                {cat.hasSub && <span className="text-[10px] text-gray-400 group-hover:text-[var(--primary)]">❯</span>}
+              </li>
+            ))}
+            <li className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold">
+              + See More
+            </li>
+          </ul>
+        </div>
+       
         {/* COLUMN 2 */}
         {validCol2.length > 0 && (
         <div>
@@ -205,10 +296,7 @@ console.log("ICON:", cat.icon);
           ))}
         </div>
       </div>
-    )}
-  </div>
-);
-};
+    )};
   return (
     <header className="w-full relative ">
 
@@ -239,9 +327,25 @@ console.log("ICON:", cat.icon);
               English <ChevronDown size={14} />
             </div>
             <span>|</span>
-            <div className="cursor-pointer hover:text-[var(--primary)] transition">
-              Log In / Sign Up
-            </div>
+
+            {/* //for login */}
+            <div className="flex items-center gap-2">
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-[var(--primary)] font-medium cursor-pointer"
+                >
+                  Logout
+                </button>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-[var(--primary)]">Login</Link>
+                  <span>/</span>
+                  <Link href="/register" className="hover:text-[var(--primary)]">Sign Up</Link>
+                </>
+              )}
+            </div> 
+          
           </div>
         </div>
       </div>
@@ -250,11 +354,17 @@ console.log("ICON:", cat.icon);
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex items-center justify-between">
 
           <div className="flex items-center gap-2">
-            <img
-              src="/evara.svg"
-              alt="Evaria Logo"
-              className="h-8 object-contain"
-            />
+                  <img
+                      key={siteLogoUrl} // Important: Forces the image to swap immediately on update
+                      src={siteLogoUrl}
+                      alt="Site Logo"
+                      className="h-8 object-contain"
+                      onError={(e) => {
+                        // Extra safety: if the image fails to load, revert to fallback
+                        (e.target as HTMLImageElement).src = "/evara.svg";
+                      }}
+                    />
+
           </div>
 
 <div className="hidden lg:flex items-center w-full max-w-[700px] border-b-3 border-gray-800 bg-transparent relative h-[45px] ml-10">

@@ -191,6 +191,29 @@ input[type="checkbox"]:checked::before {
 
 }
 
+input[type="number"] {
+  -moz-appearance: number-field !important;
+  appearance: auto !important;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1 !important;
+  -webkit-appearance: inner-spin-button !important;
+  appearance: inner-spin-button !important;
+  height: 24px;
+  width: 14px;
+  margin: 0;
+  display: block !important;
+}
+
+@supports (-webkit-touch-callout: none) {
+  input[type="number"] {
+    -webkit-appearance: number-field !important;
+    appearance: number-field !important;
+  }
+}
+
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
