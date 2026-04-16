@@ -399,7 +399,7 @@ useEffect(() => {
       </span>
     </div>
 
-    <div className={`${isLoggedIn ?'relative group py-4':'hidden'}`}> 
+    <div className={`${token ?'relative group py-4':'hidden'}`}> 
       <div className="relative cursor-pointer">
         <ShoppingCart size={24} />
         <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
@@ -407,7 +407,7 @@ useEffect(() => {
         </span>
       </div>
 
-      <div className={`${isLoggedIn ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
+      <div className={`${token ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
         <ul className="space-y-4">
           {cartItems?cartItems.map((item:any) => (
             <li key={item._id} className="flex items-center justify-between gap-4">
@@ -432,12 +432,12 @@ useEffect(() => {
           </div>
           
           <div className="flex gap-2">
-            <button className="flex-1 border border-[#3BB77E] text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:text-white transition-colors">
-              <Link href='/cart'>View cart</Link>
-            </button>
-            <button className="flex-1 bg-[#3BB77E] text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
+            <Link href='/cart' className="flex-1 !text-center border border-[#3BB77E] !text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:!text-white transition-colors">
+              View cart
+            </Link>
+            <Link href='/checkout' className="flex-1 text-center bg-[#3BB77E] !text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
               Checkout
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { ChevronRight, Trash, Handbag, Shuffle, X, Tag, CreditCard, FingerprintP
 import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getNames } from "country-list";
+import Link from "next/link";
 import {toast,Bounce,ToastContainer} from 'react-toastify';
 import { useCartStore } from "../../store/cartStore";
 import Swal from "sweetalert2";
@@ -254,18 +255,21 @@ transition={Bounce}
               </div> */}
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-end sm:justify-end !mt-6">
-                <button
+                   <Link href='/checkout'><button
                   className="!px-5 !py-3 bg-[var(--primary)] text-white rounded hover:bg-[var(--primary-hover)] transition-colors flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
                 >
                   <Shuffle size={16} />
                   Update Cart
                 </button>
-                <button
+                </Link>
+                 <Link href='/shop-list-left'>
+                  <button
                   className="!px-5 !py-3 bg-[var(--primary)] text-white rounded hover:bg-[var(--primary-hover)] transition-colors flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
                 >
                   <Handbag size={16} />
                   Continue Shopping
-                </button>
+                </button></Link>
+               
               </div>
             </div>
           </div>

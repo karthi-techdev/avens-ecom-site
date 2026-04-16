@@ -122,7 +122,6 @@ transition={Bounce}
             <p className="text-[var(--text-muted)] line-clamp-3">
                 {product.shortDescription || "No description available"}
             </p>
-
             {/* COLORS SECTION */}
             <div className="mt-6">
                 <p className="text-sm font-bold text-[#253d4e] mb-3">Color</p>
