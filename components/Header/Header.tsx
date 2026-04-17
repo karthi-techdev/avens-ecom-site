@@ -1,6 +1,7 @@
 "use client";
-
-
+import { useMainCategoryStore } from "../../store/useMainCategoryStore";
+import { useSubCategoryStore } from "../../store/useSubCategoryStore";
+import { useCategoryStore } from "../../store/useCategoryStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -17,14 +18,10 @@ import {
   Smartphone,
   Menu,
   X,
-  Shirt,
-  Laptop,
-  Speaker,
-  Home,
-  Footprints,
-  Baby,
-  Sun,
 } from "lucide-react";
+import * as Icons from "lucide-react";
+import { LucideIcon } from "lucide-react";
+
 import { useSettingsStore } from '../../store/useSettingsStore';
 
 const Header = () => {
@@ -38,6 +35,25 @@ const Header = () => {
   const [isSinglePostOpen, setIsSinglePostOpen] = useState(false);
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const {fetchMainCategories, mainCategories} = useMainCategoryStore();
+  const {fetchSubCategories,subCategories} = useSubCategoryStore();
+  const {fetchCategories,categories} = useCategoryStore();
+  const [selectedMainCategory, setSelectedMainCategory] = useState<any>(null);
+  const [showAll, setShowAll] = useState(false);
+  const visibleCategories = showAll ? mainCategories : mainCategories.slice(0, 10);
+  
+useEffect(() => {
+  fetchMainCategories();
+  fetchSubCategories();
+  fetchCategories();
+}, []);
+const maincategories = mainCategories.map((cat, index) => ({
+  name: cat.name,
+}));
+const filteredSubCategories = subCategories.filter(
+  (sub) => sub.mainCategoryId === selectedMainCategory?._id
+);
+ 
   const { settings, fetchSettings } = useSettingsStore();
 
   useEffect(() => {
@@ -95,19 +111,6 @@ const Header = () => {
     }
   });
 };
-
-
-  const categories = [
-    { icon: <Shirt size={18} />, name: "Women's Clothing" },
-    { icon: <Shirt size={18} />, name: "Men's Clothing" },
-    { icon: <Smartphone size={18} />, name: "Cellphones" },
-    { icon: <Laptop size={18} />, name: "Computer & Office" },
-    { icon: <Speaker size={18} />, name: "Consumer Electronics" },
-    { icon: <Home size={18} />, name: "Home & Garden" },
-    { icon: <Footprints size={18} />, name: "Shoes" },
-    { icon: <Baby size={18} />, name: "Mother & Kids" },
-    { icon: <Sun size={18} />, name: "Outdoor fun" },
-  ];
   const navItems = [
     "Home",
     "About",
@@ -117,56 +120,118 @@ const Header = () => {
     "Pages",
     "Contact",
   ];
-  const categoryData = {
-  "Women's Clothing": {
-    col1: { title: "Hot & Trending", items: ["Dresses", "Blouses & Shirts", "Hoodies & Sweatshirts", "Women's Sets", "Suits & Blazers", "Bodysuits", "Tanks & Camis", "Coats & Jackets"] },
-    col2: { title: "Bottoms", items: ["Leggings", "Skirts", "Shorts", "Jeans", "Pants & Capris", "Bikini Sets", "Cover-Ups", "Swimwear"] },
-    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
-  },
-  "Men's Clothing": {
-    col1: { title: "Jackets & Coats", items: ["Down Jackets", "Jackets", "Parkas", "Faux Leather Coats", "Trench", "Wool & Blends", "Vests & Waistcoats", "Leather Coats"] },
-    col2: { title: "Suits & Blazers", items: ["Blazers", "Suit Jackets", "Suit Pants", "Suits", "Vests", "Tailor-made Suits", "Cover-Ups"] },
-    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
-  },
-  "Cellphones": {
-    col1: { title: "Hot & Trending", items: ["Cellphones", "iPhones", "Refurbished Phones", "Mobile Phone", "Mobile Phone Parts", "Phone Bags & Cases", "Communication Equipments", "Walkie Talkie"] },
-    col2: { title: "Accessories", items: ["Screen Protectors", "Wire Chargers", "Wireless Chargers", "Car Chargers", "Power Bank", "Armbands", "Dust Plug", "Signal Boosters"] },
-    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
-  }
-};
 const cartItems = [
     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
   ];
   const CategoryMegaMenu = () => {
-    const categories = [
-      { name: "Women's Clothing", icon: <Shirt size={18} />, hasSub: true },
-      { name: "Men's Clothing", icon: <Shirt size={18} />, hasSub: true },
-      { name: "Cellphones", icon: <Smartphone size={18} />, hasSub: true },
-      { name: "Computer & Office", icon: <Laptop size={18} />, hasSub: false },
-      { name: "Consumer Electronics", icon: <Laptop size={18} />, hasSub: false },
-      { name: "Jewelry & Accessories", icon:<Speaker size={18} />, hasSub: false },
-      { name: "Home & Garden", icon: <Home size={18} />, hasSub: false },
-      { name: "Shoes", icon: <Footprints size={18} />, hasSub: false },
-      { name: "Mother & Kids", icon: <Baby size={18} />, hasSub: false },
-      { name: "Outdoor fun", icon: <Sun size={18} />, hasSub: false },
-    ];
+    const maincategories =mainCategories.map((cat, index) => ({
+  name: cat.name,
+}));
 
+const validSubCategories = subCategories.filter((sub: any) =>
+  categories.some(
+    (cat: any) =>
+      cat.mainCategoryId?._id === selectedMainCategory?._id &&
+      cat.subCategoryId?._id === sub._id
+  )
+);
+const hasSubContent = validSubCategories.length > 0;
+const half = Math.ceil(validSubCategories.length / 2);
+const col1 = validSubCategories.slice(0, half);
+const col2 = validSubCategories.slice(half);
+const filteredSubWithImages = validSubCategories.filter(
+  (sub: any) => sub.image
+);
+const validCol1 = col1.filter((sub) =>
+  categories.some(
+    (cat: any) =>
+      cat.mainCategoryId?._id === selectedMainCategory._id &&
+      cat.subCategoryId?._id === sub._id
+  )
+);
 
-    //login
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
-    setIsLoggedIn(loginStatus === "true");
-  }, []);
+const validCol2 = col2.filter((sub) =>
+  categories.some(
+    (cat: any) =>
+      cat.mainCategoryId?._id === selectedMainCategory._id &&
+      cat.subCategoryId?._id === sub._id
+  )
+);
 
-  const handleLogout = () => {
-    localStorage.removeItem("loginSuccess");
-    setIsLoggedIn(false);
-    router.push("/login"); 
-  };
-  
+return (
+  <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
+    ${hasSubContent ? "w-[1000px]" : "w-[250px]"}`}> 
+    
+    {/* LEFT SIDEBAR (Main Categories) - Always visible */}
+    <div className={`${hasSubContent ? "w-1/4" : "w-full"} border-r border-gray-100 py-2`}>
+      <ul className="text-sm text-gray-700">
+        {visibleCategories.map((cat) => {
+          const IconComponent = Icons[cat.icon as keyof typeof Icons] as LucideIcon;
+console.log("ICON:", cat.icon);
 
+          return(
+          <li 
+            key={cat._id}
+            onClick={() => setSelectedMainCategory(cat)}
+            className={`group flex justify-between items-center px-4 py-[10.5px] cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 hover:text-[var(--primary)] 
+            ${selectedMainCategory?._id === cat._id ? "text-[var(--primary)] bg-gray-50" : ""}`}
+          >
+            <div className="flex items-center gap-3">
+              <span> {IconComponent ? ( <IconComponent className="text-gray-400" size={18} />) : (<Icons.LayoutGrid size={18} />)}</span>
+              <span className="font-medium">{cat.name}</span>
+            </div>
+            {/* Optional: Add an arrow icon if sub-content exists */}
+          </li>
+  )})}
+        {mainCategories.length > 10 && (
+      <li
+        onClick={() => setShowAll(!showAll)}
+        className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold"
+      >
+        {showAll ? "- Show Less" : "+ See More"}
+      </li>
+    )}
+      </ul>
+    </div>
 
+    {/* RIGHT CONTENT - Only shows if there is data */}
+    {selectedMainCategory && hasSubContent && (
+      <div className={`w-3/4 p-8 grid gap-8 ${filteredSubWithImages.length > 0
+      ? validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-3" : "grid-cols-2"
+      : validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+        {/* COLUMN 1 */}
+        {validCol1.length > 0 && (
+        <div>
+          {validCol1.map((sub) => {
+            const filteredCategories = categories.filter(
+              (cat: any) =>
+                cat.mainCategoryId?._id === selectedMainCategory._id &&
+                cat.subCategoryId?._id === sub._id
+            );
+            if (filteredCategories.length === 0) return null;
+            return (
+              <div key={sub._id} className="mb-4">
+                <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
+                  {sub.name}
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {filteredCategories.map((item: any) => (
+                    <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
+                      {item.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          </div>
+        )}
+        </div>
+    )};
+    </div>
+    )
+    
     return (
       <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
         
@@ -189,42 +254,49 @@ const cartItems = [
             </li>
           </ul>
         </div>
-
-        <div className="w-3/4 p-8 grid grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-[var(--primary)] font-bold text-base mb-4 border-b pb-2">Hot & Trending</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              {["Dresses", "Blouses & Shirts", "Hoodies & Sweatshirts", "Women's Sets", "Suits & Blazers", "Bodysuits", "Tanks & Camis", "Coats & Jackets"].map(item => (
-                <li key={item} className="hover:text-[var(--primary)] cursor-pointer">{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-[var(--primary)] font-bold text-base mb-4 border-b pb-2">Bottoms</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              {["Leggings", "Skirts", "Shorts", "Jeans", "Pants & Capris", "Bikini Sets", "Cover-Ups", "Swimwear"].map(item => (
-                <li key={item} className="hover:text-[var(--primary)] cursor-pointer">{item}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="space-y-4">
-            <div className="bg-[#f0f4ef] p-6 rounded-md relative h-40 flex flex-col justify-center">
-              <span className="text-xs text-gray-400">10% Off</span>
-              <h4 className="font-bold text-xl">New Arrival</h4>
-              <a href="#" className="text-[var(--primary)] text-xs mt-1 hover:underline">Shop Now</a>
+       
+        {/* COLUMN 2 */}
+        {validCol2.length > 0 && (
+        <div>
+          {validCol2.map((sub) => {
+            const filteredCategories = categories.filter(
+              (cat: any) =>
+                cat.mainCategoryId?._id === selectedMainCategory._id &&
+                cat.subCategoryId?._id === sub._id
+            );
+            if (filteredCategories.length === 0) return null;
+            return (
+              <div key={sub._id} className="mb-4">
+                <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
+                  {sub.name}
+                </h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {filteredCategories.map((item: any) => (
+                    <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
+                      {item.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+        )}
+        {/* COLUMN 3 (Images) */}
+        
+        <div className="space-y-4">
+          {filteredSubWithImages.slice(0, 2).map((sub: any) => (
+            <div key={sub._id} className="relative rounded-md h-40 overflow-hidden">
+              <img
+                src={`${URLs.FILEURL}${sub.image.replace(/^\/+/, "")}`}
+                alt={sub.name}
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="bg-[#fdf2f0] p-6 rounded-md relative h-40 flex flex-col justify-center">
-              <span className="text-xs text-gray-400">15% Off</span>
-              <h4 className="font-bold text-xl">Hot Deals</h4>
-              <a href="#" className="text-[var(--primary)] text-xs mt-1 hover:underline">Shop Now</a>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
-    );
-  };
+    )};
   return (
     <header className="w-full relative ">
 
@@ -318,7 +390,7 @@ const cartItems = [
           >
             All Categories
           </li>
-          {categories.map((cat, index) => (
+          {maincategories.map((cat, index) => (
             <li 
               key={index}
               onClick={() => { setSelectedCategory(cat.name); setListIsOpen(false); }}
