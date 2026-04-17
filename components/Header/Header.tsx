@@ -64,7 +64,7 @@ const filteredSubCategories = subCategories.filter(
 
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
-    console.log("sitelogo",logoPath)
+    
     if (logoPath) {
 
       const baseUrl = URLs.FILEURL.replace(/\/$/, ""); 

@@ -1,48 +1,66 @@
+
 import { create } from 'zustand';
 import apiClient from '@/lib/api-client';
 import { API } from '@/lib/urls';
 
+export interface Product {
+    _id: string;
+    name: string;
+    slug: string;
+    title: string;
+    thumbnail: string;
+    price: number;
+    discountPrice?: number;
+    stockQuantity: number;
+    brandId: string;
+    mainCategoryId: string;
+    subCategoryId?: string;
+    categoryId?: string;
+    images: string[];
+    colors?: string[];
+    sizes?: string;
+    status: 'active' | 'inactive';
+    isDeleted: boolean;
+    isActive: boolean;
+    createdAt: string; // Added for sorting
+    rating?: number;   // Added as optional
+}
+
 interface ProductState {
-  products: any[];
-  isLoading: boolean;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  fetchProducts: (type: string) => Promise<void>;
+    products: Product[];
+    isLoading: boolean;
+    error: string | null;
+    fetchProducts: () => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
-  products: [],
-  isLoading: false,
-  activeTab: "featured",
+    products: [],
+    isLoading: false,
+    error: null,
 
-  setActiveTab: (tab) => set({ activeTab: tab }),
+    fetchProducts: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await apiClient.get(`${API.fetchProducts}?status=active&limit=100`);
+            
+            let productData = [];
+            if (response.data.data && Array.isArray(response.data.data)) {
+                productData = response.data.data;
+            } else if (Array.isArray(response.data)) {
+                productData = response.data;
+            } else if (response.data.data && response.data.data.data) {
+                productData = response.data.data.data;
+            }
 
-  fetchProducts: async (type) => {
-    set({ isLoading: true });
-
-    try {
-      let url = API.filterProducts;
-
-      if (type === "new") {
-        url = `${API.filterProducts}?type=new`;
-      } else {
-        url = `${API.filterProducts}?type=${type}`;
-      }
-
-      const res = await apiClient.get(url);
-      let data = [];
-
-      if (res.data.data) {
-        data = res.data.data;
-      } else if (Array.isArray(res.data)) {
-        data = res.data;
-      }
-
-      set({ products: data, isLoading: false });
-
-    } catch (err) {
-      console.log(err);
-      set({ isLoading: false });
-    }
-  }
+            const activeProducts = productData.filter(
+                (product: Product) => product.isActive !== false
+            );
+            set({ products: activeProducts, isLoading: false });
+        } catch (error: any) {
+            set({ 
+                error: error.response?.data?.message || 'Failed to fetch products', 
+                isLoading: false 
+            });
+        }
+    },
 }));

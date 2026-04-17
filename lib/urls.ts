@@ -29,6 +29,8 @@ export const API = {
   // Category endpoints
   addCategory: `${ROOTURL}admin/categories/`,
   listCategory: `${ROOTURL}admin/categories/`,
+  // Product endpoints
+  fetchProducts: `${ROOTURL}admin/products/`,
   getCategory: `${ROOTURL}admin/categories/getCategoryById/`,
   updateCategory: `${ROOTURL}admin/categories/updateCategory/`,
   softDeleteCategory: `${ROOTURL}admin/categories/softDeleteCategory/`,
