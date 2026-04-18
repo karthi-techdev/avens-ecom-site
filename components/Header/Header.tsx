@@ -41,8 +41,6 @@ const Header = () => {
   const [openMobileSubMenu, setOpenMobileSubMenu] = useState<string | null>(null);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const { settings, fetchSettings } = useSettingsStore();
-
-  // ✅ ADDED: wishlist count state
   const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
@@ -51,8 +49,6 @@ const Header = () => {
     }
   }, [fetchSettings, settings]);
 
-
-  // ✅ ADDED: wishlist count logic
   useEffect(() => {
     const updateWishlistCount = () => {
       const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
@@ -60,12 +56,10 @@ const Header = () => {
     };
 
     updateWishlistCount();
-    // ✅ custom event listener
     window.addEventListener("wishlistUpdated", updateWishlistCount);
-
-
     return () => {
-      window.removeEventListener("storage", updateWishlistCount);
+      window.removeEventListener("wishlistUpdated", updateWishlistCount);
+      // window.removeEventListener("storage", updateWishlistCount);
     };
   }, []);
 
@@ -378,8 +372,13 @@ const Header = () => {
               {/* Wishlist Link - LINE 360 UPDATED HERE */}
               <Link href="/wishlist" className="relative cursor-pointer group flex items-center gap-2">
                 <div className="relative">
-                  <Heart size={28} className="text-[#253D4E] group-hover:text-[#3BB77E] transition-colors" />
-                  {/* ✅ UPDATED: dynamic count */}
+                  <Heart
+                    size={28}
+                    fill="none"
+                    stroke="#253D4E"
+                    className="transition-all duration-300 group-hover:stroke-[#3BB77E]"
+                  />
+                  {/*  UPDATED: dynamic count */}
                   <span className="absolute -top-1 -right-1 bg-[#3BB77E] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {wishlistCount}
                   </span>

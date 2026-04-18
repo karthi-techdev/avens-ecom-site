@@ -4,22 +4,65 @@ import { FaCodeCompare } from "react-icons/fa6";
 import { MdStarPurple500 } from "react-icons/md";
 import { useEffect, useState } from "react";
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { IoHeart } from "react-icons/io5";
 
 interface ProductCardProps {
     product: any;
     onQuickView?: () => void;
     view?: 'grid' | 'list';
-}   
+}
 
 const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) => {
-    // console.log("🔵 CARD RECEIVED:", product);
+    const router = useRouter();
+    const [isInWishlist, setIsInWishlist] = useState(false);
+    const [showRemoveAlert, setShowRemoveAlert] = useState(false);
     const badges = ["New", "Best Seller", "Trending", "Hot", "Sale"];
     const [badge, setBadge] = useState("New");
     useEffect(() => {
         const index = Math.floor(Math.random() * badges.length);
         setBadge(badges[index]);
-        
-    }, []);
+
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const isExist = savedWishlist.some(
+            (item: any) => (item._id || item.id) === (product._id || product.id)
+        );
+        setIsInWishlist(isExist);
+
+    }, [product]);
+
+    const handleAddWishlist = () => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+
+        const isExist = savedWishlist.find(
+            (item: any) => (item._id || item.id) === (product._id || product.id)
+        );
+
+        if (!isExist) {
+            savedWishlist.push(product);
+            localStorage.setItem('wishlist', JSON.stringify(savedWishlist));
+
+            window.dispatchEvent(new Event("wishlistUpdated"));
+
+            setIsInWishlist(true);
+
+            // router.push('/wishlist'); //  redirect
+        }
+    };
+
+    const handleRemoveWishlist = () => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+
+        const updated = savedWishlist.filter(
+            (item: any) => (item._id || item.id) !== (product._id || product.id)
+        );
+
+        localStorage.setItem('wishlist', JSON.stringify(updated));
+        window.dispatchEvent(new Event("wishlistUpdated"));
+        setIsInWishlist(false);
+        setShowRemoveAlert(true);
+        setTimeout(() => setShowRemoveAlert(false), 3000);
+    };
     if (view === 'list') {
         return (
             <div className="group relative w-full bg-white rounded-2xl overflow-hidden transition-all duration-300 flex flex-col md:flex-row p-4 sm:p-6 border border-[var(--border-color)]">
@@ -62,7 +105,7 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                     </p>
 
                     <div className="flex flex-wrap items-center justify-between gap-4">
-                        <button 
+                        <button
                             onClick={() => console.log("Added to Cart")}
                             className="px-6 py-2.5 bg-[var(--primary)] text-white rounded-full shadow-md transition-all hover:bg-[#29a56c] active:scale-95 flex items-center gap-2"
                         >
@@ -86,28 +129,61 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
 
     return (
         <div className='border group/card rounded-2xl border-[var(--green-border)] !p-[1rem] bg-white'>
+            {showRemoveAlert && (
+                <div className="fixed top-5 right-5 z-[9999] bg-white border-l-8 border-red-500 shadow-xl p-4 rounded flex items-center gap-3">
+                    {/* ICON */}
+                    <div className="bg-red-100 p-3 rounded-full">
+                        <svg
+                            className="w-5 h-5 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    {/* TEXT */}
+                    <div className="flex-1">
+                        <h4 className="text-gray-900 font-bold text-sm">
+                            Removed!
+                        </h4>
+                        <p className="text-gray-500 text-sm">
+                            Item removed from wishlist.
+                        </p>
+                    </div>
+
+                    {/* CLOSE BUTTON */}
+                    <button
+                        onClick={() => setShowRemoveAlert(false)}
+                        className="text-gray-400 hover:text-gray-600"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
             <div className='cursor-pointer relative rounded-md overflow-hidden'>
-                <Image 
+                <Image
                     src={
                         product.thumbnail
                             ? `http://localhost:5000${product.thumbnail}`
                             : "/placeholder.png"
-                        }
+                    }
                     width={300}
                     height={300}
-                    unoptimized 
-                    className='w-full rounded-2xl transition-all duration-700 ease-in-out scale-100 opacity-100 group-hover/card:scale-110 group-hover/card:opacity-0' 
+                    unoptimized
+                    className='w-full rounded-2xl transition-all duration-700 ease-in-out scale-100 opacity-100 group-hover/card:scale-110 group-hover/card:opacity-0'
                     alt={product.name}
                 />
-                <Image 
+                <Image
                     src={
                         product.thumbnail
                             ? `http://localhost:5000${product.thumbnail}`
                             : "/placeholder.png"
-                        }
+                    }
                     width={300}
                     height={300}
-                    unoptimized 
+                    unoptimized
                     className='absolute inset-0 w-full h-full object-cover rounded-2xl transition-all duration-700 ease-in-out scale-110 opacity-0 group-hover/card:scale-105 group-hover/card:opacity-100'
                     alt={product.name}
                 />
@@ -120,8 +196,31 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                     <button onClick={onQuickView} className="p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white rounded-full shadow-md transition-all">
                         <IoEyeOutline size={20} />
                     </button>
-                    <button className="p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white rounded-full shadow-md transition-all">
-                        <IoHeartOutline size={20} />
+                    <button
+                        onClick={handleAddWishlist}
+                        onDoubleClick={handleRemoveWishlist}
+                        className="p-3 rounded-full shadow-md transition-all duration-300 bg-white group"
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "lab(67% -45.62 18.74)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "white";
+                        }}
+                    >
+                        {isInWishlist ? (
+                            <IoHeart size={20} color="red" />
+                        ) : (
+                            <IoHeartOutline
+                                size={20}
+                                style={{ color: "#7ac086" }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.color = "white";
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.color = "#7ac086";
+                                }}
+                            />
+                        )}
                     </button>
                     <button className="p-3 bg-white text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white rounded-full shadow-md transition-all">
                         <FaCodeCompare size={20} />

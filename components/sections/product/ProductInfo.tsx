@@ -13,40 +13,31 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('M');
     const [selectedColor, setSelectedColor] = useState('#3bb77e');
-
-    // 1. Wishlist state matrum Alert state
     const [isInWishlist, setIsInWishlist] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
-
+    const [showRemoveAlert, setShowRemoveAlert] = useState(false);
     const router = useRouter();
-
     const colors = ['#f74877', '#3bb77e', '#2196f3', '#ff9800'];
     const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-
-    // Calculation logic (Neenga kuduthu appadiye irukku)
     const unitPrice = product.price - (product.price * (product.discountPrice || 0) / 100);
     const totalPrice = Math.round(unitPrice * quantity);
     const totalOriginalPrice = product.price * quantity;
 
-    // 2. Component load aagum pothu product wishlist-la irukka nu check pannum
     useEffect(() => {
         const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
         const isExist = savedWishlist.some((item: any) => (item._id || item.id) === (product._id || product.id));
         setIsInWishlist(isExist);
     }, [product]);
 
-    // 3. Wishlist Click Logic - Alert matrum Redirect features-odu
     const handleWishlistClick = () => {
         const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-        const isExist = savedWishlist.find((item: any) => (item._id || item.id) === (product._id || product.id));
+        const isExist = savedWishlist.find(
+            (item: any) => (item._id || item.id) === (product._id || product.id)
+        );
 
-        if (isExist) {
-            // Product irundha "Already in wishlist" alert kaatum
-            setShowAlert(true);
-            setTimeout(() => setShowAlert(false), 3000);
-        } else {
-            // Illana save panni wishlist page-ku redirect pannum
-            const discountedPrice = Math.round(product.price - (product.price * (product.discountPrice || 0) / 100));
+        if (!isExist) {
+            const discountedPrice = Math.round(
+                product.price - (product.price * (product.discountPrice || 0) / 100)
+            );
             const productToSave = {
                 ...product,
                 price: discountedPrice,
@@ -54,40 +45,44 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             };
             savedWishlist.push(productToSave);
             localStorage.setItem('wishlist', JSON.stringify(savedWishlist));
-            // ✅ ADD THIS LINE (VERY IMPORTANT)
             window.dispatchEvent(new Event("wishlistUpdated"));
             setIsInWishlist(true);
             router.push('/wishlist');
         }
     };
 
+    const handleRemoveWishlist = () => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+
+        const updated = savedWishlist.filter(
+            (item: any) => (item._id || item.id) !== (product._id || product.id)
+        );
+
+        localStorage.setItem('wishlist', JSON.stringify(updated));
+        window.dispatchEvent(new Event("wishlistUpdated"));
+        setIsInWishlist(false);
+        setShowRemoveAlert(true);
+        setTimeout(() => setShowRemoveAlert(false), 3000);
+    };
+
     return (
         <div className="flex flex-col gap-6 relative">
+            {showRemoveAlert && (
+                <div className="fixed top-5 right-5 z-[9999] min-w-[320px] bg-white border-l-8 border-red-500 shadow-xl p-5 rounded-r-xl flex items-center gap-4">
 
-            {/* 4. Already in Wishlist Alert Message */}
-            {/* Right Side Top Fixed Alert */}
-            {showAlert && (
-                <div className="fixed top-5 right-5 z-[9999] min-w-[320px] bg-white border-l-8 border-green-500 shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-5 rounded-r-xl flex items-center gap-4 animate-in fade-in slide-in-from-right-10 duration-500">
-
-                    {/* Tick Icon with Green Background */}
-                    <div className="bg-green-100 p-3 rounded-full shrink-0">
-                        <CircleCheck className="w-6 h-6 text-green-600" />
+                    <div className="bg-red-100 p-3 rounded-full">
+                        <CircleCheck className="w-6 h-6 text-red-600" />
                     </div>
 
-                    {/* Success Message Text */}
                     <div className="flex-1">
-                        <h4 className="text-gray-900 font-bold text-base leading-tight">Already Added!</h4>
-                        <p className="text-gray-500 text-sm mt-0.5 font-medium">
-                            This item is waiting in your wishlist.
+                        <h4 className="font-bold text-gray-900">Removed!</h4>
+                        <p className="text-sm text-gray-500">
+                            Item removed from wishlist.
                         </p>
                     </div>
 
-                    {/* Close Button */}
-                    <button
-                        onClick={() => setShowAlert(false)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors p-1"
-                    >
-                        <X size={18} strokeWidth={3} />
+                    <button onClick={() => setShowRemoveAlert(false)}>
+                        <X size={18} />
                     </button>
                 </div>
             )}
@@ -190,6 +185,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     <button
                         type="button"
                         onClick={handleWishlistClick}
+                        onDoubleClick={handleRemoveWishlist}
                         className={`w-14 h-14 border rounded-lg flex items-center justify-center transition-all ${isInWishlist ? "bg-red-50 border-red-200" : "hover:bg-gray-50 border-gray-200"}`}
                     >
                         <Heart
