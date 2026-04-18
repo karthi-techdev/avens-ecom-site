@@ -1,3 +1,4 @@
+"use client";
 
 import { MessageSquareText, ChevronRight, Eye, Usb, ArrowRight, Clock, Search } from "lucide-react"
 import Image from "next/image";
@@ -14,8 +15,29 @@ import blogimagerightthree from "@/public/images/blog-3.png"
 import blogimagerightfour from "@/public/images/blog-4.png"
 import blogimagerightfive from "@/public/images/blog-5.png"
 import blogimagerightsix from "@/public/images/offer.png"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const BlogtechnologyPage = () => {
+  const [checkingAuth, setCheckingAuth] = useState(true);
+    const router = useRouter();
+
+     useEffect(() => {
+        const isLoggedIn = localStorage.getItem("loginSuccess");
+    
+        if (isLoggedIn) {
+          router.replace("/blog");
+        } else {
+          setCheckingAuth(false);
+          if(!isLoggedIn){
+            router.replace("/login")
+          }
+        }
+      }, []);
+
+
+
+
     return (
         <section className="w-full">
             <div className="w-full bg-[var(--bg-light)]">

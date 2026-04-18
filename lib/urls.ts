@@ -29,8 +29,7 @@ export const API = {
   // Category endpoints
   listCategory: `${ROOTURL}admin/categories/`,
 
-
-    // ---------------- Product endpoints ----------------
+  // ---------------- Product endpoints ----------------
   addProduct: `${ROOTURL}admin/products/`,
   listProduct: `${ROOTURL}admin/products/`,
   getProductById: `${ROOTURL}admin/products/getProductById/`,
@@ -44,8 +43,10 @@ export const API = {
   filterProducts: `${ROOTURL}admin/products/filter`,
   newProducts: `${ROOTURL}admin/products/new`,
 
-        //  Blog endpoints
-   addBlog: `${ROOTURL}admin/blogs/`,
+  listReviews: `${ROOTURL}reviews`, // GET
+  addReviews: `${ROOTURL}reviews`, //POST
+  //  Blog endpoints
+  addBlog: `${ROOTURL}admin/blogs/`,
   listBlog: `${ROOTURL}admin/blogs/`,
   getBlog: (slug: string) => `${ROOTURL}admin/blogs/get/${slug}`,
   updateBlog: (id: string) => `${ROOTURL}admin/blogs/update/${id}`,
@@ -53,7 +54,8 @@ export const API = {
   trashBlog: `${ROOTURL}admin/blogs/trash`,
   toggleBlogStatus: (id: string) => `${ROOTURL}admin/blogs/status/${id}`,
   restoreBlog: (id: string) => `${ROOTURL}admin/blogs/restore/${id}`,
-  permanentDelete: (id: string) => `${ROOTURL}admin/blogs/permanentDelete/${id}`,
+  permanentDelete: (id: string) =>
+    `${ROOTURL}admin/blogs/permanentDelete/${id}`,
   checkDuplicate: `${ROOTURL}admin/blogs/check-duplicate`,
 
   // Promotion endpoints
@@ -62,6 +64,9 @@ export const API = {
   listOffers: `${ROOTURL}admin/offers/`,
 //comments
   addComment: `${ROOTURL}admin/comments/`,
+  getCommentsByBlog: (blogId: string) =>
+  `${ROOTURL}admin/comments/${blogId}`,
+  deleteComment: (id: string) => `${ROOTURL}admin/comments/${id}`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
