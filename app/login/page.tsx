@@ -80,6 +80,7 @@ export default function LoginPage() {
 
       localStorage.setItem("loginSuccess", "true");
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
 
       Swal.fire({
         icon: "success",
@@ -226,7 +227,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-
+console.log("LOGIN RESPONSE:", data);
       </div>
     </div>
   );

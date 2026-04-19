@@ -87,6 +87,11 @@ export const API = {
   listPromotions: `${ROOTURL}admin/promotions`,
   // Offer endpoints
   listOffers: `${ROOTURL}admin/offers/`,
+//comments
+  addComment: `${ROOTURL}admin/comments/`,
+  getCommentsByBlog: (blogId: string) =>
+  `${ROOTURL}admin/comments/${blogId}`,
+  deleteComment: (id: string) => `${ROOTURL}admin/comments/${id}`,
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
