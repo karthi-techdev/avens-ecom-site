@@ -26,9 +26,9 @@ import {
   Sun,
 } from "lucide-react";
 import { useSettingsStore } from '../../store/useSettingsStore';
-
-const Header = () => {
 //login 
+const Header = () => {
+
  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +46,33 @@ const Header = () => {
     }
   }, [fetchSettings, settings]);
 
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+
+    if (loginStatus === "true") {
+      Swal.fire({
+        icon: "success",
+        title: "Welcome!",
+        text: "You are logged in",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Not Logged In",
+        text: "Please login to continue",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  }, []);
+
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
     console.log("sitelogo",logoPath)
@@ -62,12 +89,6 @@ const Header = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
-  //login
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
-    setIsLoggedIn(loginStatus === "true");
-  }, []);
 
   // Logout handler...
   const handleLogout = () => {
@@ -95,7 +116,6 @@ const Header = () => {
     }
   });
 };
-
 
   const categories = [
     { icon: <Shirt size={18} />, name: "Women's Clothing" },
@@ -153,19 +173,18 @@ const cartItems = [
     ];
 
 
-    //login
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
-    setIsLoggedIn(loginStatus === "true");
-  }, []);
+  //   //login
+  // useEffect(() => {
+  //   const loginStatus = localStorage.getItem("loginSuccess");
+  //   setIsLoggedIn(loginStatus === "true");
+  // }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("loginSuccess");
-    setIsLoggedIn(false);
-    router.push("/login"); 
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("loginSuccess");
+  //   setIsLoggedIn(false);
+  //   router.push("/login"); 
+  // };
   
-
 
     return (
       <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">

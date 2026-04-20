@@ -15,6 +15,8 @@ import SaleBanner from '@/components/sections/home/SaleBanner';
 import TopSellingGrid from '@/components/sections/home/TopSellingGrid';
 import QuickViewModal from '@/components/ui/QuickViewModal';
 
+
+
 export default function Home() {
     const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
@@ -28,6 +30,7 @@ export default function Home() {
             <ProductsListing onQuickView={openQuickView} />
             <ServicesBanner />
             <CategoriesCarousel />
+
             <OfferBoxes />
             <NewArrivals onQuickView={openQuickView} />
             <OfferTimings />
