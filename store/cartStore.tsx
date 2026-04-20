@@ -1,4 +1,3 @@
-import { toast } from 'react-toastify';
 import {create} from 'zustand';
 interface ProductDetails{
      name: string;
@@ -15,6 +14,7 @@ interface CartItems{
 }
 interface CartState{
     cartItems:CartItems[];
+    error:string|null;
     addCart:(data:any)=>Promise<void>
     getAllCart:(userId:string)=>Promise<void>;
     removeCart:(id:string)=>Promise<void>;
@@ -23,9 +23,10 @@ interface CartState{
 }
 export const useCartStore=create<CartState>((set,get)=>({
     cartItems:[],
+    error:null,
     addCart:async(data:any)=>{
        try {
-         await  fetch("http://localhost:5000/api/v1/cart/addtocart", {
+       const cart=  await  fetch("http://localhost:5000/api/v1/cart/addtocart", {
   method: "POST",
   body: JSON.stringify({
     userId: data.userId,
@@ -39,11 +40,17 @@ export const useCartStore=create<CartState>((set,get)=>({
     "Content-type": "application/json; charset=UTF-8"
   }
 });
-    const res=await fetch(`http://localhost:5000/api/v1/cart/${data.userId}`);
-        const updatedCart=await res.json();
-        set({cartItems:updatedCart.data})
-       } catch (error) {
-        console.error(error);
+          const res=await cart.json();
+          console.log(res,'check response');
+          if (!cart.ok) {
+      throw new Error(res.message);
+    }
+          set({
+            error:null})
+       } catch (err:any) {
+        console.log(err,'present in the store')
+        set({error:err.message})
+        throw err;
        }
     },
     getAllCart:async(userId:string)=>{

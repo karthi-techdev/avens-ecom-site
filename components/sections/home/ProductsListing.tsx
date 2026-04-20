@@ -12,8 +12,6 @@ const ProductsListing = ({ onQuickView }: { onQuickView: () => void }) => {
     useEffect(() => {
         fetchProducts(activeTab);
     }, [activeTab]);
-    console.log("🟢 STORE PRODUCTS:", products);
-    console.log("🟢 ACTIVE TAB:", activeTab);
     return (
         <section className={`!px-[1rem] relative !py-[0.8rem] sm:!px-[2rem] sm:!py-[1rem] md:!px-[4rem] md:!py-[1rem] lg:!px-[6rem] lg:!py-[2rem]`}>
             <div className='flex justify-between items-center'>

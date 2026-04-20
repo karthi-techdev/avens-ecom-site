@@ -23,17 +23,21 @@ interface CartItem {
   quantity: number;
   productId: ProductDetails;
 }
-  const token=JSON.parse(localStorage.getItem("user")||'{}');
-   const router = useRouter();
+ const [token, setToken] = useState<any>(null);
+const [loading, setLoading] = useState(true);
+ const router = useRouter();
   const {getAllCart,removeCart,cartItems,updateQuantity,updateCart}=useCartStore();
-  useEffect(()=>{
-     if (token?._id) {
-    getAllCart(token._id);
-   
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!user?._id) {
+    router.push("/");
+    return;
   }
-   else
-      router.replace("/");
-}, [token._id]);
+
+  setToken(user);
+  getAllCart(user._id);
+}, []);
   const deleteCartItem=async(id:string)=>{
    
       const swalWithBootstrapButtons = Swal.mixin({

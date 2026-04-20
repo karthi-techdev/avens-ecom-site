@@ -8,7 +8,7 @@ interface ProductInfoProps {
     product: any;
 }
 const ProductInfo = ({ product }: ProductInfoProps) => {
-    const {addCart}=useCartStore();
+    const {addCart,getAllCart}=useCartStore();
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('M');
     const [selectedColor, setSelectedColor] = useState('#3bb77e');
@@ -49,6 +49,8 @@ transition: Bounce,
       product,
       userId:token._id
     });
+    await getAllCart(token._id)
+    
 toast.success('Added to cart!', {
 position: "top-right",
 autoClose: 5000,
@@ -105,19 +107,6 @@ transition: Bounce,
                     </div>
                 )}
             </div>
-<ToastContainer
-position="top-right"
-autoClose={5000}
-hideProgressBar={false}
-newestOnTop={false}
-closeOnClick={false}
-rtl={false}
-pauseOnFocusLoss
-draggable
-pauseOnHover
-theme="light"
-transition={Bounce}
-/>
             {/* DESCRIPTION */}
             <p className="text-[var(--text-muted)] line-clamp-3">
                 {product.shortDescription || "No description available"}

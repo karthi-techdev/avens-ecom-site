@@ -4,7 +4,8 @@ import { FaCodeCompare } from "react-icons/fa6";
 import { MdStarPurple500 } from "react-icons/md";
 import { useEffect, useState } from "react";
 import Image from 'next/image';
-
+import { useCartStore } from "@/store/cartStore";
+import { toast,Bounce } from "react-toastify";
 interface ProductCardProps {
     product: any;
     onQuickView?: () => void;
@@ -13,12 +14,47 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) => {
     // console.log("🔵 CARD RECEIVED:", product);
+    const [token, setToken] = useState<any>(null);
+     const {addCart,getAllCart}=useCartStore();
+      const addToCart=async()=>{
+        if(!token){
+            toast.warn('Login first');
+            return;
+        }
+      try {
+         await addCart({
+      quantity:1,
+      selectedColor:product.colors[0]||null,
+      selectedSize:product.size||null,
+      totalPrice:product.price-(product.price*(product.discountPrice/100)),
+      product,
+      userId:token._id
+    });
+    await getAllCart(token._id);
+    console.log(product,"im here to check")
+toast.success('Added to cart!', {
+position: "top-right",
+autoClose: 5000,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "light",
+transition: Bounce,
+})
+      } catch (error:any) {
+        console.log(error,'in the page of card')
+        toast.warn(error.message)
+      }
+    }
     const badges = ["New", "Best Seller", "Trending", "Hot", "Sale"];
     const [badge, setBadge] = useState("New");
     useEffect(() => {
         const index = Math.floor(Math.random() * badges.length);
         setBadge(badges[index]);
-        
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+  setToken(user);
     }, []);
     if (view === 'list') {
         return (
@@ -51,7 +87,6 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                     <h3 className="text-lg font-bold text-[var(--text-main)] hover:text-[var(--primary)] cursor-pointer transition-colors leading-tight mb-2">
                         {product.name}
                     </h3>
-
                     <div className="flex items-center gap-3 mb-4">
                         <span className="text-2xl font-bold text-[var(--primary)]">${product.discountPrice}</span>
                         {product.oldPrice && <span className="text-lg text-[var(--text-muted)] line-through">${product.price}</span>}
@@ -141,7 +176,7 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                             {product.price && <span className='ml-2 line-through text-sm font-normal text-[var(--text-muted)]'>${product.price}</span>}
                         </h3>
                     </div>
-                    <button className='p-3 bg-[var(--green-light)] hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white rounded-full transition-all'>
+                    <button type="button" onClick={addToCart} className='cursor-pointer p-3 bg-[var(--green-light)] hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white rounded-full transition-all'>
                         <IoBagAddOutline size={20} />
                     </button>
                 </div>
