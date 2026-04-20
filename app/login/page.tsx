@@ -122,6 +122,7 @@ export default function AuthPage() {
       localStorage.setItem("loginSuccess", "true");
       localStorage.setItem("showLoginAlert", "true"); 
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
 
       router.push("/"); 
       
@@ -279,7 +280,7 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
-
+console.log("LOGIN RESPONSE:", data);
       </div>
     </div>
   );
