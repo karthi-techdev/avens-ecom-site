@@ -17,15 +17,15 @@ import {
   MapPin,
   Smartphone,
   Menu,
-  X,
+  X,Laptop,Speaker,Footprints,Sun,Home,Baby,Shirt
 } from "lucide-react";
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 import { useSettingsStore } from '../../store/useSettingsStore';
-
-const Header = () => {
 //login 
+const Header = () => {
+
  const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -62,6 +62,33 @@ const filteredSubCategories = subCategories.filter(
     }
   }, [fetchSettings, settings]);
 
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
+
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+
+    if (loginStatus === "true") {
+      Swal.fire({
+        icon: "success",
+        title: "Welcome!",
+        text: "You are logged in",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Not Logged In",
+        text: "Please login to continue",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  }, []);
+
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
     
@@ -78,12 +105,6 @@ const filteredSubCategories = subCategories.filter(
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
-  //login
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
-    setIsLoggedIn(loginStatus === "true");
-  }, []);
 
   // Logout handler...
   const handleLogout = () => {
@@ -111,6 +132,19 @@ const filteredSubCategories = subCategories.filter(
     }
   });
 };
+
+  const categoriess = [
+    { icon: <Shirt size={18} />, name: "Women's Clothing" },
+    { icon: <Shirt size={18} />, name: "Men's Clothing" },
+    { icon: <Smartphone size={18} />, name: "Cellphones" },
+    { icon: <Laptop size={18} />, name: "Computer & Office" },
+    { icon: <Speaker size={18} />, name: "Consumer Electronics" },
+    { icon: <Home size={18} />, name: "Home & Garden" },
+    { icon: <Footprints size={18} />, name: "Shoes" },
+    { icon: <Baby size={18} />, name: "Mother & Kids" },
+    { icon: <Sun size={18} />, name: "Outdoor fun" },
+  ];
+
   const navItems = [
     "Home",
     "About",
@@ -160,6 +194,7 @@ const validCol2 = col2.filter((sub) =>
 );
 
 return (
+  <>
   <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
     ${hasSubContent ? "w-[1000px]" : "w-[250px]"}`}> 
     
@@ -230,14 +265,13 @@ console.log("ICON:", cat.icon);
         </div>
     )};
     </div>
-    )
     
-    return (
+
       <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
         
         <div className="w-1/4 border-r border-gray-100 py-2">
           <ul className="text-sm text-gray-700">
-            {categories.map((cat, index) => (
+            {categoriess.map((cat, index) => (
               <li 
                 key={index} 
                 className="group flex justify-between items-center px-4 py-[10.5px] hover:bg-gray-50 hover:text-[var(--primary)] cursor-pointer border-b border-gray-50 last:border-0"
@@ -296,7 +330,9 @@ console.log("ICON:", cat.icon);
           ))}
         </div>
       </div>
+      </>
     )};
+
   return (
     <header className="w-full relative ">
 
