@@ -23,6 +23,9 @@ import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useCartStore } from "@/store/cartStore";
+import { toast } from "react-toastify";
+   
 //login 
 const Header = () => {
 
@@ -55,12 +58,59 @@ const filteredSubCategories = subCategories.filter(
 );
  
   const { settings, fetchSettings } = useSettingsStore();
+  const {getAllCart,cartItems,removeCart}=useCartStore();
+  const [token, setToken] = useState<any>(null);
 
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  setToken(user);
+}, []);
   useEffect(() => {
     if (!settings) {
       fetchSettings();
     }
   }, [fetchSettings, settings]);
+  useEffect(()=>{
+    
+  if(token){
+    console.log("hii from token",token._id)
+    getAllCart(token._id);
+  }
+},[token])
+  const deleteCart=async(id:string)=>{
+     const swalWithBootstrapButtons = Swal.mixin({
+     customClass: {
+       confirmButton: "!bg-[var(--red-color)] !p-[1rem] !text-[var(--white)] text-[1.1rem] font-semibold",
+       cancelButton: "!bg-[var(--primary)] !p-[1rem] !text-[var(--white)] !mr-[0.6rem] text-[1.1rem] font-semibold  "
+     },
+     buttonsStyling: false
+   });
+   swalWithBootstrapButtons.fire({
+     title: "Are you sure?",
+     text: "You won't be able to revert this!",
+     icon: "warning",
+     showCancelButton: true,
+     confirmButtonText: "Yes, delete it!",
+     cancelButtonText: "No, cancel!",
+     reverseButtons: true
+   }).then((result) => {
+     if (result.isConfirmed)
+     {
+       removeCart(id);
+       swalWithBootstrapButtons.fire({
+       title: "Deleted!",
+       text: "Your cart item has been deleted.",
+       icon: "success"
+     });
+     }
+        
+     else if (result.dismiss === Swal.DismissReason.cancel) swalWithBootstrapButtons.fire({
+       title: "Cancelled",
+       text: "Your cart item is safe :)",
+       icon: "error"
+     });
+   });
+  }
 
   useEffect(() => {
     const loginStatus = localStorage.getItem("loginSuccess");
@@ -154,10 +204,28 @@ const filteredSubCategories = subCategories.filter(
     "Pages",
     "Contact",
   ];
-const cartItems = [
-    { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
-    { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
-  ];
+  const categoryData = {
+  "Women's Clothing": {
+    col1: { title: "Hot & Trending", items: ["Dresses", "Blouses & Shirts", "Hoodies & Sweatshirts", "Women's Sets", "Suits & Blazers", "Bodysuits", "Tanks & Camis", "Coats & Jackets"] },
+    col2: { title: "Bottoms", items: ["Leggings", "Skirts", "Shorts", "Jeans", "Pants & Capris", "Bikini Sets", "Cover-Ups", "Swimwear"] },
+    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+  },
+  "Men's Clothing": {
+    col1: { title: "Jackets & Coats", items: ["Down Jackets", "Jackets", "Parkas", "Faux Leather Coats", "Trench", "Wool & Blends", "Vests & Waistcoats", "Leather Coats"] },
+    col2: { title: "Suits & Blazers", items: ["Blazers", "Suit Jackets", "Suit Pants", "Suits", "Vests", "Tailor-made Suits", "Cover-Ups"] },
+    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+  },
+  "Cellphones": {
+    col1: { title: "Hot & Trending", items: ["Cellphones", "iPhones", "Refurbished Phones", "Mobile Phone", "Mobile Phone Parts", "Phone Bags & Cases", "Communication Equipments", "Walkie Talkie"] },
+    col2: { title: "Accessories", items: ["Screen Protectors", "Wire Chargers", "Wireless Chargers", "Car Chargers", "Power Bank", "Armbands", "Dust Plug", "Signal Boosters"] },
+    promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+  }
+};
+
+// const cartItems = [
+//     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
+//     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
+//   ];
   const CategoryMegaMenu = () => {
     const maincategories =mainCategories.map((cat, index) => ({
   name: cat.name,
@@ -193,6 +261,13 @@ const validCol2 = col2.filter((sub) =>
   )
 );
 
+  const handleLogout = () => {
+    localStorage.removeItem("loginSuccess");
+    setIsLoggedIn(false);
+    router.push("/login"); 
+  };
+  
+  
 return (
   <>
   <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
@@ -452,7 +527,6 @@ console.log("ICON:", cat.icon);
     placeholder="Search for items..."
     className="flex-1 px-4 py-2 outline-none text-[14px] text-[#253D4E] placeholder-gray-400 bg-transparent"
   />
-
 </div>
 
           <div className="flex items-center gap-6">
@@ -465,45 +539,45 @@ console.log("ICON:", cat.icon);
       </span>
     </div>
 
-    <div className="relative group py-4"> 
+    <div className={`${token ?'relative group py-4':'hidden'}`}> 
       <div className="relative cursor-pointer">
         <ShoppingCart size={24} />
         <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-          {cartItems.length}
+          {cartItems?cartItems.length:0}
         </span>
       </div>
 
-      <div className="absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50">
+      <div className={`${token ?'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50':'hidden'}`}>
         <ul className="space-y-4">
-          {cartItems.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-4">
+          {cartItems?cartItems.map((item:any) => (
+            <li key={item._id} className="flex items-center justify-between gap-4">
               <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                <img src={` http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.name}</h4>
-                <p className="text-gray-500 text-xs">{item.qty} × ${item.price.toFixed(2)}</p>
+                <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
+                <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price/item.quantity).toFixed(2)}</p>
               </div>
-              <button className="text-gray-400 hover:text-red-500">
+              <button className="text-gray-400 hover:text-red-500" onClick={()=>deleteCart(item._id)}>
                 <X size={16} />
               </button>
             </li>
-          ))}
+          )):<div></div>}
         </ul>
 
         <div className="mt-6 pt-4 border-t border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <span className="text-gray-500 font-medium">Total</span>
-            <span className="text-[#3BB77E] font-bold text-lg">$4000.00</span>
+            <span className="text-[#3BB77E] font-bold text-lg">{"$"+(cartItems?cartItems.reduce((acc,item:any)=>acc+item.price,0):0).toFixed(2)}</span>
           </div>
           
           <div className="flex gap-2">
-            <button className="flex-1 border border-[#3BB77E] text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:text-white transition-colors">
+            <Link href='/cart' className="flex-1 !text-center border border-[#3BB77E] !text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:!text-white transition-colors">
               View cart
-            </button>
-            <button className="flex-1 bg-[#3BB77E] text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
+            </Link>
+            <Link href='/checkout' className="flex-1 text-center bg-[#3BB77E] !text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
               Checkout
-            </button>
+            </Link>
           </div>
         </div>
       </div>

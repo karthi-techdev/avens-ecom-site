@@ -6,7 +6,9 @@ import { IoBagAddOutline, IoEyeOutline, IoHeartOutline } from "react-icons/io5";
 import { FaCodeCompare } from "react-icons/fa6";
 import { MdStarPurple500 } from "react-icons/md";
 import URLs from "../../lib/urls";
-
+import { useEffect, useState } from "react";
+import { useCartStore } from "@/store/cartStore";
+import { toast,Bounce } from "react-toastify";
 interface ProductCardProps {
     product: any;
     onQuickView?: () => void;
@@ -20,7 +22,44 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
     const originalPrice = product?.discountPrice ? product?.price : null;
     const categoryName = product?.categoryId?.name || product?.mainCategoryId?.name || "Category";
     const rating = product?.rating || 0;
-
+    const [token, setToken] = useState<any>(null);
+     const {addCart,getAllCart}=useCartStore();
+     useEffect(() => {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+  setToken(user);
+    }, []);
+      const addToCart=async()=>{
+        if(!token){
+            toast.warn('Login first');
+            return;
+        }
+      try {
+         await addCart({
+      quantity:1,
+      selectedColor:product.colors[0]||null,
+      selectedSize:product.size||null,
+      totalPrice:product.price-(product.price*(product.discountPrice/100)),
+      product,
+      userId:token._id
+    });
+    await getAllCart(token._id);
+    console.log(product,"im here to check")
+toast.success('Added to cart!', {
+position: "top-right",
+autoClose: 5000,
+hideProgressBar: false,
+closeOnClick: false,
+pauseOnHover: true,
+draggable: true,
+progress: undefined,
+theme: "light",
+transition: Bounce,
+})
+      } catch (error:any) {
+        console.log(error,'in the page of card')
+        toast.warn(error.message)
+      }
+    }
     // Helper component for tooltipped buttons
     const IconButton = ({ icon: Icon, label, onClick }: { icon: any, label: string, onClick?: () => void }) => (
         <div className="relative group/tooltip">
@@ -82,7 +121,7 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                     <p className="text-sm text-gray-500 mb-6 line-clamp-3">{product?.shortDescription || "No description"}</p>
 
                     <div className="flex items-center justify-between">
-                        <button className="px-6 py-2 bg-[var(--primary)] text-white rounded-lg flex items-center gap-2 hover:bg-[#29A56C] transition-colors">
+                        <button className="px-6 py-2 bg-[var(--primary)] text-white rounded-lg flex items-center gap-2 hover:bg-[#29A56C] transition-colors" onClick={addToCart}>
                             <IoBagAddOutline />
                             Add to Cart
                         </button>
@@ -163,7 +202,7 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                             </span>
                         )}
                     </div>
-                    <button className="p-2.5 bg-[#DEF9EC] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-300">
+                    <button className="p-2.5 bg-[#DEF9EC] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-all duration-300" onClick={addToCart}>
                         <IoBagAddOutline size={20} />
                     </button>
                 </div>
