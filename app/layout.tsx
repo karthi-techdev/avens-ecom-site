@@ -1,6 +1,8 @@
 import "./globals.css";
 import ClientLayout from "./clientlayout";
 import { ToastContainer } from "react-toastify";
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -14,6 +16,7 @@ export default function RootLayout({
           position="top-right"
           autoClose={3000}
         />
+       
       </body>
     </html>
   );

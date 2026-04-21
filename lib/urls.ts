@@ -29,6 +29,8 @@ export const API = {
   // Category endpoints
   addCategory: `${ROOTURL}admin/categories/`,
   listCategory: `${ROOTURL}admin/categories/`,
+  // Product endpoints
+  fetchProducts: `${ROOTURL}admin/products/`,
   getCategory: `${ROOTURL}admin/categories/getCategoryById/`,
   updateCategory: `${ROOTURL}admin/categories/updateCategory/`,
   softDeleteCategory: `${ROOTURL}admin/categories/softDeleteCategory/`,
@@ -85,6 +87,11 @@ export const API = {
   listPromotions: `${ROOTURL}admin/promotions`,
   // Offer endpoints
   listOffers: `${ROOTURL}admin/offers/`,
+//comments
+  addComment: `${ROOTURL}admin/comments/`,
+  getCommentsByBlog: (blogId: string) =>
+  `${ROOTURL}admin/comments/${blogId}`,
+  deleteComment: (id: string) => `${ROOTURL}admin/comments/${id}`,
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
