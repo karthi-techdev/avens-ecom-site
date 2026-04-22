@@ -95,6 +95,16 @@ export const API = {
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
+ 
+  //blog endpoints
+   listBlogs: `${ROOTURL}admin/blogs/`,
+
+  //blog-category endpoints
+  listBlogsCategory: `${ROOTURL}admin/blog-category/`,
+
+  //subscribe endpoints
+  addSubscribe: `${ROOTURL}admin/subscribe/`,
+
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
