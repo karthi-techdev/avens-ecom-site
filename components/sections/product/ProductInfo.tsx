@@ -20,6 +20,11 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     const totalPrice = Math.round(unitPrice * quantity);
     const totalOriginalPrice = product.price * quantity;
 
+    const finalPrice = product.discountPrice || product.price || 0;
+    const originalPrice = product.discountPrice ? product.price : null;
+    const discountPercent = originalPrice ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100) : 0;
+
+
     return (
         <div className="flex flex-col gap-6">
 
@@ -30,7 +35,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 </span>
 
                 <h1 className="text-3xl font-bold text-[var(--text-main)]">
-                    {product.title || product.name}
+                    {product.name || product.title}
                 </h1>
 
                 <div className="flex items-center gap-4">
@@ -46,13 +51,13 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             {/* PRICE SECTION  */}
             <div className="flex items-center gap-4 py-4 border-y border-[var(--border-color)]">
                 <span className="text-4xl font-bold text-[var(--primary)]">
-                    ₹{totalPrice}
+                    ₹{product.discountPrice}
                 </span>
 
                 {product.discountPrice > 0 && (
                     <div className="flex flex-col">
                         <span className="text-sm text-[var(--pink-dark)] font-bold">
-                            {product.discountPrice}% Off
+                            {discountPercent}% Off
                         </span>
                         <span className="text-lg text-[var(--text-muted)] line-through">
                             ₹{totalOriginalPrice}
