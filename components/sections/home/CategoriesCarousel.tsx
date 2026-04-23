@@ -110,7 +110,7 @@ const CategoriesCarousel = () => {
                 <h1 className='text-[var(--foreground)] capitalize font-semibold group-hover:text-[var(--primary)] text-sm mt-1'>
                   {category.name}
                 </h1>
-
+                    
               </div>
             </SwiperSlide>
           ))}

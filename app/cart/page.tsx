@@ -1,54 +1,122 @@
 "use client";
 import { ChevronRight, Trash, Handbag, Shuffle, X, Tag, CreditCard, FingerprintPattern } from "lucide-react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { getNames } from "country-list";
-
+import Link from "next/link";
+import {toast,Bounce,ToastContainer} from 'react-toastify';
+import { useCartStore } from "../../store/cartStore";
+import Swal from "sweetalert2";
 export default function CartPage() {
   const countries = getNames();
+ interface ProductDetails {
+  name: string;
+  price: number;
+  thumbnail: string;
+  stockQuantity: number;
+  discountPrice: number;
+  shortDescription: string;
+}
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "J.Crew Mercantile Women's Short-Sleeve",
-      description: "Maboriosam in a tonto nesciung eget distingy magndapibus.",
-      price: 65.00,
-      quantity: 1,
-      image: "/product-view/product-img1.jpg"
-    },
-    {
-      id: 2,
-      name: "Amazon Essentials Women's Tank",
-      description: "Sit at ipsum amet clita no est, sed amet sadipscing et gubergren",
-      price: 75.00,
-      quantity: 1,
-      image: "/product-view/products-img2.jpg"
-    },
-    {
-      id: 3,
-      name: "Amazon Brand - Daily Ritual Women's Jersey",
-      description: "Erat amet et et amet diam et et. Justo amet at dolore",
-      price: 62.00,
-      quantity: 1,
-      image: "/product-view/product-img4.jpg"
-    },
-  ]);
+interface CartItem {
+  _id: string;
+  quantity: number;
+  productId: ProductDetails;
+}
+ const [token, setToken] = useState<any>(null);
+const [loading, setLoading] = useState(true);
+ const router = useRouter();
+  const {getAllCart,removeCart,cartItems,updateQuantity,updateCart}=useCartStore();
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
+  if (!user?._id) {
+    router.push("/");
+    return;
+  }
 
-  const handleQuantityChange = (id: number, value: number | string) => {
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id
-          ? { ...item, quantity: Number(value) }
-          : item
-      )
-    );
-  };
+  setToken(user);
+  getAllCart(user._id);
+}, []);
+  const deleteCartItem=async(id:string)=>{
+   
+      const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "!bg-[var(--red-color)] !p-[1rem] !text-[var(--white)] text-[1.1rem] font-semibold",
+    cancelButton: "!bg-[var(--primary)] !p-[1rem] !text-[var(--white)] !mr-[0.6rem] text-[1.1rem] font-semibold  "
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "Are you sure?",
+  text: "You won't be able to revert this!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Yes, delete it!",
+  cancelButtonText: "No, cancel!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed)
+  {
+    removeCart(id);
+    swalWithBootstrapButtons.fire({
+    title: "Deleted!",
+    text: "Your cart item has been deleted.",
+    icon: "success"
+  });
+  }
+     
+  else if (result.dismiss === Swal.DismissReason.cancel) swalWithBootstrapButtons.fire({
+    title: "Cancelled",
+    text: "Your cart item is safe :)",
+    icon: "error"
+  });
+});
+    
+  }
+
+    const increaseFunc=async(id:string)=>{
+      let filterCart=cartItems.find(item=>item._id===id);
+      let value=Number(filterCart?.quantity);
+      value++;
+      if(filterCart && value>filterCart.productId.stockQuantity){
+        toast.warn('Stock max reached');
+        return;
+      } 
+      updateQuantity(id,value)
+      if(filterCart){
+         await updateCart(id,{'quantity':value,'userId':token._id,'price':((filterCart.productId.price-(filterCart.productId.price*(filterCart.productId.discountPrice/100))) * (value)).toFixed(2)})
+      }
+    }
+    const decreaseFunc=async(id:string)=>{
+      let filterCart = cartItems.find(item => item._id == id);
+      let quants=Number(filterCart?.quantity);
+     let value=Math.max(1,--quants);
+     console.log(value)
+      updateQuantity(id,value);
+      if(filterCart)
+      await updateCart(id,{'quantity':value,'userId':token._id,'price':((filterCart.productId.price-(filterCart.productId.price*(filterCart.productId.discountPrice/100))) * (value)).toFixed(2)})
+    }
 
 
   return (
     <>
+     <ToastContainer
+position="top-right"
+autoClose={5000}
+hideProgressBar={false}
+newestOnTop={false}
+closeOnClick={false}
+rtl={false}
+pauseOnFocusLoss
+draggable
+pauseOnHover
+theme="light"
+transition={Bounce}
+/>
       {/* Breadcrumb */}
-      <nav className="flex items-center text-sm !mb-6 !px-8 sm:!px-18 !py-4 rounded bg-[var(--bg-light)] text-[var(--text-muted)]">
+      {cartItems.length==0?<p className="text-center mt-20 text-xl">No items</p>:(<>
+        <nav className="flex items-center text-sm !mb-6 !px-8 sm:!px-18 !py-4 rounded bg-[var(--bg-light)] text-[var(--text-muted)]">
         <a href="/" className="!text-[var(--primary)]">Home</a>
         <span className="!mx-2">
           <ChevronRight size={16} />
@@ -62,7 +130,7 @@ export default function CartPage() {
 
       <main className="main">
         <div className="max-w-[1400px] mx-auto !px-3 sm:!px-6 md:!px-10 lg:!px-[60px] !py-5">
-
+     
 
           {/* table*/}
           <div >
@@ -73,17 +141,18 @@ export default function CartPage() {
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Price</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Quantity</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Subtotal</th>
+                  <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Stock Status</th>
                   <th className="text-center border-r border-[var(--border-color)] !py-4 !px-2 text-lg font-semibold text-[var(--text-main)]">Remove</th>
                 </tr>
               </thead>
               <tbody>
-                {cartItems.map((item) => (
-                  <tr key={item.id} className="border border-[var(--border-color)] md:table-row block !mb-6 md:mb-0">
+                {cartItems.map((item:any) => (
+                  <tr key={item._id} className="border border-[var(--border-color)] md:table-row block !mb-6 md:mb-0">
                     {/* Image Column */}
                     <td className="block md:table-cell text-center !py-4 border-b md:border-r border-[var(--border-color)]">
                       <div className="flex justify-center">
                         <div className="w-24 h-24 bg-gray-100 rounded flex-shrink-0">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />
+                          <img src={`http://localhost:5000${item.productId.thumbnail}`} alt={item.name} className="w-full h-full object-cover rounded" />
                         </div>
                       </div>
                     </td>
@@ -91,8 +160,8 @@ export default function CartPage() {
                     {/* Product Details Column */}
                     <td className="block md:table-cell text-center !py-2 border-b md:border-r border-[var(--border-color)] !px-5">
                       <div>
-                        <h3 className="font-semibold text-[var(--primary)] !mb-1">{item.name}</h3>
-                        <p className="text-sm text-[var(--text-muted)] ">{item.description}</p>
+                        <h3 className="font-semibold text-[var(--primary)] !mb-1">{item.productId.name}</h3>
+                        <p className="text-sm text-[var(--text-muted)] ">{item.productId.shortDescription.length<=50?item.productId.shortDescription:item.productId.shortDescription.substring(0,47)+"..."}</p>
                       </div>
                     </td>
 
@@ -104,7 +173,7 @@ export default function CartPage() {
                         </span>
 
                         <span className="block text-center">
-                          ${item.price.toFixed(2)}
+                          ${(item.productId.price-(item.productId.price*(item.productId.discountPrice/100))).toFixed(2)}
                         </span>
 
                       </div>
@@ -119,15 +188,13 @@ export default function CartPage() {
                         </span>
 
                         <div className="flex justify-center">
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              handleQuantityChange(item.id, e.target.value || 1)
-                            }
-                            className="w-16 border border-[var(--border-color)] rounded text-center !py-1"
-                          />
+                             <div className="flex items-center border border-[var(--border-color)] rounded-lg px-4 py-2">
+                    {/* Decrease Button: Price reduces when clicked */}
+                    <button onClick={() => decreaseFunc(item._id)} disabled={item.quantity==1} className="px-2 font-bold cursor-pointer">-</button>
+                    <span className="w-12 text-center font-bold">{item.quantity}</span>
+                    {/* Increase Button: Price increases when clicked */}
+                    <button  onClick={()=>increaseFunc(item._id)}  className="px-2 font-bold cursor-pointer">+</button>
+                </div>
                         </div>
 
                       </div>
@@ -142,8 +209,23 @@ export default function CartPage() {
                         </span>
 
                         <span className="text-[var(--primary)] font-semibold">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${((item.productId.price-(item.productId.price*(item.productId.discountPrice/100))) * (item.quantity)).toFixed(2)}
                         </span>
+
+                      </div>
+                    </td>
+                    <td className="block md:table-cell text-center !py-2 border-b md:border-r border-[var(--border-color)]">
+                      <div className="relative">
+
+                        <span className="md:hidden font-semibold absolute left-3">
+                          Subtotal:
+                        </span>
+                                                {item.quantity>item.productId.stockQuantity?
+
+                        <span className="text-[var(--red-color)] font-semibold">Out of Stock
+                        </span>:<span className=" font-semibold">In Stock
+                        </span>
+}
 
                       </div>
                     </td>
@@ -159,7 +241,7 @@ export default function CartPage() {
                         </span>
 
                         <div className="flex justify-center">
-                          <button className="inline-flex justify-center text-[var(--text-muted)] hover:text-[var(--red-color)] transition-colors">
+                          <button onClick={()=>deleteCartItem(item._id)} className="inline-flex justify-center text-[var(--text-muted)] hover:text-[var(--red-color)] cursor-pointer transition-colors">
                             <Trash size={18} />
                           </button>
                         </div>
@@ -171,24 +253,27 @@ export default function CartPage() {
               </tbody>
             </table>
             <div className="text-right !mt-6">
-              <div className="flex items-center justify-end sm:justify-end w-full sm:w-auto cursor-pointer text-[var(--text-muted)]">
+              {/* <div className="flex items-center justify-end sm:justify-end w-full sm:w-auto cursor-pointer text-[var(--text-muted)]">
                 <X size={18} className="mr-2" />
-                <span>Clear Cart</span>
-              </div>
+                <button type="button" onClick={clearCartData} className="cursor-pointer"><span>Clear Cart</span></button>
+              </div> */}
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-end sm:justify-end !mt-6">
-                <button
+                   <Link href='/checkout'><button
                   className="!px-5 !py-3 bg-[var(--primary)] text-white rounded hover:bg-[var(--primary-hover)] transition-colors flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
                 >
                   <Shuffle size={16} />
                   Update Cart
                 </button>
-                <button
+                </Link>
+                 <Link href='/shop-list-left'>
+                  <button
                   className="!px-5 !py-3 bg-[var(--primary)] text-white rounded hover:bg-[var(--primary-hover)] transition-colors flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
                 >
                   <Handbag size={16} />
                   Continue Shopping
-                </button>
+                </button></Link>
+               
               </div>
             </div>
           </div>
@@ -267,7 +352,7 @@ export default function CartPage() {
                   <tr className="border-b border-[var(--border-color)]">
                     <td className="border-r border-[var(--border-color)] !py-3 !px-4 text-[var(--text-muted)]">Cart Subtotal</td>
                     <td className="!py-3 !px-4 text-left font-semibold text-lg text-[var(--primary)]">
-                      ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}
+                      ${cartItems.reduce((total, item:any) => total + (item.price * item.quantity), 0).toFixed(2)}
                     </td>
                   </tr>
 
@@ -279,7 +364,7 @@ export default function CartPage() {
                   <tr>
                     <td className="border-r border-[var(--border-color)] !py-3 !px-4 text-[var(--text-muted)] ">Total</td>
                     <td className="!py-3 !px-4 text-leftt font-semibold text-lg text-[var(--primary)]">
-                      ${cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}
+                      ${cartItems.reduce((total, item:any) => total + (item.price * item.quantity), 0).toFixed(2)}
                     </td>
                   </tr>
                 </tbody>
@@ -297,6 +382,8 @@ export default function CartPage() {
 
         </div>
       </main >
+      </>)}
+      
 
     </>
   )

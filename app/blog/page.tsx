@@ -99,7 +99,7 @@ const BlogtechnologyPage = () => {
                                         alt="images"
                                         className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
                                 </div>
-
+                        
                                 <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">The litigants on the screen are not actors</h1>
                                 <p className="!p-2">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi.</p>
                                 <ul className="flex justify-between !p-4" >
