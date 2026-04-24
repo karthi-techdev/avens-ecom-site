@@ -1,32 +1,28 @@
 "use client";
-import { useEffect, useState } from "react"; // 1. useEffect, useState add pannியாச்சு
+import { useEffect, useState } from "react";
 import { ChevronRight, ShoppingCart, Headphones, X } from "lucide-react";
 
 
 export default function WishlistPage() {
-  // 2. Static array-ah thookitu empty state set pannunga
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
 
-  // 2. NEW: Alert box-ai kaata intha state add panniyaachu
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [showAlert, setShowAlert] = useState(false);
 
 
-  // 3. Page load aagum pothu localStorage-la irunthu data fetch pannum
   useEffect(() => {
     const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     setWishlistItems(savedWishlist);
   }, []);
 
-  // 3. UPDATE: Remove pannum pothu alert box-ai activate panna logic add panniyaachu
+
   const removeFromWishlist = (id: string) => {
     const updated = wishlistItems.filter((item: any) => (item._id || item.id) !== id);
     setWishlistItems(updated);
     localStorage.setItem('wishlist', JSON.stringify(updated));
 
 
-    // ✅ ADD THIS LINE (IMPORTANT)
     window.dispatchEvent(new Event("wishlistUpdated"));
-    // Alert-ai true aakki, 3 seconds kazhithu hidden aakkum
+
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 3000);
   };
@@ -43,7 +39,7 @@ export default function WishlistPage() {
   return (
     <>
 
-      {/* 4. NEW: Alert Message UI - Right side top-la varum (Image 2 mathiri) */}
+      {/* Alert Message UI */}
       {showAlert && (
         <div className="fixed top-5 right-5 z-[9999] bg-white border-l-4 border-[#3BB77E] shadow-xl p-4 rounded-md flex items-center gap-3 animate-in fade-in slide-in-from-right-5 duration-300 min-w-[300px]">
           <div className="bg-[#3BB77E] rounded-full p-1">
@@ -133,9 +129,7 @@ export default function WishlistPage() {
                       </td>
 
                       {/* Action Button */}
-                      {/* Action Button Section */}
                       <td className="block md:table-cell text-center !py-4 border-b md:border-r border-[var(--border-color)]">
-                        {/* Width 156px fix panna intha div-ai use pannunga */}
                         <div className="flex justify-center px-2 mx-auto" style={{ width: '156px' }}>
                           {item.stockQuantity > 0 ? (
                             <button className="flex items-center justify-center gap-2 bg-[#3BB77E] hover:bg-[#2fa36d] text-white px-2 py-2.5 rounded shadow-sm transition-all text-sm font-bold w-full h-[45px]">
@@ -152,7 +146,7 @@ export default function WishlistPage() {
                       </td>
 
                       {/* Remove Button - Linked to removeFromWishlist */}
-                      {/* 5. CHANGE: Remove button-la 'X' icon add panniyaachu */}
+
                       <td className="block md:table-cell text-center !py-2 border-b md:border-r border-[var(--border-color)]">
                         <div className="flex justify-center">
                           <button
