@@ -164,8 +164,8 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
             setIsSubmitting(false);
         }
     };
-     const { addInfos, fetchAddInfos, isLoading } = useAddInfoStore();
-       useEffect(() => {
+    const { addInfos, fetchAddInfos, isLoading } = useAddInfoStore();
+    useEffect(() => {
         fetchAddInfos();
     }, [fetchAddInfos]);
 
@@ -197,31 +197,31 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
                 )}
 
                 {activeTab === "ADDITIONAL" && (
-                <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
-                    <table className="w-full text-sm">
-                        <tbody>
-                            {addInfos.length > 0 ? (
-                                addInfos.map((item, index) => (
-                                    <tr 
-                                        key={item._id || index} 
-                                        className={`border-b border-[#ececec]`}
-                                    >
-                                        <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">
-                                            {item.key} 
-                                        </td>
-                                        <td className="p-4 text-gray-600">
-                                            {item.value}
-                                        </td>
+                    <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
+                        <table className="w-full text-sm">
+                            <tbody>
+                                {addInfos.length > 0 ? (
+                                    addInfos.map((item, index) => (
+                                        <tr
+                                            key={item._id || index}
+                                            className={`border-b border-[#ececec]`}
+                                        >
+                                            <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">
+                                                {item.key}
+                                            </td>
+                                            <td className="p-4 text-gray-600">
+                                                {item.value}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td className="p-4 text-gray-400">No additional information available.</td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td className="p-4 text-gray-400">No additional information available.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
 
                 {activeTab === "REVIEWS" && (
