@@ -10,9 +10,85 @@ import {
 import { Mail } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore'; 
 import URLs from "@/lib/urls";
+import { API } from "@/lib/urls";
+import apiClient from "@/lib/api-client";
+import { toast, Toaster } from "react-hot-toast";
+import { useSubscribeStore } from "@/store/useSubscriberStore";
 
 
 const Footer: React.FC = () => {
+    
+    const toastCustom = (message: string, type: "success" | "error") => {
+    toast(message, {
+      duration: 3000,
+      position: "top-right",
+      style: {
+        borderRadius: 0,
+        background: type === "success" ? "#3BB77E" : "#F56565", // green or red
+        color: "#fff",
+        fontWeight: "bold",
+        textAlign: "center",
+        padding: "12px 0",
+      },
+      className: "animate-slideDown",
+    });
+  };
+
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
+
+  const { subscribeEmail } = useSubscribeStore();
+
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleSubscribe = async () => {
+    setError("");
+
+    if (!email) {
+      setError("Email Required");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Invalid Email");
+      return;
+    }
+
+    try {
+      const response = await apiClient.post(API.addSubscribe, { email });
+      const type = response.data.data.type;
+
+      setEmail("");
+      setError("");
+
+      if (type === "NEW") {
+        toastCustom("Subscribed! Welcome email sent", "success");
+      } else {
+        toastCustom("Already Subscribed", "success");
+      }
+    } catch (err: any) {
+      toastCustom(err.response?.data?.message || "Something went wrong", "error");
+    }
+  };
+
+
+  const validateEmailInput = (value: string) => {
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      return { error: "Email required", valid: false };
+    }
+
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (!isValid) {
+      return { error: "Invalid email format", valid: false };
+    }
+
+
+    return { error: "", valid: true };
+  };
+
     const { settings, fetchSettings, isLoading } = useSettingsStore();
 
   useEffect(() => {
@@ -81,6 +157,7 @@ setFooterSections(groupedArray);
   }, []);
   return (
     <>
+    <Toaster position="top-right" reverseOrder={false} />
       <section className="bg-[#D8E4E1] py-10 px-4">
       <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
         
@@ -100,16 +177,30 @@ setFooterSections(groupedArray);
         </div>
 
         {/* Right Side: Input and Button */}
-        <div className="w-full max-w-[500px] flex items-center bg-white rounded-md overflow-hidden">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="flex-1 px-6 py-3 outline-none text-[14px] text-gray-600"
-          />
-          <button className="bg-[#253D4E] text-white px-8 py-3 text-[14px] font-bold hover:bg-[#3BB77E] transition-all">
-            Subscribe
-          </button>
-        </div>
+         <div className="w-full max-w-[500px] ">
+            <div className="w-full max-w-[500px] flex items-center bg-white rounded-md overflow-hidden">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  const result = validateEmailInput(e.target.value);
+                  setError(result.error);
+                }}
+                className={`flex-1 px-6 py-3 outline-none text-[14px] text-gray-600
+                  ${error ? "border border-red-500" : email && !error ? "" : ""} 
+    text-gray-600`}
+              />
+              <button
+                onClick={handleSubscribe}
+                className="bg-[#253D4E] text-white px-8 py-3 text-[14px] font-bold hover:bg-[#3BB77E] transition-all">
+                Subscribe
+              </button>
+            </div>
+
+            {error && <p className="text-red-500 text-sm font-bold mt-1 ml-2">{error}</p>}
+          </div>
 
       </div>
     </section>
