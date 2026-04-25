@@ -17,18 +17,19 @@ import {
   MapPin,
   Smartphone,
   Menu,
-  X,
+  X, Laptop, Speaker, Footprints, Sun, Home, Baby, Shirt
 } from "lucide-react";
 import * as Icons from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useCartStore } from "@/store/cartStore";
+import { toast } from "react-toastify";
 
+//login 
 const Header = () => {
-  //login 
+
   const router = useRouter();
-
-
 
   const [isOpen, setIsOpen] = useState(false);
   const [listIsOpen, setListIsOpen] = useState(false);
@@ -42,28 +43,41 @@ const Header = () => {
   const { fetchCategories, categories } = useCategoryStore();
   const [selectedMainCategory, setSelectedMainCategory] = useState<any>(null);
   const [showAll, setShowAll] = useState(false);
+  const { settings, fetchSettings } = useSettingsStore();
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const { getAllCart, cartItems, removeCart } = useCartStore();
+  const [token, setToken] = useState<any>(null);
   const visibleCategories = showAll ? mainCategories : mainCategories.slice(0, 10);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     fetchMainCategories();
     fetchSubCategories();
     fetchCategories();
   }, []);
-  const maincategories = mainCategories.map((cat, index) => ({
-    name: cat.name,
-  }));
-  const filteredSubCategories = subCategories.filter(
-    (sub) => sub.mainCategoryId === selectedMainCategory?._id
-  );
 
-  const { settings, fetchSettings } = useSettingsStore();
-  const [wishlistCount, setWishlistCount] = useState(0);
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    setToken(user);
+  }, []);
 
   useEffect(() => {
     if (!settings) {
       fetchSettings();
     }
   }, [fetchSettings, settings]);
+
+  useEffect(() => {
+    if (token) {
+      console.log("hii from token", token._id)
+      getAllCart(token._id);
+    }
+  }, [token])
+
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+    setIsLoggedIn(loginStatus === "true");
+  }, []);
 
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -79,6 +93,70 @@ const Header = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loginSuccess");
+
+    if (loginStatus === "true") {
+      Swal.fire({
+        icon: "success",
+        title: "Welcome!",
+        text: "You are logged in",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Not Logged In",
+        text: "Please login to continue",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  }, []);
+
+  const maincategories = mainCategories.map((cat, index) => ({
+    name: cat.name,
+  }));
+  const filteredSubCategories = subCategories.filter(
+    (sub) => sub.mainCategoryId === selectedMainCategory?._id
+  );
+
+  const deleteCart = async (id: string) => {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "!bg-[var(--red-color)] !p-[1rem] !text-[var(--white)] text-[1.1rem] font-semibold",
+        cancelButton: "!bg-[var(--primary)] !p-[1rem] !text-[var(--white)] !mr-[0.6rem] text-[1.1rem] font-semibold  "
+      },
+      buttonsStyling: false
+    });
+    swalWithBootstrapButtons.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeCart(id);
+        swalWithBootstrapButtons.fire({
+          title: "Deleted!",
+          text: "Your cart item has been deleted.",
+          icon: "success"
+        });
+      }
+
+      else if (result.dismiss === Swal.DismissReason.cancel) swalWithBootstrapButtons.fire({
+        title: "Cancelled",
+        text: "Your cart item is safe :)",
+        icon: "error"
+      });
+    });
+  }
+
+
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
 
@@ -93,14 +171,7 @@ const Header = () => {
     return "/evara.svg";
   }, [settings?.branding?.siteLogo]);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
-  //login
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
-    setIsLoggedIn(loginStatus === "true");
-  }, []);
 
   // Logout handler...
   const handleLogout = () => {
@@ -128,6 +199,19 @@ const Header = () => {
       }
     });
   };
+
+  const categoriess = [
+    { icon: <Shirt size={18} />, name: "Women's Clothing" },
+    { icon: <Shirt size={18} />, name: "Men's Clothing" },
+    { icon: <Smartphone size={18} />, name: "Cellphones" },
+    { icon: <Laptop size={18} />, name: "Computer & Office" },
+    { icon: <Speaker size={18} />, name: "Consumer Electronics" },
+    { icon: <Home size={18} />, name: "Home & Garden" },
+    { icon: <Footprints size={18} />, name: "Shoes" },
+    { icon: <Baby size={18} />, name: "Mother & Kids" },
+    { icon: <Sun size={18} />, name: "Outdoor fun" },
+  ];
+
   const navItems = [
     "Home",
     "About",
@@ -137,10 +221,28 @@ const Header = () => {
     "Pages",
     "Contact",
   ];
-  const cartItems = [
-    { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
-    { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
-  ];
+  const categoryData = {
+    "Women's Clothing": {
+      col1: { title: "Hot & Trending", items: ["Dresses", "Blouses & Shirts", "Hoodies & Sweatshirts", "Women's Sets", "Suits & Blazers", "Bodysuits", "Tanks & Camis", "Coats & Jackets"] },
+      col2: { title: "Bottoms", items: ["Leggings", "Skirts", "Shorts", "Jeans", "Pants & Capris", "Bikini Sets", "Cover-Ups", "Swimwear"] },
+      promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+    },
+    "Men's Clothing": {
+      col1: { title: "Jackets & Coats", items: ["Down Jackets", "Jackets", "Parkas", "Faux Leather Coats", "Trench", "Wool & Blends", "Vests & Waistcoats", "Leather Coats"] },
+      col2: { title: "Suits & Blazers", items: ["Blazers", "Suit Jackets", "Suit Pants", "Suits", "Vests", "Tailor-made Suits", "Cover-Ups"] },
+      promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+    },
+    "Cellphones": {
+      col1: { title: "Hot & Trending", items: ["Cellphones", "iPhones", "Refurbished Phones", "Mobile Phone", "Mobile Phone Parts", "Phone Bags & Cases", "Communication Equipments", "Walkie Talkie"] },
+      col2: { title: "Accessories", items: ["Screen Protectors", "Wire Chargers", "Wireless Chargers", "Car Chargers", "Power Bank", "Armbands", "Dust Plug", "Signal Boosters"] },
+      promo: { banner1: "New Arrival", discount1: "10% Off", banner2: "Hot Deals", discount2: "15% Off" }
+    }
+  };
+
+  // const cartItems = [
+  //     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
+  //     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
+  //   ];
   const CategoryMegaMenu = () => {
     const maincategories = mainCategories.map((cat, index) => ({
       name: cat.name,
@@ -176,52 +278,116 @@ const Header = () => {
       )
     );
 
+    const handleLogout = () => {
+      localStorage.removeItem("loginSuccess");
+      setIsLoggedIn(false);
+      router.push("/login");
+    };
+
+
     return (
-      <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
+      <>
+        <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
     ${hasSubContent ? "w-[1000px]" : "w-[250px]"}`}>
 
-        {/* LEFT SIDEBAR (Main Categories) - Always visible */}
-        <div className={`${hasSubContent ? "w-1/4" : "w-full"} border-r border-gray-100 py-2`}>
-          <ul className="text-sm text-gray-700">
-            {visibleCategories.map((cat) => {
-              const IconComponent = Icons[cat.icon as keyof typeof Icons] as LucideIcon;
-              console.log("ICON:", cat.icon);
-
-              return (
-                <li
-                  key={cat._id}
-                  onClick={() => setSelectedMainCategory(cat)}
-                  className={`group flex justify-between items-center px-4 py-[10.5px] cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 hover:text-[var(--primary)] 
+          {/* LEFT SIDEBAR (Main Categories) - Always visible */}
+          <div className={`${hasSubContent ? "w-1/4" : "w-full"} border-r border-gray-100 py-2`}>
+            <ul className="text-sm text-gray-700">
+              {visibleCategories.map((cat) => {
+                const IconComponent = Icons[cat.icon as keyof typeof Icons] as LucideIcon;
+                console.log("ICON:", cat.icon);
+                return (
+                  <li
+                    key={cat._id}
+                    onClick={() => setSelectedMainCategory(cat)}
+                    className={`group flex justify-between items-center px-4 py-[10.5px] cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 hover:text-[var(--primary)] 
             ${selectedMainCategory?._id === cat._id ? "text-[var(--primary)] bg-gray-50" : ""}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span> {IconComponent ? (<IconComponent className="text-gray-400" size={18} />) : (<Icons.LayoutGrid size={18} />)}</span>
+                      <span className="font-medium">{cat.name}</span>
+                    </div>
+                    {/* Optional: Add an arrow icon if sub-content exists */}
+                  </li>
+                )
+              })}
+              {mainCategories.length > 10 && (
+                <li
+                  onClick={() => setShowAll(!showAll)}
+                  className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold"
                 >
-                  <div className="flex items-center gap-3">
-                    <span> {IconComponent ? (<IconComponent className="text-gray-400" size={18} />) : (<Icons.LayoutGrid size={18} />)}</span>
-                    <span className="font-medium">{cat.name}</span>
-                  </div>
-                  {/* Optional: Add an arrow icon if sub-content exists */}
+                  {showAll ? "- Show Less" : "+ See More"}
                 </li>
-              )
-            })}
-            {mainCategories.length > 10 && (
-              <li
-                onClick={() => setShowAll(!showAll)}
-                className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold"
-              >
-                {showAll ? "- Show Less" : "+ See More"}
-              </li>
-            )}
-          </ul>
+              )}
+            </ul>
+          </div>
+
+          {/* RIGHT CONTENT - Only shows if there is data */}
+          {
+            selectedMainCategory && hasSubContent && (
+              <div className={`w-3/4 p-8 grid gap-8 ${filteredSubWithImages.length > 0
+                ? validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-3" : "grid-cols-2"
+                : validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
+                {/* COLUMN 1 */}
+                {validCol1.length > 0 && (
+                  <div>
+                    {validCol1.map((sub) => {
+                      const filteredCategories = categories.filter(
+                        (cat: any) =>
+                          cat.mainCategoryId?._id === selectedMainCategory._id &&
+                          cat.subCategoryId?._id === sub._id
+                      );
+                      if (filteredCategories.length === 0) return null;
+                      return (
+                        <div key={sub._id} className="mb-4">
+                          <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
+                            {sub.name}
+                          </h3>
+                          <ul className="space-y-2 text-sm text-gray-600">
+                            {filteredCategories.map((item: any) => (
+                              <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
+                                {item.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )};
         </div>
 
-        {/* RIGHT CONTENT - Only shows if there is data */}
-        {selectedMainCategory && hasSubContent && (
-          <div className={`w-3/4 p-8 grid gap-8 ${filteredSubWithImages.length > 0
-            ? validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-3" : "grid-cols-2"
-            : validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
-            {/* COLUMN 1 */}
-            {validCol1.length > 0 && (
+        <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
+
+          <div className="w-1/4 border-r border-gray-100 py-2">
+            <ul className="text-sm text-gray-700">
+              {
+                categories.map((cat, index) => (
+                  <li
+                    key={index}
+                    className="group flex justify-between items-center px-4 py-[10.5px] hover:bg-gray-50 hover:text-[var(--primary)] cursor-pointer border-b border-gray-50 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg opacity-80">{cat.icon}</span>
+                      <span className="font-medium">{cat.name}</span>
+                    </div>
+                    {cat.hasSub && <span className="text-[10px] text-gray-400 group-hover:text-[var(--primary)]">❯</span>}
+                  </li>
+                ))
+              }
+              <li className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold">
+                + See More
+              </li>
+            </ul >
+          </div >
+
+          {/* COLUMN 2 */}
+          {
+            validCol2.length > 0 && (
               <div>
-                {validCol1.map((sub) => {
+                {validCol2.map((sub) => {
                   const filteredCategories = categories.filter(
                     (cat: any) =>
                       cat.mainCategoryId?._id === selectedMainCategory._id &&
@@ -244,78 +410,26 @@ const Header = () => {
                   );
                 })}
               </div>
-            )}
-          </div>
-        )};
-      </div>
-    )
+            )
+          }
+          {/* COLUMN 3 (Images) */}
 
-    return (
-      <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
-
-        <div className="w-1/4 border-r border-gray-100 py-2">
-          <ul className="text-sm text-gray-700">
-            {categories.map((cat, index) => (
-              <li
-                key={index}
-                className="group flex justify-between items-center px-4 py-[10.5px] hover:bg-gray-50 hover:text-[var(--primary)] cursor-pointer border-b border-gray-50 last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg opacity-80">{cat.icon}</span>
-                  <span className="font-medium">{cat.name}</span>
-                </div>
-                {cat.hasSub && <span className="text-[10px] text-gray-400 group-hover:text-[var(--primary)]">❯</span>}
-              </li>
+          <div className="space-y-4">
+            {filteredSubWithImages.slice(0, 2).map((sub: any) => (
+              <div key={sub._id} className="relative rounded-md h-40 overflow-hidden">
+                <img
+                  src={`${URLs.FILEURL}${sub.image.replace(/^\/+/, "")}`}
+                  alt={sub.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             ))}
-            <li className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold">
-              + See More
-            </li>
-          </ul>
-        </div>
-
-        {/* COLUMN 2 */}
-        {validCol2.length > 0 && (
-          <div>
-            {validCol2.map((sub) => {
-              const filteredCategories = categories.filter(
-                (cat: any) =>
-                  cat.mainCategoryId?._id === selectedMainCategory._id &&
-                  cat.subCategoryId?._id === sub._id
-              );
-              if (filteredCategories.length === 0) return null;
-              return (
-                <div key={sub._id} className="mb-4">
-                  <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
-                    {sub.name}
-                  </h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    {filteredCategories.map((item: any) => (
-                      <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
-                        {item.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
           </div>
-        )}
-        {/* COLUMN 3 (Images) */}
-
-        <div className="space-y-4">
-          {filteredSubWithImages.slice(0, 2).map((sub: any) => (
-            <div key={sub._id} className="relative rounded-md h-40 overflow-hidden">
-              <img
-                src={`${URLs.FILEURL}${sub.image.replace(/^\/+/, "")}`}
-                alt={sub.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+        </div >
+      </>
     )
   };
+
   return (
     <header className="w-full relative ">
 
@@ -435,14 +549,12 @@ const Header = () => {
               placeholder="Search for items..."
               className="flex-1 px-4 py-2 outline-none text-[14px] text-[#253D4E] placeholder-gray-400 bg-transparent"
             />
-
           </div>
 
           <div className="flex items-center gap-6">
 
             {/* Icons */}
             <div className="flex items-center gap-6">
-
               {/* Wishlist Link - LINE 360 UPDATED HERE */}
               <Link href="/wishlist" className="relative cursor-pointer group flex items-center gap-2">
                 <div className="relative">
@@ -459,49 +571,48 @@ const Header = () => {
                 </div>
                 {/* <span className="hidden xl:block text-sm text-gray-600 mt-1">Wishlist</span> */}
               </Link>
-
-              <div className="relative group py-4">
+              <div className={`${token ? 'relative group py-4' : 'hidden'}`}>
                 <div className="relative cursor-pointer">
                   <ShoppingCart size={24} />
                   <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                    {cartItems.length}
+                    {cartItems ? cartItems.length : 0}
                   </span>
                 </div>
 
-                <div className="absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50">
+                <div className={`${token ? 'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50' : 'hidden'}`}>
                   <ul className="space-y-4">
-                    {cartItems.map((item) => (
-                      <li key={item.id} className="flex items-center justify-between gap-4">
+                    {cartItems ? cartItems.map((item: any) => (
+                      <li key={item._id} className="flex items-center justify-between gap-4">
                         <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                          <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                          <img src={` http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.name}</h4>
-                          <p className="text-gray-500 text-xs">{item.qty} × ${item.price.toFixed(2)}</p>
+                          <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
+                          <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price / item.quantity).toFixed(2)}</p>
                         </div>
-                        <button className="text-gray-400 hover:text-red-500">
+                        <button className="text-gray-400 hover:text-red-500" onClick={() => deleteCart(item._id)}>
                           <X size={16} />
                         </button>
                       </li>
-                    ))}
+                    )) : <div></div>}
                   </ul>
 
                   <div className="mt-6 pt-4 border-t border-gray-100">
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-gray-500 font-medium">Total</span>
-                      <span className="text-[#3BB77E] font-bold text-lg">$4000.00</span>
+                      <span className="text-[#3BB77E] font-bold text-lg">{"$" + (cartItems ? cartItems.reduce((acc, item: any) => acc + item.price, 0) : 0).toFixed(2)}</span>
                     </div>
 
                     <div className="flex gap-2">
-                      <button className="flex-1 border border-[#3BB77E] text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:text-white transition-colors">
+                      <Link href='/cart' className="flex-1 !text-center border border-[#3BB77E] !text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:!text-white transition-colors">
                         View cart
-                      </button>
-                      <button className="flex-1 bg-[#3BB77E] text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
+                      </Link>
+                      <Link href='/checkout' className="flex-1 text-center bg-[#3BB77E] !text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
                         Checkout
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                      </Link>
+                    </div >
+                  </div >
+                </div >
               </div>
             </div>
 
@@ -883,7 +994,7 @@ const Header = () => {
         </div>
       </div>
 
-    </header>
+    </header >
   );
 };
 
