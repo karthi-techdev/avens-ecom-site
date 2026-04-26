@@ -1,38 +1,150 @@
 'use client';
-import { useState } from 'react';
-import { Star, ShoppingBag, Heart, RefreshCw, BadgeCheck, RefreshCcw } from 'lucide-react';
+// FIX: useEffect-ai inge import panniyaachu
+import { useState, useEffect } from 'react';
+import { Star, ShoppingBag, Heart, RefreshCw, BadgeCheck, RefreshCcw, X, CircleCheck } from 'lucide-react';
 import { Check } from 'lucide-react';
-
+import { useRouter } from 'next/navigation';
+import { toast, Bounce, ToastContainer } from 'react-toastify';
+import { useCartStore } from '../../../store/cartStore';
 interface ProductInfoProps {
     product: any;
 }
-
 const ProductInfo = ({ product }: ProductInfoProps) => {
+    const { addCart, getAllCart } = useCartStore();
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('M');
     const [selectedColor, setSelectedColor] = useState('#3bb77e');
-
+    const [isInWishlist, setIsInWishlist] = useState(false);
+    const [showRemoveAlert, setShowRemoveAlert] = useState(false);
+    const router = useRouter();
     const colors = ['#f74877', '#3bb77e', '#2196f3', '#ff9800'];
     const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-
-    // Calculation: Discounted Price and Original Price based on Quantity
     const unitPrice = product.price - (product.price * (product.discountPrice || 0) / 100);
     const totalPrice = Math.round(unitPrice * quantity);
     const totalOriginalPrice = product.price * quantity;
+    const token = JSON.parse(localStorage.getItem("user") || '{}');
+
+    useEffect(() => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const isExist = savedWishlist.some((item: any) => (item._id || item.id) === (product._id || product.id));
+        setIsInWishlist(isExist);
+    }, [product]);
+
+
+    const increaseFunc = () => {
+        if (quantity < product.stockQuantity) {
+            setQuantity(quantity + 1);
+        }
+        else {
+            toast.warn('Stock max reached!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
+        }
+    }
+
+    const addToCart = async () => {
+        try {
+            await addCart({
+                quantity,
+                selectedColor,
+                selectedSize,
+                totalPrice,
+                product,
+                userId: token._id
+            });
+            await getAllCart(token._id)
+            toast.success('Added to cart!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    const handleWishlistClick = () => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const isExist = savedWishlist.find(
+            (item: any) => (item._id || item.id) === (product._id || product.id)
+        );
+
+        if (!isExist) {
+            const discountedPrice = Math.round(
+                product.price - (product.price * (product.discountPrice || 0) / 100)
+            );
+            const productToSave = {
+                ...product,
+                price: discountedPrice,
+                stockQuantity: product.stockQuantity
+            };
+            savedWishlist.push(productToSave);
+            localStorage.setItem('wishlist', JSON.stringify(savedWishlist));
+            window.dispatchEvent(new Event("wishlistUpdated"));
+            setIsInWishlist(true);
+            router.push('/wishlist');
+        }
+    };
+
+    const handleRemoveWishlist = () => {
+        const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+
+        const updated = savedWishlist.filter(
+            (item: any) => (item._id || item.id) !== (product._id || product.id)
+        );
+
+        localStorage.setItem('wishlist', JSON.stringify(updated));
+        window.dispatchEvent(new Event("wishlistUpdated"));
+        setIsInWishlist(false);
+        setShowRemoveAlert(true);
+        setTimeout(() => setShowRemoveAlert(false), 3000);
+    };
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 relative">
+            {showRemoveAlert && (
+                <div className="fixed top-5 right-5 z-[9999] min-w-[320px] bg-white border-l-8 border-red-500 shadow-xl p-5 rounded-r-xl flex items-center gap-4">
 
-            {/* TITLE */}
+                    <div className="bg-red-100 p-3 rounded-full">
+                        <CircleCheck className="w-6 h-6 text-red-600" />
+                    </div>
+
+                    <div className="flex-1">
+                        <h4 className="font-bold text-gray-900">Removed!</h4>
+                        <p className="text-sm text-gray-500">
+                            Item removed from wishlist.
+                        </p>
+                    </div>
+
+                    <button onClick={() => setShowRemoveAlert(false)}>
+                        <X size={18} />
+                    </button>
+                </div>
+            )}
+
+            {/* TITLE & RATINGS */}
             <div className="space-y-2">
                 <span className="bg-[var(--pink-light)] text-[var(--pink-dark)] text-xs font-bold px-3 py-1 rounded">
                     Sale Off
                 </span>
-
                 <h1 className="text-3xl font-bold text-[var(--text-main)]">
                     {product.title || product.name}
                 </h1>
-
                 <div className="flex items-center gap-4">
                     <div className="flex items-center text-[#ffb703] gap-1">
                         {[...Array(5)].map((_, i) => (
@@ -43,12 +155,11 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 </div>
             </div>
 
-            {/* PRICE SECTION  */}
+            {/* PRICE SECTION */}
             <div className="flex items-center gap-4 py-4 border-y border-[var(--border-color)]">
                 <span className="text-4xl font-bold text-[var(--primary)]">
                     ₹{totalPrice}
                 </span>
-
                 {product.discountPrice > 0 && (
                     <div className="flex flex-col">
                         <span className="text-sm text-[var(--pink-dark)] font-bold">
@@ -60,12 +171,10 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     </div>
                 )}
             </div>
-
             {/* DESCRIPTION */}
             <p className="text-[var(--text-muted)] line-clamp-3">
                 {product.shortDescription || "No description available"}
             </p>
-
             {/* COLORS SECTION */}
             <div className="mt-6">
                 <p className="text-sm font-bold text-[#253d4e] mb-3">Color</p>
@@ -74,8 +183,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                         <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`relative w-6 h-6 rounded-full border border-gray-100 transition-all hover:scale-110 ${selectedColor === color ? "border-black scale-110 shadow-sm" : "border-gray-200"
-                                }`}
+                            className={`relative w-6 h-6 rounded-full border border-gray-100 transition-all hover:scale-110 ${selectedColor === color ? "border-black scale-110 shadow-sm" : "border-gray-200"}`}
                             style={{ backgroundColor: color }}
                         >
                             {selectedColor === color && (
@@ -88,7 +196,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 </div>
             </div>
 
-            {/* SIZE */}
+            {/* SIZE SECTION */}
             <div>
                 <p className="text-sm font-bold text-[var(--text-main)] mb-3">Size/Weight</p>
                 <div className="flex gap-2">
@@ -107,33 +215,40 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 </div>
             </div>
 
-            {/* QUANTITY SECTION - Updated for both Increase/Decrease */}
+            {/* QUANTITY & ACTIONS */}
             <div className="flex flex-wrap items-center gap-4 py-4">
                 <div className="flex items-center border border-[var(--border-color)] rounded-lg px-4 py-2">
-                    {/* Decrease Button: Price reduces when clicked */}
                     <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 font-bold">-</button>
                     <span className="w-12 text-center font-bold">{quantity}</span>
                     {/* Increase Button: Price increases when clicked */}
-                    <button onClick={() => setQuantity(q => q + 1)} className="px-2 font-bold">+</button>
-                </div>
+                    <button onClick={increaseFunc} className="px-2 font-bold">+</button>
+                </div >
 
-                <button className="flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold">
+                <button onClick={addToCart} className={`flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold ${token ? 'cursor-pointer' : 'disabled:cursor-not-allowed'}`} disabled={!token || !token._id}>
                     <ShoppingBag size={20} />
                     Add to Cart
                 </button>
 
                 <div className="flex gap-2">
-                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center">
-                        <Heart size={20} />
+                    {/* 5. Heart Button - Dynamic styling apply panniyaachu */}
+                    <button
+                        type="button"
+                        onClick={handleWishlistClick}
+                        onDoubleClick={handleRemoveWishlist}
+                        className={`w-14 h-14 border rounded-lg flex items-center justify-center transition-all ${isInWishlist ? "bg-red-50 border-red-200" : "hover:bg-gray-50 border-gray-200"}`}
+                    >
+                        <Heart
+                            size={20}
+                            fill={isInWishlist ? "#ef4444" : "none"}
+                            className={isInWishlist ? "text-red-500" : "text-gray-600"}
+                        />
                     </button>
-                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center">
-                        <RefreshCw size={20} />
-                    </button>
+                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center"><RefreshCw size={20} /></button>
                 </div>
-            </div>
+            </div >
 
             {/* EXTRA INFO */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 border-t border-[var(--border-color)] text-sm text-[var(--text-muted)]">
+            < div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 border-t border-[var(--border-color)] text-sm text-[var(--text-muted)]" >
                 <div className="flex items-center gap-2">
                     <BadgeCheck size={18} className="text-[var(--primary)]" />
                     <span>Quality Guarantee</span>
@@ -142,16 +257,15 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                     <RefreshCcw size={18} className="text-[var(--primary)]" />
                     <span>30 Day Return Policy</span>
                 </div>
-            </div>
+            </div >
 
-            {/* META */}
-            <div className="space-y-1 text-sm pt-4 border-t border-[var(--border-color)]">
+            {/* META INFO */}
+            < div className="space-y-1 text-sm pt-4 border-t border-[var(--border-color)]" >
                 <p><span className="font-semibold">SKU:</span> {product.sku}</p>
                 <p><span className="font-semibold">Category:</span> {product.mainCategoryId}</p>
                 <p><span className="font-semibold">Stock:</span> {product.stockQuantity}</p>
-            </div>
-
-        </div>
+            </div >
+        </div >
     );
 };
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Star, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
+import { useAddInfoStore } from "@/store/useAddInfoStore";
 
 interface ProductTabsProps {
     description?: string;
@@ -35,6 +36,7 @@ const formatReviewDate = (dateString: string) => {
 
     return `${datePart} at ${timePart}`;
 };
+
 
 const ProductTabs = ({ description, product }: ProductTabsProps) => {
     const [activeTab, setActiveTab] = useState("DESCRIPTION");
@@ -102,14 +104,6 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
         }
     };
 
-    const additionalInfo = [
-        { label: "Weight", value: product?.weight ? `${product.weight}kg` : "1kg" },
-        { label: "Color", value: product?.colors?.join(", ") || "Black" },
-        { label: "SKU", value: product?.sku || "N/A" },
-        { label: "Stock Status", value: product?.stockQuantity > 0 ? "In Stock" : "Out of Stock" },
-        { label: "Category", value: product?.mainCategoryId || "General" }
-    ];
-
     const handleChange = (e: any) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
@@ -170,6 +164,12 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
             setIsSubmitting(false);
         }
     };
+    const { addInfos, fetchAddInfos, isLoading } = useAddInfoStore();
+    useEffect(() => {
+        fetchAddInfos();
+    }, [fetchAddInfos]);
+
+    if (isLoading) return <div>Loading details...</div>;
 
     return (
         <div className="mt-10">
@@ -200,12 +200,25 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
                     <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
                         <table className="w-full text-sm">
                             <tbody>
-                                {additionalInfo.map((item, index) => (
-                                    <tr key={index} className={`border-b border-[#ececec] ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
-                                        <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">{item.label}</td>
-                                        <td className="p-4 text-gray-600">{item.value}</td>
+                                {addInfos.length > 0 ? (
+                                    addInfos.map((item, index) => (
+                                        <tr
+                                            key={item._id || index}
+                                            className={`border-b border-[#ececec]`}
+                                        >
+                                            <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">
+                                                {item.key}
+                                            </td>
+                                            <td className="p-4 text-gray-600">
+                                                {item.value}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td className="p-4 text-gray-400">No additional information available.</td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>

@@ -1,14 +1,8 @@
-"use client";
-
-import { MessageSquareText, ChevronRight, Eye, Usb, ArrowRight, Clock, Search } from "lucide-react"
+'use client';
+import { MessageSquareText, ChevronRight, Eye, Usb, ArrowRight, Clock, Search, ChevronDown } from "lucide-react";
+import { useBlogStore } from "@/store/useBlogPageStore";
+import { useBlogCategory } from "@/store/useBlogPageCategory";
 import Image from "next/image";
-import blogimageone from "@/public/images/blog-6.png"
-import blogimagetwo from "@/public/images/blog-7.png"
-import blogimagethree from "@/public/images/blog-8.png"
-import blogimagefour from "@/public/images/blog-2.png"
-import blogimagefive from "@/public/images/blog-3.png"
-import blogimagesix from "@/public/images/blog-4.png"
-import blogimageseven from "@/public/images/blog-9.png"
 import blogimagerightone from "@/public/images/blog-1.jpg"
 import blogimagerighttwo from "@/public/images/blog-2.png"
 import blogimagerightthree from "@/public/images/blog-3.png"
@@ -18,25 +12,117 @@ import blogimagerightsix from "@/public/images/offer.png"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+
 const BlogtechnologyPage = () => {
-  const [checkingAuth, setCheckingAuth] = useState(true);
-    const router = useRouter();
 
-     useEffect(() => {
-        const isLoggedIn = localStorage.getItem("loginSuccess");
-    
-        if (isLoggedIn) {
-          router.replace("/blog");
+    const { blogcategory, fetchBlogCategorys, loading: isCategoryLoading } = useBlogCategory();
+    const { blog, fetchBlogs, isLoading: isBlogLoading } = useBlogStore();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const searchFirstPageTotal = 7;
+    const searchOtherPageItems = 6;
+    const [showAllCategories, setShowAllCategories] = useState(false);
+    const firstPageTotal = 9;
+    const subsequentPageItems = 10;
+    useEffect(() => {
+        fetchBlogs();
+    }, [fetchBlogs]);
+
+    useEffect(() => {
+        fetchBlogCategorys();
+    }, [fetchBlogCategorys]);
+
+    if (isBlogLoading && blog.length === 0) {
+        return null;
+    }
+    if (!isBlogLoading && blog.length === 0) {
+        return null;
+    }
+
+    if (isCategoryLoading && blogcategory.length === 0) {
+        return null;
+    }
+    if (!isCategoryLoading && blogcategory.length === 0) {
+        return null;
+    }
+
+    const visibleCategories = showAllCategories
+        ? blogcategory
+        : blogcategory.slice(0, 5);
+
+    const blogCountMap: Record<string, number> = {};
+
+    blog.forEach((b) => {
+        const catName = typeof b.categoryId === 'object' ? b.categoryId.name : b.categoryId;
+        if (!catName) return;
+
+        blogCountMap[catName] = (blogCountMap[catName] || 0) + 1;
+    });
+
+    const filteredBlogs = (() => {
+        if (search.trim() === "") return blog;
+
+        const result = blog.filter((item) => {
+            const catName =
+                typeof item.categoryId === "object"
+                    ? item.categoryId.name
+                    : item.categoryId;
+
+            return catName
+                ?.toLowerCase()
+                .includes(search.toLowerCase().trim());
+        });
+
+        return result.length > 0 ? result : blog;
+    })();
+
+    const isSearching = search.trim() !== "";
+
+    const shouldShowPagination = isSearching
+        ? filteredBlogs.length > searchFirstPageTotal
+        : filteredBlogs.length > firstPageTotal;
+
+    const totalPages = isSearching
+        ? filteredBlogs.length <= searchFirstPageTotal
+            ? 1
+            : 1 + Math.ceil((filteredBlogs.length - searchFirstPageTotal) / searchOtherPageItems)
+        : filteredBlogs.length <= firstPageTotal
+            ? 1
+            : 1 + Math.ceil((filteredBlogs.length - firstPageTotal) / subsequentPageItems);
+
+    let currentBlogs: typeof blog = [];
+
+    if (isSearching) {
+        if (currentPage === 1) {
+            currentBlogs = filteredBlogs.slice(0, searchFirstPageTotal);
         } else {
-          setCheckingAuth(false);
-          if(!isLoggedIn){
-            router.replace("/login")
-          }
+            const startIndex =
+                searchFirstPageTotal + (currentPage - 2) * searchOtherPageItems;
+            const endIndex = startIndex + searchOtherPageItems;
+            currentBlogs = filteredBlogs.slice(startIndex, endIndex);
         }
-      }, []);
+    } else {
+        if (currentPage === 1) {
+            currentBlogs = filteredBlogs.slice(0, firstPageTotal);
+        } else {
+            const startIndex =
+                firstPageTotal + (currentPage - 2) * subsequentPageItems;
+            const endIndex = startIndex + subsequentPageItems;
+            currentBlogs = filteredBlogs.slice(startIndex, endIndex);
+        }
+    }
 
+    const firstBlog =
+    isSearching && currentPage === 1
+        ? currentBlogs[0]
+        : !isSearching && currentPage === 1
+        ? currentBlogs[0]
+        : null;
 
-
+const smallBlogs =
+    currentPage === 1
+        ? currentBlogs.slice(1)
+        : currentBlogs;
 
     return (
         <section className="w-full">
@@ -68,194 +154,162 @@ const BlogtechnologyPage = () => {
                             <li className="relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-1 before:h-1 before:bg-[var(--text-muted)] before:rounded-full ">3480 Authors </li>
                             <li className="relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-2 before:w-1 before:h-1 before:bg-[var(--text-muted)] before:rounded-full "> 29M Views</li>
                         </ul>
-                        <div className="!mt-10  border border-[var(--border-color)] !pb-5
+
+                        {firstBlog && (
+
+                            <div key={firstBlog._id}
+                                className="!mt-10  border border-[var(--border-color)] !pb-5
                         transition-all duration-500 hover:-translate-y-2 hover:shadow-lg ">
-                            <div className="group overflow-hidden ">
-                                <Image
-                                    src={blogimageone}
-                                    alt="images"
-                                    className=" w-full object-cover transition duration-300 ease-in-out group-hover:scale-110 " />
-                            </div>
+                                <div className="group overflow-hidden">
+                                    <img
 
-                            <ul className="flex justify-between !p-4">
-                                <li className="text-sm uppercase font-bold relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-1 before:w-2 before:h-2 before:border  before:border-[var(--blog-text)] before:rounded-full !text-[var(--blog-text)] ">Mobile Phone</li>
-                                <li className="flex"><span className="!pr-10 font-small flex text-[var(--text-muted)] "><Eye size={25} className="!p-1 !mr-1" />23k</span> <span className="!pr-8 font-small flex !text-[var(--text-muted)]"><MessageSquareText size={25} className="!p-1 !mr-1" />18k</span> <span className="!pr-6 font-small flex !text-[var(--text-muted)]"><Usb size={23} className="!p-1 !mr-1" />17k</span></li>
-                            </ul>
-                            <h1 className="!p-4 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Barcelona: marathan; south korean pulls away for a grueling surprise</h1>
-                            <p className="!p-4 font-small">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi-million dollar home currently.</p>
-                            <ul className="flex justify-between !p-4">
-                                <li className=" text-[12px] lg:text-sm text-[var(--text-muted)]">By <a href="" className="!text-[var(--blog-text)]">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
-                                <li className="text-[var(--white)]"><a href="" className="w-30 h-10 flex justify-center items-center !bg-[var(--blog-text)] rounded  text-sm font-semibold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
-                            </ul>
+                                        src={firstBlog.image}
+                                        alt="image"
+                                        className=" object-cover transition duration-300 ease-in-out group-hover:scale-110 w-full" />
+                                </div>
+
+                                <ul className="flex justify-between !p-4">
+                                    <li className="text-sm uppercase font-bold relative !pl-4 before:content-[''] before:absolute before:left-0 before:top-1 before:w-2 before:h-2 before:border  before:border-[var(--blog-text)] before:rounded-full !text-[var(--blog-text)] ">Mobile Phone</li>
+                                    <li className="flex"><span className="!pr-10 font-small flex text-[var(--text-muted)] "><Eye size={25} className="!p-1 !mr-1" />23k</span> <span className="!pr-8 font-small flex !text-[var(--text-muted)]"><MessageSquareText size={25} className="!p-1 !mr-1" />18k</span> <span className="!pr-6 font-small flex !text-[var(--text-muted)]"><Usb size={23} className="!p-1 !mr-1" />17k</span></li>
+                                </ul>
+                                <h1 className="!p-4 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">{firstBlog.name}</h1>
+                                <h1 className="!p-4 font-small"
+                                    dangerouslySetInnerHTML={{
+                                        __html: (firstBlog.description || "")
+                                            .replace(/<[^>]+>/g, "")
+                                            .slice(0, 250) + "..."
+                                    }}></h1>
+                                <ul className="flex justify-between !p-4">
+                                    <li className=" text-[12px] lg:text-sm text-[var(--text-muted)]">By <a href="" className="!text-[var(--blog-text)]">Azimeto</a> 12/07/2026 09:35 EST 8 mins read <span className="block text-sm">Updated 18/08/2026 07:12 EST</span></li>
+                                    <li className="text-[var(--white)]"><a href="" className="w-30 h-10 flex justify-center items-center !bg-[var(--blog-text)] rounded  text-sm font-semibold hover:!bg-[var(--blog-hover)] ">Read More<ArrowRight size={16} className="!ml-2" /></a></li>
+                                </ul>
+                            </div>
+                        )}
+
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 !mt-5">
+                            {smallBlogs.map((item) => (
+                                <div
+                                    key={item._id}
+                                    className="border border-[var(--border-color)] !pb-2 relative
+      transition-all duration-500 hover:-translate-y-2 hover:shadow-lg "
+                                >
+
+
+                                    <div className="absolute top-4 left-3 z-10 bg-[var(--blog-text)] text-white px-3 py-1 rounded-lg text-sm font-bold capitalize">
+                                        {item.categoryId.name || "General"}
+                                    </div>
+
+
+                                    <div className="group overflow-hidden">
+                                        <img
+                                            src={item.image}
+                                            alt="image"
+                                            className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110"
+                                        />
+                                    </div>
+                                    <div className="!p-3">
+                                        <h1 className="!p-2 text-1xl md:text-xl lg:text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">
+                                            {item.name}
+                                        </h1>
+
+
+                                        <p
+                                            className="!p-2"
+                                            dangerouslySetInnerHTML={{
+                                                __html: (item.description || "")
+                                                    .replace(/<[^>]+>/g, "")
+                                                    .slice(0, 150) + "..."
+                                            }}
+                                        ></p>
+                                        <ul className="flex justify-between !pt-5 !pb-3 ">
+                                            <li className="text-sm flex text-[var(--blog-text)]"><Clock size={14} />  12 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">125k Views</span></li>
+                                            <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-
-                        <div className="flex flex-col md:flex-row gap-6 !mt-5">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> Politic</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagetwo}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">The litigants on the screen are not actors</h1>
-                                <p className="!p-2">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell one multi.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
+                        {shouldShowPagination && (
+                            <div className="flex gap-5">
+                                {Array.from({ length: totalPages }).map((_, index) => (
+                                    <div
+                                        key={index}
+                                        className={`w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold cursor-pointer ${currentPage === index + 1
+                                            ? "bg-[var(--blog-text)] text-white"
+                                            : "text-[var(--text-muted)]"
+                                            }`}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                    >
+                                        {index + 1}
+                                    </div>
+                                ))}
                             </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">global</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagethree}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
+                        )}
 
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Essential Qualities of Highly Successful Music</h1>
-                                <p className="!p-2">Graduating from a top accelerator or incubator can be as career-defining for a startup founder as an elite university diploma. The intensive programmes, which</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row gap-6 !mt-3">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> sport</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagefour}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">9 Things I Love About Shaving My Head</h1>
-                                <p className="!p-2">At the Emmys, broadcast scripted shows created by people of color gained ground relative to those pitched by White show creators, while broadcast scripted shows.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]" ><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a></li>
-                                </ul>
-                            </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-25 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">Technology</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagefive}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Why Teamwork Really Makes The Dream Work</h1>
-                                <p className="!p-2">We live in a world where disruption and dynamism reign supreme and businesses must be ready to adapt to the many unpredictable changes that come with this.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row gap-6 !mt-3">
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative
-                            transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10">watch</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimagesix}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-3xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">The World Caters to Average People</h1>
-                                <p className="!p-2">These people envy me for having a lifestyle they don’t have, but the truth is, sometimes I envy their lifestyle instead. Struggling to sell oney.</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                            <div className="w-full md:w-1/2 border border-[var(--border-color)] !pb-2 relative  transition-all duration-500 hover:-translate-y-2 hover:shadow-lg">
-                                <div className="w-20 h-9 flex justify-center items-center bg-[var(--blog-text)] rounded-lg  text-sm font-bold capitalize text-[var(--white)] absolute top-4 left-3 z-10"> Politic</div>
-                                <div className="group overflow-hidden ">
-                                    <Image
-                                        src={blogimageseven}
-                                        alt="images"
-                                        className="w-full object-cover transition duration-300 ease-in-out group-hover:scale-110" />
-                                </div>
-
-                                <h1 className="!p-2 text-2xl font-bold hover:text-[var(--blog-text)] text-[var(--text-main)]">Essential Qualities of Highly Successful Music</h1>
-                                <p className="!p-2">Graduating from a top accelerator or incubator can be as career-defining for a startup founder as an elite university diploma. The intensive programmes, which...</p>
-                                <ul className="flex justify-between !p-4" >
-                                    <li className="text-sm flex text-[var(--text-muted)]"><Clock size={14} /> 25 April 2026 <span className=" relative !pl-4 before:content-[''] before:absolute before:left-1 before:top-2 before:w-1 before:h-1 before:bg-gray-500 before:rounded-full">126k Views</span></li>
-                                    <li className="flex text-sm text-[var(--blog-text)]"><a href="" className="flex">Read More<ArrowRight size={16} className="!mt-1" /></a> </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-3 !mt-10">
-                            <div className="w-8 h-8  flex justify-center items-center bg-[var(--blog-text)] rounded-lg text-md font-extrabold text-[var(--white)] "><a href="">01</a></div>
-                            <div className="w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold text-[var(--text-muted)] hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="">02</a></div>
-                            <div className="w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold text-[var(--text-muted)] hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="" >03</a></div>
-                            <div className="w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold text-[var(--text-muted)] hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="" >...</a></div>
-                            <div className="w-8 h-8 flex justify-center items-center rounded-lg text-md font-extrabold text-[var(--text-muted)] hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="">16</a></div>
-                            <div className="w-8 h-8 flex justify-center items-center  text-md font-extrabold text-[var(--text-muted)] rounded-l-none rounded-r-full hover:bg-[var(--blog-text)] hover:text-[var(--white)]"><a href="" className="flex"><ChevronRight size={16} /><ChevronRight size={16} /></a></div>
-                        </div>
 
                     </div>
 
                     <div className="lg:col-span-1">
                         <div className="sticky top-5 ">
-                            <div className="relative w-full  lg:max-w-sm !mt-3">
+                            <div className="relative w-full  lg:max-w-sm !mt-3 ">
                                 <input
                                     type="text"
                                     placeholder="Search ..."
-                                    className="w-full !pl-10 !pr-4 !py-2 border border-[var(--border-color)]  focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)]"
+                                    value={search}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="w-full  !pl-10 !pr-4 !py-2 border border-[var(--border-color)] focus:outline-none focus:ring-1 focus:ring-[var(--blog-text)] "
+
                                 />
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 "><Search size={16} /></div>
+                                <Search size={16} className="absolute top-3 left-2" />
                             </div>
                             <div className="w-full border-b-1 border-[var(--border-color)] !mt-9 ">
                                 <h1 className="uppercase font-bold text-[var(--text-main)] !pb-2">Categories</h1>
                             </div>
-                            <div className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-8">
-                                <ul className="flex justify-between">
-                                    <li><a href="" className="!text-[var(--blog-text)]">Beauty</a></li>
-                                    <li>(3)</li>
-                                </ul>
-                            </div>
-                            <div className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-4">
-                                <ul className="flex justify-between  ">
-                                    <li><a href="" className=" !text-[var(--blog-text)]">Book</a></li>
-                                    <li>(6)</li>
-                                </ul>
-                            </div>
-                            <div className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-4">
-                                <ul className="flex justify-between">
-                                    <li><a href="" className=" !text-[var(--blog-text)]">Design</a></li>
-                                    <li>(4)</li>
-                                </ul>
-                            </div>
-                            <div className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-4">
-                                <ul className="flex justify-between">
-                                    <li><a href="" className="!text-[var(--blog-text)]">Fashion</a></li>
-                                    <li>(3)</li>
-                                </ul>
-                            </div>
-                            <div className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-4">
-                                <ul className="flex justify-between">
-                                    <li><a href="" className="!text-[var(--blog-text)]">Lifestyle</a></li>
-                                    <li>(6)</li>
-                                </ul>
-                            </div>
-                            <div className="w-full !mt-4">
-                                <ul className="flex justify-between">
-                                    <li><a href="" className="!text-[var(--blog-text)]">Travel</a></li>
-                                    <li>(2)</li>
-                                </ul>
-                            </div>
+                            {visibleCategories.map((item, index) => (
+                                <div key={item._id}
+                                    className="w-full border-b-1 border-dotted border-[var(--border-color)] !mt-8">
+                                    <ul className="flex justify-between">
+                                        <li><a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+
+                                                if ((blogCountMap[item.name] || 0) === 0) return;
+
+                                                setSearch(item.name);
+                                                setCurrentPage(1);
+                                            }}
+                                            className={`capitalize cursor-pointer ${(blogCountMap[item.name] || 0) === 0
+                                                ? "!text-[var(--blog-text)] cursor-not-allowed"
+                                                : "!text-[var(--blog-text)]"
+                                                }`}
+                                        >
+                                            {item.name}
+                                        </a></li>
+                                        <li>({blogCountMap[item.name] || 0})</li>
+                                    </ul>
+                                </div>
+                            ))}
+                            {blogcategory.length > 5 && (
+                                <div className="mt-4 flex justify-center">
+                                    <button
+                                        onClick={() => setShowAllCategories(!showAllCategories)}
+                                        className="flex items-center gap-2 text-[var(--blog-text)] font-semibold"
+                                    >
+                                        {showAllCategories ? "Show Less" : "Show More"}
+
+                                        <ChevronDown
+                                            size={16}
+                                            className={`transition-transform duration-300 ${showAllCategories ? "rotate-180" : ""
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            )}
                             <div className="w-full border-b-1 border-[var(--border-color)] !mt-9 ">
                                 <h1 className="uppercase font-bold text-[var(--text-main)] !pb-2">Trending Now</h1>
                             </div>

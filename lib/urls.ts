@@ -27,7 +27,32 @@ export const API = {
 
   // You can add more as needed following the pattern
   // Category endpoints
+  addCategory: `${ROOTURL}admin/categories/`,
   listCategory: `${ROOTURL}admin/categories/`,
+  // Product endpoints
+  fetchProducts: `${ROOTURL}admin/products/`,
+  getCategory: `${ROOTURL}admin/categories/getCategoryById/`,
+  updateCategory: `${ROOTURL}admin/categories/updateCategory/`,
+  softDeleteCategory: `${ROOTURL}admin/categories/softDeleteCategory/`,
+  restoreCategory: `${ROOTURL}admin/categories/restore`,
+  hardDeleteCategory: `${ROOTURL}admin/categories/permanentDelete`,
+  toggleCategoryStatus: `${ROOTURL}admin/categories/togglestatus`,
+  trashCategories: `${ROOTURL}admin/categories/trash`,
+  checkDuplicateCategory: `${ROOTURL}admin/categories/check-duplicate`,
+  // ---------------- Main Category ----------------
+  listMainCategory: `${ROOTURL}admin/main-categories`,
+  getMainCategory: `${ROOTURL}admin/main-categories/`,
+  listAllMainCategory: `${ROOTURL}admin/main-categories`,
+  // ---------------- Sub Category ----------------
+   addSubCategory: `${ROOTURL}admin/subcategory/`,
+  listSubCategory: `${ROOTURL}admin/subcategory/`,
+  subCategoryByMainCategoryId:`${ROOTURL}admin/subcategory/activeSubCategory/`,
+  listActiveMainCategory: `${ROOTURL}admin/subcategory/activemain-categorylist`,
+
+  //Contact endpoints
+  addContact: `${ROOTURL}admin/contact`,
+  listContacts: `${ROOTURL}admin/contact`,
+  getContact: `${ROOTURL}admin/contact/getContactById/`,
 
   // ---------------- Product endpoints ----------------
   addProduct: `${ROOTURL}admin/products/`,
@@ -62,6 +87,24 @@ export const API = {
   listPromotions: `${ROOTURL}admin/promotions`,
   // Offer endpoints
   listOffers: `${ROOTURL}admin/offers/`,
+//comments
+  addComment: `${ROOTURL}admin/comments/`,
+  getCommentsByBlog: (blogId: string) =>
+  `${ROOTURL}admin/comments/${blogId}`,
+  deleteComment: (id: string) => `${ROOTURL}admin/comments/${id}`,
+
+  //addinfo endpoints
+  listAddInfos: `${ROOTURL}admin/product/add-info`,
+ 
+  //blog endpoints
+   listBlogs: `${ROOTURL}admin/blogs/`,
+
+  //blog-category endpoints
+  listBlogsCategory: `${ROOTURL}admin/blog-category/`,
+
+  //subscribe endpoints
+  addSubscribe: `${ROOTURL}admin/subscribe/`,
+
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };

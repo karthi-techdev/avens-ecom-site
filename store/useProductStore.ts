@@ -1,48 +1,76 @@
-import { create } from 'zustand';
-import apiClient from '@/lib/api-client';
-import { API } from '@/lib/urls';
+import { create } from "zustand";
+import apiClient from "@/lib/api-client";
+import { API } from "@/lib/urls";
+
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  title: string;
+  thumbnail: string;
+  price: number;
+  discountPrice?: number;
+  stockQuantity: number;
+  brandId: string;
+  mainCategoryId: string;
+  subCategoryId?: string;
+  categoryId?: string;
+  images: string[];
+  colors?: string[];
+  sizes?: string;
+  status: "active" | "inactive";
+  isDeleted: boolean;
+  isActive: boolean;
+  createdAt: string; // Added for sorting
+  rating?: number; // Added as optional
+}
 
 interface ProductState {
-  products: any[];
+  products: Product[];
   isLoading: boolean;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  fetchProducts: (type: string) => Promise<void>;
+  error: string | null;
+  activeTab: string; // New State
+  setActiveTab: (tab: string) => void; // New Function
+  fetchProducts: (tab?: string) => Promise<void>; // Updated to accept tab
+  // fetchProducts: () => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
   products: [],
   isLoading: false,
+  error: null,
   activeTab: "featured",
 
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  // Logic for setting active tab
+  setActiveTab: (tab: string) => {
+    set({ activeTab: tab });
+  },
 
-  fetchProducts: async (type) => {
-    set({ isLoading: true });
-
+  fetchProducts: async () => {
+    set({ isLoading: true, error: null });
     try {
-      let url = API.filterProducts;
+      const response = await apiClient.get(
+        `${API.fetchProducts}?status=active&limit=100`,
+      );
 
-      if (type === "new") {
-        url = `${API.filterProducts}?type=new`;
-      } else {
-        url = `${API.filterProducts}?type=${type}`;
+      let productData = [];
+      if (response.data.data && Array.isArray(response.data.data)) {
+        productData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        productData = response.data;
+      } else if (response.data.data && response.data.data.data) {
+        productData = response.data.data.data;
       }
 
-      const res = await apiClient.get(url);
-      let data = [];
-
-      if (res.data.data) {
-        data = res.data.data;
-      } else if (Array.isArray(res.data)) {
-        data = res.data;
-      }
-
-      set({ products: data, isLoading: false });
-
-    } catch (err) {
-      console.log(err);
-      set({ isLoading: false });
+      const activeProducts = productData.filter(
+        (product: Product) => product.isActive !== false,
+      );
+      set({ products: activeProducts, isLoading: false });
+    } catch (error: any) {
+      set({
+        error: error.response?.data?.message || "Failed to fetch products",
+        isLoading: false,
+      });
     }
-  }
+  },
 }));
