@@ -195,6 +195,14 @@ export default function LoginPage() {
                   </div>
                 </div>
                 {errors.password && <p className="text-red-500 mt-2">{errors.password}</p>}
+                <div className="flex justify-end mt-5">
+                  <p
+                    onClick={() => router.push("/forgot-password")}
+                    className="text-sm text-[var(--primary)] cursor-pointer hover:underline"
+                  >
+                    Forgot Password?
+                  </p>
+                </div>
               </div>
 
              

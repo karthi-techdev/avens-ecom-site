@@ -5,6 +5,7 @@
 @import "swiper/css/thumbs";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "react-toastify/dist/ReactToastify.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -272,4 +273,19 @@ input[type=range]::-moz-range-track {
 .swiper-pagination-bullet {
   background-color: var(--primary) !important;
   opacity: 0.3;
+}
+
+/* Hide default password reveal icon (Edge, IE) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* Hide Chrome / Edge password eye & autofill icons */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
