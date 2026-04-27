@@ -5,6 +5,7 @@
 @import "swiper/css/thumbs";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "react-toastify/dist/ReactToastify.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -274,6 +275,19 @@ input[type=range]::-moz-range-track {
   opacity: 0.3;
 }
 
+/* Hide default password reveal icon (Edge, IE) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* Hide Chrome / Edge password eye & autofill icons */
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 /* Dual Range Slider Fix */
 .range-input {
   pointer-events: none;
@@ -301,4 +315,5 @@ input[type=range]::-moz-range-track {
   background-color: #3BB77E;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
 }
