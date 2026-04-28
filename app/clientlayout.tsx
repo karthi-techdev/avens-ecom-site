@@ -4,6 +4,7 @@ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 export default function ClientLayout({
   children,
@@ -13,17 +14,17 @@ export default function ClientLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  const hideLayout = pathname === "/login" || pathname === "/register";
+  const hideLayout = pathname === "/login" || pathname === "/register" ||  pathname === "/forgot-password" || pathname === "/reset-password";
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("loginSuccess");
 
-    if (!token && pathname !== "/login" && pathname !== "/register") {
+    if (!token && pathname !== "/login" && pathname !== "/register" && pathname !== "/forgot-password" && pathname !== "/reset-password") {
       router.replace("/login");
     }
 
-    if (token && (pathname === "/login" || pathname === "/register")) {
+    if (token && (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") && !pathname.startsWith("/reset-password")) {
       router.replace("/");
     }
 
@@ -37,6 +38,7 @@ export default function ClientLayout({
       {!hideLayout && <Header />}
       {children}
       {!hideLayout && <Footer />}
+      <ToastContainer position="top-right" />
     </>
   );
 }
