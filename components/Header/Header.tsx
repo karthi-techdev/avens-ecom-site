@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import React, { useState , useMemo , useEffect} from "react";
 import URLs from '../../lib/urls';
+import { CiUser } from "react-icons/ci";
 import {
   Search,
   Heart,
@@ -67,27 +68,27 @@ const filteredSubCategories = subCategories.filter(
     setIsLoggedIn(loginStatus === "true");
   }, []);
 
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loginSuccess");
+  // useEffect(() => {
+  //   const loginStatus = localStorage.getItem("loginSuccess");
 
-    if (loginStatus === "true") {
-      Swal.fire({
-        icon: "success",
-        title: "Welcome!",
-        text: "You are logged in",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    } else {
-      Swal.fire({
-        icon: "info",
-        title: "Not Logged In",
-        text: "Please login to continue",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    }
-  }, []);
+  //   if (loginStatus === "true") {
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Welcome!",
+  //       text: "You are logged in",
+  //       timer: 1500,
+  //       showConfirmButton: false,
+  //     });
+  //   } else {
+  //     Swal.fire({
+  //       icon: "info",
+  //       title: "Not Logged In",
+  //       text: "Please login to continue",
+  //       timer: 1500,
+  //       showConfirmButton: false,
+  //     });
+  //   }
+  // }, []);
 
   const siteLogoUrl = useMemo(() => {
     const logoPath = settings?.branding?.siteLogo;
@@ -158,6 +159,10 @@ const cartItems = [
     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
   ];
+  
+
+
+
   const CategoryMegaMenu = () => {
     const maincategories =mainCategories.map((cat, index) => ({
   name: cat.name,
@@ -193,6 +198,12 @@ const validCol2 = col2.filter((sub) =>
   )
 );
 
+//filtered menu
+const filteredItems = categories.filter(
+  (item: any) =>
+    item.mainCategoryId?._id === selectedMainCategory?._id
+);
+
 return (
   <>
   <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
@@ -208,7 +219,10 @@ console.log("ICON:", cat.icon);
           return(
           <li 
             key={cat._id}
-            onClick={() => setSelectedMainCategory(cat)}
+            onClick={() => {
+  setSelectedMainCategory(cat);
+  router.push(`/shop?mainCategory=${cat._id}`);
+}}
             className={`group flex justify-between items-center px-4 py-[10.5px] cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 hover:text-[var(--primary)] 
             ${selectedMainCategory?._id === cat._id ? "text-[var(--primary)] bg-gray-50" : ""}`}
           >
@@ -250,13 +264,26 @@ console.log("ICON:", cat.icon);
                 <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
                   {sub.name}
                 </h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  {filteredCategories.map((item: any) => (
-                    <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
-                      {item.name}
-                    </li>
-                  ))}
-                </ul>
+   <div className="w-3/4 p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  {filteredItems.map((item: any) => (
+    <div
+      key={item._id}
+      className="border rounded-lg overflow-hidden bg-white hover:shadow-md transition cursor-pointer"
+    >
+      <div className="w-full h-32 bg-gray-100">
+        <img
+          src={`${URLs.FILEURL}/${item.image.replace(/^\/+/, "")}`}
+          alt={item.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      <div className="p-2 text-center">
+        <p className="text-sm font-medium">{item.name}</p>
+      </div>
+    </div>
+  ))}
+</div>
               </div>
             );
           })}
@@ -455,7 +482,7 @@ console.log("ICON:", cat.icon);
 
 </div>
 
-          <div className="flex items-center gap-6">
+  <div className="flex items-center gap-6">
 
   <div className="flex items-center gap-6">
     <div className="relative cursor-pointer">
@@ -508,6 +535,10 @@ console.log("ICON:", cat.icon);
         </div>
       </div>
     </div>
+
+    <div className="relative cursor-pointer" onClick={() => router.push("/account")}>
+    <CiUser size={24} />
+   </div>
   </div>
 
   <button
@@ -517,7 +548,7 @@ console.log("ICON:", cat.icon);
     <Menu size={28} />
   </button>
 
-</div>
+  </div>
         </div>
       </div>
 

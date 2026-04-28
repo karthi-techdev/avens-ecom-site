@@ -71,9 +71,9 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                         <div 
                             className="absolute h-full bg-[#3BB77E] rounded-full"
                             style={{ 
-                                left: `${(priceRange[0] / max) * 100}%`, 
-                                right: `${100 - (priceRange[1] / max) * 100}%` 
-                            }}
+                                    left: `${((priceRange?.[0] ?? 0) / max) * 100}%`, 
+                                    right: `${100 - ((priceRange?.[1] ?? max) / max) * 100}%` 
+                                    }}
                         ></div>
                         
                         {/* Dual Range Inputs */}
@@ -81,9 +81,9 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                             type="range" 
                             min={0} 
                             max={max} 
-                            value={priceRange[0]}
+                            value={priceRange?.[0] ?? 0}
                             onChange={(e) => {
-                                const val = Math.min(Number(e.target.value), priceRange[1] - 50);
+                                const val = Math.min(Number(e.target.value), (priceRange?.[1] ?? max) - 50);
                                 setPriceRange([val, priceRange[1]]);
                             }}
                             className="absolute w-full h-1.5 bg-transparent appearance-none pointer-events-none z-30 range-input top-0"
@@ -92,7 +92,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                             type="range" 
                             min={0} 
                             max={max} 
-                            value={priceRange[1]}
+                            value={priceRange?.[1] ?? max}
                             onChange={(e) => {
                                 const val = Math.max(Number(e.target.value), priceRange[0] + 50);
                                 setPriceRange([priceRange[0], val]);
@@ -103,7 +103,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                     
                     <div className="flex flex-col gap-1 mt-6">
                         <span className="text-[14px] text-[#7E7E7E]">Range:</span>
-                        <span className="text-[15px] font-bold text-[#3BB77E]">₹{priceRange[0]} - ₹{priceRange[1]}</span>
+                        <span className="text-[15px] font-bold text-[#3BB77E]">₹{priceRange?.[0] ?? 0} - ₹{priceRange?.[1] ?? max}</span>
                     </div>
                 </div>
                 
