@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import React, { useState, useMemo, useEffect } from "react";
 import URLs from '../../lib/urls';
+import { CiUser } from "react-icons/ci";
 import {
   Search,
   Heart,
@@ -77,7 +78,8 @@ const Header = () => {
   useEffect(() => {
     const loginStatus = localStorage.getItem("loginSuccess");
     setIsLoggedIn(loginStatus === "true");
-  }, []);
+  }, []); 
+
 
   useEffect(() => {
     const updateWishlistCount = () => {
@@ -95,25 +97,26 @@ const Header = () => {
 
   useEffect(() => {
     const loginStatus = localStorage.getItem("loginSuccess");
+  })
 
-    if (loginStatus === "true") {
-      Swal.fire({
-        icon: "success",
-        title: "Welcome!",
-        text: "You are logged in",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    } else {
-      Swal.fire({
-        icon: "info",
-        title: "Not Logged In",
-        text: "Please login to continue",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-    }
-  }, []);
+  //   if (loginStatus === "true") {
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Welcome!",
+  //       text: "You are logged in",
+  //       timer: 1500,
+  //       showConfirmButton: false,
+  //     });
+  //   } else {
+  //     Swal.fire({
+  //       icon: "info",
+  //       title: "Not Logged In",
+  //       text: "Please login to continue",
+  //       timer: 1500,
+  //       showConfirmButton: false,
+  //     });
+  //   }
+  // }, []);
 
   const maincategories = mainCategories.map((cat, index) => ({
     name: cat.name,
@@ -221,6 +224,12 @@ const Header = () => {
     "Pages",
     "Contact",
   ];
+// const cartItems = [
+//     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
+//     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
+//   ];
+  
+
   const categoryData = {
     "Women's Clothing": {
       col1: { title: "Hot & Trending", items: ["Dresses", "Blouses & Shirts", "Hoodies & Sweatshirts", "Women's Sets", "Suits & Blazers", "Bodysuits", "Tanks & Camis", "Coats & Jackets"] },
@@ -243,7 +252,9 @@ const Header = () => {
   //     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
   //     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
   //   ];
+
   const CategoryMegaMenu = () => {
+
     const maincategories = mainCategories.map((cat, index) => ({
       name: cat.name,
     }));
@@ -551,7 +562,7 @@ const Header = () => {
             />
           </div>
 
-          <div className="flex items-center gap-6">
+  <div className="flex items-center gap-6">
 
             {/* Icons */}
             <div className="flex items-center gap-6">
@@ -626,6 +637,20 @@ const Header = () => {
           </div>
         </div>
       </div>
+    
+
+    <div className="relative cursor-pointer" onClick={() => router.push("/account")}>
+    <CiUser size={24} />
+   </div>
+
+
+  <button
+    onClick={() => setIsOpen(true)}
+    className="lg:hidden"
+  >
+    <Menu size={28} />
+  </button>
+
 
       <div className="hidden lg:block border-t border-gray-200 px-10">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex justify-between items-center">
