@@ -100,6 +100,16 @@ export const API = {
 listShippingMethods: `${ROOTURL}admin/shipment-methods`,
 
 createOrder: `${ROOTURL}admin/orders/`,
+ 
+  //blog endpoints
+   listBlogs: `${ROOTURL}admin/blogs/`,
+
+  //blog-category endpoints
+  listBlogsCategory: `${ROOTURL}admin/blog-category/`,
+
+  //subscribe endpoints
+  addSubscribe: `${ROOTURL}admin/subscribe/`,
+
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };

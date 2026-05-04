@@ -4,7 +4,7 @@ import URLs from './urls';
 const apiClient = axios.create({
     baseURL: `${URLs.LIVEURL}api/v1`,
     headers: {
-        "Content-Type": "multipart/form-data"
+       "Content-Type": "application/json",
     },
 });
 

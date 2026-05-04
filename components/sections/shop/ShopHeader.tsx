@@ -99,7 +99,7 @@ const ShopHeader = ({
                     {isSortOpen && (
                         <ul className="absolute left-0 z-50 !mt-2 w-56 bg-white border rounded-[10px] shadow-xl !py-2 animate-in fade-in zoom-in duration-200" style={{ borderColor: 'var(--border-color)' }}>
                             {sortOptions.map((option) => (
-                                <li key={option} onClick={() => { setSortSelected(option); setIsSortOpen(false); }} className="group flex items-center !px-4 !py-2.5 text-sm hover:bg-[var(--primary)] hover:text-white cursor-pointer">
+                                <li key={option} onClick={() => { setSortSelected?.(option); setIsSortOpen(false); }} className="group flex items-center !px-4 !py-2.5 text-sm hover:bg-[var(--primary)] hover:text-white cursor-pointer">
                                     <div className="w-5">{sortSelected === option && <Check size={14} />}</div>
                                     <span>{option}</span>
                                 </li>
