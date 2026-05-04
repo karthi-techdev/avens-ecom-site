@@ -1,12 +1,12 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { CiLocationOn, CiShoppingCart, CiUser } from "react-icons/ci";
 import { LiaShoppingBagSolid } from "react-icons/lia";
 import { VscSettings } from "react-icons/vsc";
 import { IoIosLogOut } from "react-icons/io";
 import { Country, State, City } from "country-state-city";
-
+import { useSearchParams } from "next/navigation";
 
 
 import { useRouter } from "next/navigation";
@@ -29,8 +29,18 @@ import {
  import { isValidPhoneNumber } from "react-phone-number-input";
 import Select from "react-select";
 
+
 export default function AccountPage() {
+
+
   const [activeTab, setActiveTab] = useState("dashboard");
+    const searchParams = useSearchParams();
+  useEffect(() => {
+  const tab = searchParams.get("tab");
+  if (tab === "address") {
+    setActiveTab("address");
+  }
+}, [searchParams]);
   const [errors, setErrors] = useState<any>({});
   const [success, setSuccess] = useState("");
   const [isAdding, setIsAdding] = useState(false);

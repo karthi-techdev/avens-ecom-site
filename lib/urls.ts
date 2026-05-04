@@ -95,6 +95,11 @@ export const API = {
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
+
+  // Shipping endpoints
+listShippingMethods: `${ROOTURL}admin/shipment-methods`,
+
+createOrder: `${ROOTURL}admin/orders/`,
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
