@@ -288,6 +288,7 @@ input[type="password"]::-webkit-textfield-decoration-container {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
+}
 /* Dual Range Slider Fix */
 .range-input {
   pointer-events: none;
@@ -316,4 +317,32 @@ input[type="password"]::-webkit-textfield-decoration-container {
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
 }
+
+input[type="radio"]:checked {
+  border-color: var(--primary);
+  background-color: white;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--primary);
+};
