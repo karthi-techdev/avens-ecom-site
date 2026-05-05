@@ -4,6 +4,8 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "@/lib/firebase";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -95,6 +97,21 @@ export default function AuthPage() {
 
     setRegisterErrors(newErrors);
     return isValid;
+  };
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("loginSuccess", "true");
+
+      Swal.fire("Success", "Logged in with Google", "success");
+
+      router.push("/");
+    } catch (error: any) {
+      Swal.fire("Error", error.message, "error");
+    }
   };
 
   const handleLogin = async () => {
@@ -269,6 +286,31 @@ export default function AuthPage() {
               <button onClick={isLogin ? handleLogin : handleRegister} className="px-12 py-4 text-white bg-[var(--primary)] rounded-full">
                 SUBMIT
               </button>
+          
+              <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-[1px] bg-gray-300"></div>
+                <span className="text-gray-500 text-sm">OR</span>
+                <div className="flex-1 h-[1px] bg-gray-300"></div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+
+              <button
+                onClick={handleGoogleLogin}
+                className="px-6 py-3 rounded-[10px] text-white font-semibold"
+                style={{ backgroundColor: "#db4437" }}
+              >
+                Login With Google
+              </button>
+       
+                <button
+                  className="px-6 py-3 rounded-[10px] text-white font-semibold"
+                  style={{ backgroundColor: "#3b5998" }}
+                >
+                  Login With Facebook
+                </button>
+
+              </div>
 
               <p className="text-center mt-10">
                 {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
@@ -280,7 +322,6 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
-console.log("LOGIN RESPONSE:", data);
       </div>
     </div>
   );
