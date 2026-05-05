@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
 import { useOfferStore } from "@/store/useOfferStore";
+import Link from "next/link"; 
 
 const OfferBoxes = () => {
     const { offers, fetchOffers, isLoading } = useOfferStore();
@@ -30,7 +31,7 @@ const OfferBoxes = () => {
     return (
         <section className='!px-[1rem] !py-[0.8rem] sm:!px-[2rem] sm:!py-[1rem] md:!px-[4rem] md:!py-[1rem] lg:!px-[6rem] lg:!py-[2rem]'>
 
-            {/* ✅ DYNAMIC GRID */}
+            {/*  DYNAMIC GRID */}
             <div className={`
                 grid gap-[2rem]
                 ${filteredOffers.length === 1 ? 'grid-cols-1' : ''}
@@ -78,12 +79,13 @@ const OfferBoxes = () => {
                                     {secondLine}
                                 </h1>
 
-                                <a
-                                    href="#"
-                                    className="font-bold text-[0.8rem] !text-[var(--primary)] flex items-center"
+                                
+                                <Link
+                                    href={`/product-list?offerId=${item._id || item.id}`}
+                                    className="font-bold text-[0.8rem] !text-[var(--primary)] flex items-center cursor-pointer"
                                 >
                                     Shop now <MdOutlineArrowRightAlt className="ml-1" />
-                                </a>
+                                </Link>
                             </div>
 
                         </div>

@@ -35,8 +35,18 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
 
     const hasDiscount = discountPercent > 0;
     const categoryName = product?.categoryId?.name || product?.mainCategoryId?.name || "Category";
+    const imagePath =
+        product?.thumbnail ||        
+        product?.thumbnailImage ||     
+        product?.thumb ||              
+        product?.images?.[0] ||        
+        "";
 
-    // Change 2.1: UseEffect for mounting
+    const imageUrl = imagePath
+        ? `${URLs.FILEURL}${imagePath.replace(/^\/+/, "")}`
+        : "/no-image.png"; 
+
+    
     useEffect(() => {
         setMounted(true);
     }, []);
@@ -80,7 +90,7 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                 quantity: 1,
                 selectedColor: product.colors[0] || null,
                 selectedSize: product.size || null,
-                totalPrice: product.price - (product.price * (product.discountPrice / 100)),
+                totalPrice: finalPrice,
                 product,
                 userId: token._id
             });
@@ -167,6 +177,11 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
 
                 <div className="relative w-full md:w-64 aspect-square overflow-hidden rounded-xl bg-white cursor-pointer  p-3">
                     <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-110">
+                        <img
+                        src={imageUrl} 
+                        alt={product?.name}
+                        className="w-full h-full object-contain"
+                    />
                         {/* <img
                             src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`}
                             alt={product?.name || "product"}
@@ -290,11 +305,11 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
             {/* Dynamic Images (Exact logic from List View) */}
             <div className="relative aspect-square overflow-hidden rounded-xl bg-white  p-3 cursor-pointer">
                 <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover/card:scale-110">
-                    <img
-                        src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`}
-                        alt={product?.name || "product"}
-                        className="w-full h-full object-contain rounded-[20px]"
-                    />
+                     <img
+                    src={imageUrl} 
+                    alt={product?.name}
+                    className="w-full h-full object-contain"
+                />
                     {/* {product?.images?.[1] && (
                         <img
                             src={`${URLs.FILEURL}${product?.images?.[1]?.replace(/^\/+/, "")}`}
