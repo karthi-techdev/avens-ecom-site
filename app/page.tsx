@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import Swal from 'sweetalert2';
 import Hero from '@/components/sections/home/Hero';
 import PromotionSection from '@/components/sections/home/PromotionSection';
 import ProductsListing from '@/components/sections/home/ProductsListing';
@@ -22,6 +23,25 @@ export default function Home() {
 
     const openQuickView = () => setIsQuickViewOpen(true);
     const closeQuickView = () => setIsQuickViewOpen(false);
+
+
+     useEffect(() => {
+        const showAlert = sessionStorage.getItem("showLoginAlert");
+
+        if (showAlert === "true") {
+            Swal.fire({
+                icon: "success",
+                title: "Login Successful 🎉",
+                text: "Welcome back!",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+
+            // remove so it doesn't show again
+            sessionStorage.removeItem("showLoginAlert");
+        }
+    }, []);
+
 
     return (
         <>
