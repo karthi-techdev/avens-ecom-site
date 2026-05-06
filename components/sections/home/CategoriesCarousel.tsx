@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import { PiLessThan, PiGreaterThan } from "react-icons/pi";
 import axios from 'axios';
+import { useRouter } from 'next/navigation'; 
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -12,6 +14,7 @@ import "swiper/css/navigation";
 interface Category {
   _id: string;
   name: string;
+  slug: string; 
   image: string;
   status: string;
   imageUrl?: string;
@@ -20,6 +23,7 @@ interface Category {
 const CategoriesCarousel = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [mounted, setMounted] = useState(false);
+  const router = useRouter(); 
 
   useEffect(() => {
     setMounted(true);
@@ -51,6 +55,11 @@ const CategoriesCarousel = () => {
 
     fetchCategories();
   }, []);
+
+  
+  const handleCategoryClick = (category: Category) => {
+    router.push(`/product-list/categories/${category.slug}`);
+  };
 
   if (!mounted || categories.length === 0) return null;
 
@@ -92,9 +101,13 @@ const CategoriesCarousel = () => {
         >
           {categories.map((category) => (
             <SwiperSlide key={category._id}>
-              <div className='bg-white border flex flex-col gap-2 p-1 text-center rounded-[20px] border-[var(--green-border)] group shadow-md overflow-hidden w-[160px] h-[200px] mx-auto'>
+              
+            
+              <div 
+                onClick={() => handleCategoryClick(category)}
+                className='bg-white border flex flex-col gap-2 p-1 text-center rounded-[20px] border-[var(--green-border)] group shadow-md overflow-hidden w-[160px] h-[200px] mx-auto cursor-pointer'
+              >
                 
-         
                 <div className='flex-1 overflow-hidden rounded-t-[20px]'>
                   <img 
                     src={category.imageUrl} 
