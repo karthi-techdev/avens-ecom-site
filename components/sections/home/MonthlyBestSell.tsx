@@ -8,6 +8,7 @@ import ProductCard from '@/components/ui/ProductCard';
 import { useEffect } from "react";
 import { useProductStore } from "@/store/useProductStore";
 import banner6 from '../../../public/home/banner-6.jpg';
+import Link from 'next/link'; 
 
 const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
     const { products, activeTab, setActiveTab, fetchProducts } = useProductStore();
@@ -29,7 +30,10 @@ const MonthlyBestSell = ({ onQuickView }: { onQuickView: () => void }) => {
                     <div className='absolute top-1/2 -translate-y-1/2 !ps-[1rem]'>
                         <h3 className=' text-[0.9rem] !mb-[0.4rem] text-[var(--text-muted)]'>Big Offer</h3>
                         <h1 className='font-semibold text-[1.3rem] w-full max-w-[10rem] !text-black leading-[1.6rem]'>Save 20% on Women's socks</h1>
-                        <a href='#' className='!mt-[0.9rem] inline-block text-[0.9rem] !text-[var(--primary)] !py-[0.5rem] capitalize rounded-sm'>Shop now<MdOutlineArrowRightAlt className='inline-block !ml-[0.4rem]' /></a>
+                        <Link href='/product-list' className='!mt-[0.9rem] inline-block text-[0.9rem] !text-[var(--primary)] !py-[0.5rem] capitalize rounded-sm cursor-pointer hover:underline transition-all'>
+                            Shop now
+                            <MdOutlineArrowRightAlt className='inline-block !ml-[0.4rem]' />
+                        </Link>
                     </div>
                 </div>
                 <div className='relative w-full overflow-hidden '>
