@@ -1,7 +1,9 @@
+
 'use client';
 import { useEffect } from "react";
 import { useOfferStore } from "@/store/useOfferStore";
 import { MdOutlineArrowRightAlt } from "react-icons/md";
+import Link from "next/link"; 
 import blog1 from '../../../public/home/blog-1.jpg';
 import blog2 from '../../../public/home/blog-2.jpg';
 
@@ -66,7 +68,7 @@ const BlogSection = () => {
             {/* RIGHT SIDE DYNAMIC BANNERS */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-[1rem] auto-rows-fr'>
 
-                {/*  1 ITEM */}
+                {/* 1 ITEM */}
                 {sideOffers.length === 1 && (
                     <div className='relative group h-[25rem] md:col-span-2 p-[2rem] rounded-sm overflow-hidden'>
                         <img
@@ -79,14 +81,18 @@ const BlogSection = () => {
                             <h1 className='font-bold text-[1.4rem] text-black my-2'>
                                 {formatText(sideOffers[0].displayName || sideOffers[0].name)}
                             </h1>
-                            <a className="!text-[var(--primary)] flex items-center text-sm font-bold">
+                            {/*  Updated Link */}
+                            <Link 
+                                href={`/product-list?offerId=${sideOffers[0]._id}`}
+                                className="!text-[var(--primary)] flex items-center text-sm font-bold cursor-pointer hover:underline"
+                            >
                                 Shop now <MdOutlineArrowRightAlt />
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 )}
 
-                {/*  2 ITEMS */}
+                {/* 2 ITEMS */}
                 {sideOffers.length === 2 && (
                     <>
                         {sideOffers.map((item, i) => (
@@ -101,9 +107,13 @@ const BlogSection = () => {
                                     <h1 className='font-bold text-[1.1rem] text-black my-1'>
                                         {formatText(item.displayName || item.name)}
                                     </h1>
-                                    <a className="!text-[var(--primary)] flex items-center text-sm font-bold">
+                                    {/* Updated Link */}
+                                    <Link 
+                                        href={`/product-list?offerId=${item._id}`}
+                                        className="!text-[var(--primary)] flex items-center text-sm font-bold cursor-pointer hover:underline"
+                                    >
                                         Shop now <MdOutlineArrowRightAlt />
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         ))}
@@ -125,9 +135,13 @@ const BlogSection = () => {
                                 <h1 className='font-bold text-[1.4rem] text-black my-2'>
                                     {formatText(sideOffers[0].displayName || sideOffers[0].name)}
                                 </h1>
-                                <a className="!text-[var(--primary)] flex items-center text-sm font-bold">
+                                {/*  Updated Link */}
+                                <Link 
+                                    href={`/product-list?offerId=${sideOffers[0]._id}`}
+                                    className="!text-[var(--primary)] flex items-center text-sm font-bold cursor-pointer hover:underline"
+                                >
                                     Shop now <MdOutlineArrowRightAlt />
-                                </a>
+                                </Link>
                             </div>
                         </div>
 
@@ -145,16 +159,19 @@ const BlogSection = () => {
                                         <h1 className='font-bold text-[1.1rem] text-black my-1'>
                                             {formatText(item.displayName || item.name)}
                                         </h1>
-                                        <a className="!text-[var(--primary)] flex items-center text-sm font-bold">
+                                        {/*  Updated Link */}
+                                        <Link 
+                                            href={`/product-list?offerId=${item._id}`}
+                                            className="!text-[var(--primary)] flex items-center text-sm font-bold cursor-pointer hover:underline"
+                                        >
                                             Shop now <MdOutlineArrowRightAlt />
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </>
                 )}
-
             </div>
         </section>
     );
