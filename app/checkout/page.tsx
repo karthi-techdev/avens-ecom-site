@@ -14,10 +14,12 @@ export default function checkoutPage(){
     const [couponOption,setCouponOption]=useState(false);
     const [accountOption,setAccountOption]=useState(false);
     const [shipmentOption,setShipmentOption]=useState(false);
+    const [paymentMethod,setPaymentMethod]=useState("");
      const router = useRouter();
+     const amount=280
      useEffect(()=>{
           const token=JSON.parse(localStorage.getItem("user")||'{}');
-     if (!token?._id) router.replace("/");
+     if (!token?._id) router.push("/");
      else
         console.log("hii its ok to see")
 }, []);
@@ -26,6 +28,55 @@ export default function checkoutPage(){
      value: item.isoCode, label: item.name 
   }
 })
+const makePayment=()=>{
+    if(paymentMethod=='razorpay'){
+        console.log(amount);
+         handleRazorpayPayment();
+    }
+}
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+const handleRazorpayPayment = async () => {
+  const isLoaded = await loadRazorpay();
+
+  if (!isLoaded) {
+    alert("Razorpay failed to load");
+    return;
+  }
+
+  const options = {
+    key: "rzp_test_SlJuOsHUU2L0Uo", // 🔴 replace with test key from Razorpay
+    amount: amount * 100, // Razorpay uses paise
+    currency: "INR",
+    name: "Your Store",
+    description: "Test Payment",
+
+    handler: function (response: any) {
+      console.log("Payment Success:", response);
+      alert("Payment Successful ✅");
+    },
+
+    prefill: {
+      name: "Mani",
+      email: "mani@email.com",
+      contact: "9999999999",
+    },
+
+    theme: {
+      color: "#3BB77E",
+    },
+  };
+
+  const paymentObject = new (window as any).Razorpay(options);
+  paymentObject.open(); // 🔥 popup opens here
+};
  const onCountryChange = (selectedCountryItem: any) => {
     const code =selectedCountryItem.value;
     const countryName = Country.getCountryByCode(code)?.name || "";
@@ -186,19 +237,18 @@ export default function checkoutPage(){
                             </tr>
                             <tr>
                                 <td className="text-center py-[0.4rem]  border border-[var(--border-color)] text-[var(--black)] font-semibold"><span>Total</span></td>
-                                <td className="text-center py-[0.4rem] text-[1.2rem] border border-[var(--border-color)] font-bold" colSpan={2}><span className="text-[var(--primary)] text-center">$280.00</span></td>
+                                <td className="text-center py-[0.4rem] text-[1.2rem] border border-[var(--border-color)] font-bold" colSpan={2}><span className="text-[var(--primary)] text-center" id='total'>${amount}</span></td>
                             </tr>
                         </tbody>
                     </table>
                     <h1 className="text-[var(--black)] font-semibold mt-[3rem] mb-[2rem]">Payment</h1>
                     <div>
-                        <div className="mb-[1rem]"><input type='radio' name='payment' id='bank'  value={'Direct Bank Transfer'}/><span className="text-[var(--black)] font-semibold  ml-[0.4rem]">Direct Bank Transfer</span></div>
-                    <div className="mb-[1rem]"><input type='radio' name='payment' id='check'  value={'Check Payment'}/><span className="text-[var(--black)] font-semibold  ml-[0.4rem]">Check Payment</span></div>
-                    <div className="mb-[1rem]">                    <input type='radio' name='payment' id='paypal'  value={'Paypal'}/><span className="text-[var(--black)] font-semibold  ml-[0.4rem]">Paypal</span>
+                        <div className="mb-[1rem]"><input type='radio' name='payment' id='bank'  value={'Direct Bank Transfer'} onChange={(e)=>{setPaymentMethod(e.target.id)}}/><span className="text-[var(--black)] font-semibold  ml-[0.4rem]">Direct Bank Transfer</span></div>
+                    <div className="mb-[1rem]">                    <input type='radio' name='payment' id='razorpay'  value={'razorpay'} onChange={(e)=>{setPaymentMethod(e.target.id)}}/><span className="text-[var(--black)] font-semibold  ml-[0.4rem]">Razorpay</span>
 </div>
                     </div>
                     <div className="mt-[2rem]">
-                    <button type="button" className="bg-[var(--primary)] rounded-[0.3rem] px-[1.3rem] text-center py-[0.7rem] font-semibold text-[var(--white)] hover:bg-[var(--primary-hover)] cursor-pointer">Place Order</button>
+                    <button type="button" className="bg-[var(--primary)] rounded-[0.3rem] px-[1.3rem] text-center py-[0.7rem] font-semibold text-[var(--white)] hover:bg-[var(--primary-hover)] cursor-pointer" onClick={makePayment}>Place Order</button>
 
                     </div>
                 </div>

@@ -199,9 +199,9 @@ useEffect(() => {
     "Home",
     "About",
     "Shop",
-    "Mega menu",
-    "Blog",
-    "Pages",
+    // "Mega menu",
+    // "Blog",
+    // "Pages",
     "Contact",
   ];
   const categoryData = {
@@ -616,10 +616,13 @@ console.log("ICON:", cat.icon);
                   key={i}
                   className="relative group flex items-center gap-1 cursor-pointer hover:text-[var(--primary)] transition"
                 >
-                  {item}
-                  {item !== "Contact" && item !== "About" && <ChevronDown size={12} />}
+                  {item=='Home'&& <Link href={'/'}>{item}</Link>}
+                  {item=='Shop'&& <Link href={'/product-view-full'}>{item}</Link>}
+                  {item=='About'&& <Link href={'/about'}>{item}</Link>}
+                  {item=='Contact'&& <Link href={'/contact'}>{item}</Link>}
+                  {/* {item !== "Contact" && item !== "About" && <ChevronDown size={12} />} */}
 
-                  {item === "Home" && (
+                  {/* {item === "Home" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">Home 1</li>
@@ -628,9 +631,9 @@ console.log("ICON:", cat.icon);
                         <li className="px-4 py-2 hover:bg-gray-100">Home 4</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Shop" && (
+                  {/* {item === "Shop" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop Grid – Right Sidebar</li>
@@ -659,9 +662,9 @@ console.log("ICON:", cat.icon);
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop – Compare</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Pages" && (
+                  {/* {item === "Pages" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">About Us</li>
@@ -672,9 +675,9 @@ console.log("ICON:", cat.icon);
                         <li className="px-4 py-2 hover:bg-gray-100">404 Page</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Blog" && (
+                  {/* {item === "Blog" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Blog Category Grid</li>
@@ -696,9 +699,9 @@ console.log("ICON:", cat.icon);
                         </li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Mega menu" && (
+                  {/* {item === "Mega menu" && (
                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-6 w-260 max-w-7xl bg-white shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-8">
                       
                       <div className="grid grid-cols-4 gap-10">
@@ -764,7 +767,7 @@ console.log("ICON:", cat.icon);
 
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </li>
               ))}
             </ul>

@@ -68,6 +68,12 @@ export const API = {
   filterProducts: `${ROOTURL}admin/products/filter`,
   newProducts: `${ROOTURL}admin/products/new`,
 
+  //cart endpoints
+  addCart:`${ROOTURL}cart/addtocart`,
+  getAllCart:`${ROOTURL}cart/`,
+  deleteCart:`${ROOTURL}cart/`,
+  updateCart:`${ROOTURL}cart/updateCart/`,
+
   listReviews: `${ROOTURL}reviews`, // GET
   addReviews: `${ROOTURL}reviews`, //POST
   //  Blog endpoints

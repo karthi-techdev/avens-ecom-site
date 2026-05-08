@@ -1,3 +1,5 @@
+import apiClient from '@/lib/api-client';
+import { API } from '@/lib/urls';
 import {create} from 'zustand';
 interface ProductDetails{
      name: string;
@@ -45,6 +47,18 @@ export const useCartStore=create<CartState>((set,get)=>({
           if (!cart.ok) {
       throw new Error(res.message);
     }
+  //   const res=await apiClient.post(`${API.addCart}`,
+  //     Headers: {
+  //       "Content-Type": "application/json; charset=UTF-8"
+  //   },
+  //   {
+  //    userId: data.userId,
+  //    quantity:data.quantity,
+  //    'color':data.selectedColor,
+  //    'size':data.selectedSize,
+  //    'price':data.totalPrice,
+  //    'productId':data.product._id
+  //  })
           set({
             error:null})
        } catch (err:any) {
