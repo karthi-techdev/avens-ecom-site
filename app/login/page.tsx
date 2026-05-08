@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function AuthPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const [loginErrors, setLoginErrors] = useState({
     email: "",
@@ -99,20 +101,74 @@ export default function AuthPage() {
     return isValid;
   };
   const handleGoogleLogin = async () => {
+  if (googleLoading) return;
+
+  setGoogleLoading(true);
+
+  try {
+    await signOut(auth);
+
+    let result;
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("loginSuccess", "true");
-
-      Swal.fire("Success", "Logged in with Google", "success");
-
-      router.push("/");
-    } catch (error: any) {
-      Swal.fire("Error", error.message, "error");
+      result = await signInWithPopup(auth, provider);
+    } catch (err: any) {
+      if (err.code === "auth/cancelled-popup-request") return;
+      throw err;
     }
-  };
+
+    const user = result.user;
+
+    const res = await fetch("http://localhost:5000/api/users/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: user.displayName,
+        email: user.email,
+        password: Math.random().toString(36),
+        loginType: "google",
+        role: "viewer" // ✅ MUST
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.message?.includes("already exists")) {
+        console.log("User exists, continuing...");
+      } else {
+        throw new Error(data.message);
+      }
+    }
+
+    const fullName = user.displayName || "";
+    const nameParts = fullName.split(" ");
+
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const userData = {
+      email: user.email,
+      firstName,
+      lastName,
+      displayName: fullName,
+    };
+
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("loginSuccess", "true");
+
+    Swal.fire("Success", "Logged in with Google", "success");
+
+    router.push("/");
+
+  } catch (error: any) {
+    console.log(error);
+    Swal.fire("Error", error.message, "error");
+  } finally {
+    setGoogleLoading(false);
+  }
+};
 
   const handleLogin = async () => {
     if (!validateLogin()) return;
@@ -297,6 +353,7 @@ export default function AuthPage() {
 
               <button
                 onClick={handleGoogleLogin}
+                disabled={googleLoading}
                 className="px-6 py-3 rounded-[10px] text-white font-semibold"
                 style={{ backgroundColor: "#db4437" }}
               >
