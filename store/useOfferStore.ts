@@ -11,6 +11,7 @@ export interface Offer {
   createdAt: string;
   displayName?: string;
   offerLabel?: string;
+  
 }
 
 interface OfferState {
@@ -61,3 +62,5 @@ export const useOfferStore = create<OfferState>((set) => ({
     }
   },
 }));
+
+

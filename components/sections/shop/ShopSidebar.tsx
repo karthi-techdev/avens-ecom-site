@@ -5,7 +5,8 @@ import { Filter } from 'lucide-react';
 import { useProductStore } from '@/store/useProductStore';
 import URLs from "../../../lib/urls";
 import { Category } from '@/store/useCategoryStore';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+
 
 interface ShopSidebarProps {
     priceRange: number[];
@@ -24,8 +25,13 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
 }) => {
     const { products } = useProductStore();
     const pathname = usePathname();
+        const router = useRouter(); 
     const isProductViewPage = pathname?.includes('product-view');
     const max = 2000;
+
+    const handleProductClick = (slug: string) => {
+        router.push(`/product-view/${slug}`);
+    };
 
     const latestProducts = [...products]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -134,7 +140,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                         const hasDiscount = discountPercent > 0;
 
                         return (
-                            <div key={product._id} className="flex gap-4 items-center">
+                            <div key={product._id}  onClick={() => handleProductClick(product.slug)} className="flex gap-4 items-center cursor-pointer">
 
                                 {/* Image */}
                                 <div className="w-20 h-20 bg-[#f7f8f9] rounded-lg overflow-hidden">
