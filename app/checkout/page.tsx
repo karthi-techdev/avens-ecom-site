@@ -16,7 +16,7 @@ const staticAddresses = [
   {
     id: 1,
     type: "Home",
-    fullName: "Kanika Sri",
+    fullName: "Sri",
     street: "123 Main Street",
     city: "Addanki",
     state: "Andhra Pradesh",
