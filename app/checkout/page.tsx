@@ -7,6 +7,7 @@ import Select from "react-select";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "../../store/cartStore";
+import { useProductStore } from "../../store/useProductStore";
 import { useShippingStore } from "../../store/shippingStore";
 import { API } from "@/lib/urls";
 import Swal from "sweetalert2";
@@ -15,7 +16,7 @@ const staticAddresses = [
   {
     id: 1,
     type: "Home",
-    fullName: "Kanika Sri",
+    fullName: "Sri",
     street: "123 Main Street",
     city: "Addanki",
     state: "Andhra Pradesh",
@@ -99,6 +100,39 @@ const staticAddresses = [
     country: "India",
     pincode: "560001",
     phone: "+91 8825607688"
+  },
+  {
+    id: 9,
+    type: "Office",
+    fullName: "Kanika Sri",
+    street: "Tech Park Road",
+    city: "Chennai",
+    state: "Tamil Nadu",
+    country: "India",
+    pincode: "600096",
+    phone: "+91 8825607688"
+  },
+  {
+    id: 10,
+    type: "Hostel",
+    fullName: "Kanika Sri",
+    street: "Near College",
+    city: "Villupuram",
+    state: "Tamil Nadu",
+    country: "India",
+    pincode: "605602",
+    phone: "+91 8825607688"
+  },
+  {
+    id: 11,
+    type: "Other",
+    fullName: "Kanika Sri",
+    street: "Some Street",
+    city: "Bangalore",
+    state: "Karnataka",
+    country: "India",
+    pincode: "560001",
+    phone: "+91 8825607688"
   }
     
 ];
@@ -133,7 +167,11 @@ if (!paymentMethod) {
   return;
 }
 
+<<<<<<< HEAD
     const products = (cartItems || []).map((item: any) => ({
+=======
+    const products = availableCartItems.map((item: any) => ({
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
       productId: item.productId._id,
       productName: item.productId.name,
       quantity: item.quantity,
@@ -164,6 +202,15 @@ if (!paymentMethod) {
     const data = await res.json();
 
     if (data.success) {
+
+        // clear cart items
+  cartItems.forEach((item: any) => {
+    removeCart(item._id);
+  });
+
+   // refresh latest products
+  await fetchProducts();
+
      Swal.fire({
     icon: "success",
     title: "Order Placed!",
@@ -194,7 +241,12 @@ if (!paymentMethod) {
   useEffect(() => {
     fetchShipmentMethods();
   }, []);
+<<<<<<< HEAD
   const { cartItems = [], getAllCart } = useCartStore();
+=======
+  const { cartItems, getAllCart ,removeCart } = useCartStore();
+  const { fetchProducts } = useProductStore();
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -232,8 +284,15 @@ if (!paymentMethod) {
     const phoneCode = Country.getCountryByCode(code)?.phonecode || "";
 
   };
+  const availableCartItems = cartItems.filter(
+  (item: any) => item.quantity <= item.productId.stockQuantity
+);
 
+<<<<<<< HEAD
   const totalAmount = (cartItems || []).reduce((total, item: any) => {
+=======
+  const totalAmount = availableCartItems.reduce((total, item: any) => {
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
 
     const price =
       item.productId.discountPrice > 0
@@ -365,7 +424,7 @@ if (!paymentMethod) {
      Add New Address
   </button>
 </div>
-          <div className="max-h-[500px] overflow-y-auto pr-2">
+          <div className="max-h-[780px] overflow-y-auto pr-2">
             <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6 mt-5">
             {staticAddresses.map((addr, index) => (
               <label
@@ -422,8 +481,7 @@ if (!paymentMethod) {
               </tr>
             </thead>
             <tbody>
-              {(cartItems || []).map((item: any) => {
-                console.log(item.productId);
+              {availableCartItems.map((item: any) => {
                 const price =
                   item.productId.discountPrice > 0
                     ? item.productId.discountPrice
