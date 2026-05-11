@@ -100,6 +100,7 @@ export const API = {
 listShippingMethods: `${ROOTURL}admin/shipment-methods`,
 
 createOrder: `${ROOTURL}admin/orders/`,
+applyCoupon: `${ROOTURL}admin/coupon/apply`,
  
   //blog endpoints
    listBlogs: `${ROOTURL}admin/blogs/`,

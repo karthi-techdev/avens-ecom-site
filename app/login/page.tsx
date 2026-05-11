@@ -118,44 +118,64 @@ export default function AuthPage() {
 
     const user = result.user;
 
-    const res = await fetch("http://localhost:5000/api/users/register", {
+    // FIRST TRY LOGIN
+    let res = await fetch("http://localhost:5000/api/users/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: user.displayName,
         email: user.email,
-        password: Math.random().toString(36),
-        loginType: "google",
-        role: "viewer" // ✅ MUST
-      })
+        password: "google-login-user",
+      }),
     });
 
-    const data = await res.json();
-
+    // IF USER NOT EXISTS -> REGISTER
     if (!res.ok) {
-      if (data.message?.includes("already exists")) {
-        console.log("User exists, continuing...");
-      } else {
-        throw new Error(data.message);
-      }
+
+      await fetch("http://localhost:5000/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: user.displayName,
+          email: user.email,
+          password: "google-login-user",
+          loginType: "google",
+        }),
+      });
+
+      // LOGIN AGAIN
+      res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          password: "google-login-user",
+        }),
+      });
     }
+
+    const data = await res.json();
 
     const fullName = user.displayName || "";
     const nameParts = fullName.split(" ");
 
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
-
-    const userData = {
-      email: user.email,
+    const updatedUser = {
+      ...data.user,
       firstName,
       lastName,
       displayName: fullName,
+      name: fullName,
     };
 
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("token", data.token);
     localStorage.setItem("loginSuccess", "true");
 
     Swal.fire("Success", "Logged in with Google", "success");
