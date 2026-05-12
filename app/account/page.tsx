@@ -35,11 +35,10 @@ export default function AccountPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  // --- LOGIN / SIMULATED DB STATE ---
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ✅ STATE FOR SEPARATE CHANGE PASSWORD VIEW
+
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const [loginFormData, setLoginFormData] = useState({ email: "", password: "" });
@@ -63,7 +62,7 @@ export default function AccountPage() {
   confirm: false,
 });
 
-  // ✅ LOAD USER DATA ON MOUNT
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -80,7 +79,7 @@ export default function AccountPage() {
     }
   }, []);
 
-  // --- DYNAMIC DATA STATES ---
+
   const [countries] = useState(Country.getAllCountries());
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
@@ -305,7 +304,6 @@ export default function AccountPage() {
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }
 
-  // ✅ UPDATED VALIDATION FOR PASSWORDS
   function validateFormData(name: string, value: string): string {
     if (!value && name !== "lastName") return `${formatFieldName(name)} is required`;
     switch (name) {
@@ -504,7 +502,7 @@ export default function AccountPage() {
                 onSubmit={async (e) => {
                   e.preventDefault();
                   
-                  // ✅ 1. VALIDATION BEFORE API CALL
+              
                   const currentErr = validateFormData("currentPassword", formData.currentPassword);
                   const newErr = validateFormData("newPassword", formData.newPassword);
                   const confirmErr = validateFormData("confirmPassword", formData.confirmPassword);
@@ -520,7 +518,7 @@ export default function AccountPage() {
 
                   try {
                     const token = localStorage.getItem("token");
-                    // ✅ 2. API CALL TO UPDATE PASSWORD
+                    
                     const res = await fetch("http://localhost:5000/api/users/change-password", {
                       method: "POST",
                       headers: {
@@ -540,7 +538,6 @@ export default function AccountPage() {
                       throw new Error(data.message || "Failed to update password");
                     }
 
-                    // ✅ 3. SUCCESS HANDLING
                     setSuccess("Password changed successfully!");
                     setErrors({});
                     setFormData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));

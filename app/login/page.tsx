@@ -125,8 +125,7 @@ export default function AuthPage() {
       localStorage.setItem("token", data.token);
 
       router.push("/"); 
-      
-      // setTimeout(() => router.push("/"), 1500);
+ 
     } catch {
       Swal.fire("Error", "Server error", "error");
     }
