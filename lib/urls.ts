@@ -95,6 +95,12 @@ export const API = {
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
+
+  // Shipping endpoints
+listShippingMethods: `${ROOTURL}admin/shipment-methods`,
+
+createOrder: `${ROOTURL}admin/orders/`,
+applyCoupon: `${ROOTURL}admin/coupon/apply`,
  
   //blog endpoints
    listBlogs: `${ROOTURL}admin/blogs/`,

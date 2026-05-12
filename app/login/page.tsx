@@ -4,6 +4,9 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -18,6 +21,7 @@ export default function AuthPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const [loginErrors, setLoginErrors] = useState({
     email: "",
@@ -96,6 +100,95 @@ export default function AuthPage() {
     setRegisterErrors(newErrors);
     return isValid;
   };
+  const handleGoogleLogin = async () => {
+  if (googleLoading) return;
+
+  setGoogleLoading(true);
+
+  try {
+    await signOut(auth);
+
+    let result;
+    try {
+      result = await signInWithPopup(auth, provider);
+    } catch (err: any) {
+      if (err.code === "auth/cancelled-popup-request") return;
+      throw err;
+    }
+
+    const user = result.user;
+
+    // FIRST TRY LOGIN
+    let res = await fetch("http://localhost:5000/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        password: "google-login-user",
+      }),
+    });
+
+    // IF USER NOT EXISTS -> REGISTER
+    if (!res.ok) {
+
+      await fetch("http://localhost:5000/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: user.displayName,
+          email: user.email,
+          password: "google-login-user",
+          loginType: "google",
+        }),
+      });
+
+      // LOGIN AGAIN
+      res = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: user.email,
+          password: "google-login-user",
+        }),
+      });
+    }
+
+    const data = await res.json();
+
+    const fullName = user.displayName || "";
+    const nameParts = fullName.split(" ");
+
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+    const updatedUser = {
+      ...data.user,
+      firstName,
+      lastName,
+      displayName: fullName,
+      name: fullName,
+    };
+
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("loginSuccess", "true");
+
+    Swal.fire("Success", "Logged in with Google", "success");
+
+    router.push("/");
+
+  } catch (error: any) {
+    console.log(error);
+    Swal.fire("Error", error.message, "error");
+  } finally {
+    setGoogleLoading(false);
+  }
+};
 
   const handleLogin = async () => {
     if (!validateLogin()) return;
@@ -268,6 +361,32 @@ export default function AuthPage() {
               <button onClick={isLogin ? handleLogin : handleRegister} className="px-12 py-4 text-white bg-[var(--primary)] rounded-full">
                 SUBMIT
               </button>
+          
+              <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-[1px] bg-gray-300"></div>
+                <span className="text-gray-500 text-sm">OR</span>
+                <div className="flex-1 h-[1px] bg-gray-300"></div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+
+              <button
+                onClick={handleGoogleLogin}
+                disabled={googleLoading}
+                className="px-6 py-3 rounded-[10px] text-white font-semibold"
+                style={{ backgroundColor: "#db4437" }}
+              >
+                Login With Google
+              </button>
+       
+                <button
+                  className="px-6 py-3 rounded-[10px] text-white font-semibold"
+                  style={{ backgroundColor: "#3b5998" }}
+                >
+                  Login With Facebook
+                </button>
+
+              </div>
 
               <p className="text-center mt-10">
                 {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
@@ -279,7 +398,6 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
-console.log("LOGIN RESPONSE:", data);
       </div>
     </div>
   );

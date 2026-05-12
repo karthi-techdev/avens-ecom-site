@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation'; 
 import ShopSidebar from '@/components/sections/shop/ShopSidebar';
 import ShopHeader from '@/components/sections/shop/ShopHeader';
 import ProductCard from '@/components/ui/ProductCard';
 import QuickViewModal from '@/components/ui/QuickViewModal';
 import { useProductStore } from '../../store/useProductStore';
-
 import { useCategoryStore } from '../../store/useCategoryStore'; 
 import { useMainCategoryStore } from '../../store/useMainCategoryStore';
 import { useSubCategoryStore } from '../../store/useSubCategoryStore';
-
+import { useOfferStore } from '../../store/useOfferStore';
 export default function ProductShowPage() {
     return (
         <Suspense fallback={
@@ -29,26 +28,30 @@ function ProductListContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const categoryQuery = searchParams.get('category');
-
+    const offerIdFromUrl = searchParams.get('offerId'); 
     const [view, setView] = useState<'grid' | 'list'>('grid');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOption, setSortOption] = useState('Release Date');
-    const [priceRange, setPriceRange] = useState<number[]>([0, 5000]);
+    const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
     const { products, isLoading, fetchProducts } = useProductStore();
     const { mainCategories, fetchMainCategories } = useMainCategoryStore();
     const { subCategories, fetchSubCategories } = useSubCategoryStore();
     const { categories, fetchCategories } = useCategoryStore();
+    const { offers, fetchOffers } = useOfferStore(); 
 
     useEffect(() => {
         fetchProducts();
         fetchMainCategories();
         fetchSubCategories();
         fetchCategories();
-    }, [fetchProducts, fetchMainCategories, fetchSubCategories, fetchCategories]);
+        fetchOffers();
+    }, [fetchProducts, fetchMainCategories, fetchSubCategories, fetchCategories,fetchOffers]);
+
 
     const filteredAndSortedProducts = useMemo(() => {
         if (!products || products.length === 0) return [];
@@ -90,6 +93,37 @@ function ProductListContent() {
         });
 
         // Sort filter
+if (offerIdFromUrl && offers.length > 0) {
+    const targetOffer = offers.find(o => String(o._id) === String(offerIdFromUrl));
+    const offerProducts = (targetOffer as any)?.products;
+
+    if (offerProducts && Array.isArray(offerProducts)) {
+        items = items.filter(product => 
+            offerProducts.some((p: any) => {
+                const pId = typeof p === 'object' ? p._id : p;
+                return String(pId) === String(product._id);
+            })
+        );
+    }
+}
+
+        // Filter by Category
+        if (selectedCategoryId) {
+            items = items.filter(product => {
+                const rawId = product.categoryId || (product as any).mainCategoryId || (product as any).category;
+                if (!rawId) return false;
+                const productCatId = typeof rawId === 'object' ? rawId?._id : rawId;
+                return String(productCatId) === String(selectedCategoryId);
+            });
+        }
+
+        //  Filter by Price
+        items = items.filter(product => {
+            const price = product.discountPrice || product.price || 0;
+            return price >= priceRange[0] && price <= priceRange[1];
+        });
+
+        // Sort Logic
         items.sort((a, b) => {
             const pA = a.discountPrice || a.price || 0;
             const pB = b.discountPrice || b.price || 0;
@@ -99,8 +133,8 @@ function ProductListContent() {
         });
 
         return items;
-    }, [products, categoryQuery, priceRange, sortOption, mainCategories, subCategories, categories]);
-
+    }, [products,offers, categoryQuery, priceRange, selectedCategoryId,sortOption,offerIdFromUrl, mainCategories, subCategories, categories]);
+   
     const sidebarItems = useMemo(() => {
    
     return mainCategories.map((cat: any) => ({
@@ -124,11 +158,16 @@ function ProductListContent() {
             </div>
         );
     }
+    const handleQuickView = (product: any) => {
+        setSelectedProduct(product);
+        setIsQuickViewOpen(true);
+    };
 
     return (
         <main className="w-full !overflow-x-hidden !mt-9">
             <div className='max-w-[1600px] !mx-auto !px-4 sm:!px-6 lg:!px-10 !py-6'>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
+                    {/* Sidebar Section */}
                     <aside className={`col-span-12 lg:col-span-3 ${isSidebarOpen ? "block" : "hidden"} lg:block`}>
                         <ShopSidebar
                             priceRange={priceRange}
