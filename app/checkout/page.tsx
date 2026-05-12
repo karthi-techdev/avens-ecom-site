@@ -167,11 +167,7 @@ if (!paymentMethod) {
   return;
 }
 
-<<<<<<< HEAD
-    const products = (cartItems || []).map((item: any) => ({
-=======
     const products = availableCartItems.map((item: any) => ({
->>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
       productId: item.productId._id,
       productName: item.productId.name,
       quantity: item.quantity,
@@ -241,12 +237,8 @@ if (!paymentMethod) {
   useEffect(() => {
     fetchShipmentMethods();
   }, []);
-<<<<<<< HEAD
-  const { cartItems = [], getAllCart } = useCartStore();
-=======
-  const { cartItems, getAllCart ,removeCart } = useCartStore();
+  const { cartItems = [], getAllCart,removeCart } = useCartStore();
   const { fetchProducts } = useProductStore();
->>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -288,11 +280,7 @@ if (!paymentMethod) {
   (item: any) => item.quantity <= item.productId.stockQuantity
 );
 
-<<<<<<< HEAD
-  const totalAmount = (cartItems || []).reduce((total, item: any) => {
-=======
   const totalAmount = availableCartItems.reduce((total, item: any) => {
->>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
 
     const price =
       item.productId.discountPrice > 0
