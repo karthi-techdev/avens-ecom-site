@@ -167,7 +167,11 @@ if (!paymentMethod) {
   return;
 }
 
+<<<<<<< HEAD
+    const products = (cartItems || []).map((item: any) => ({
+=======
     const products = availableCartItems.map((item: any) => ({
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
       productId: item.productId._id,
       productName: item.productId.name,
       quantity: item.quantity,
@@ -237,10 +241,14 @@ if (!paymentMethod) {
   useEffect(() => {
     fetchShipmentMethods();
   }, []);
+<<<<<<< HEAD
+  const { cartItems = [], getAllCart } = useCartStore();
+=======
   const { cartItems, getAllCart ,removeCart } = useCartStore();
   const { fetchProducts } = useProductStore();
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
 
     if (!user?._id) {
       router.replace("/");
@@ -256,13 +264,15 @@ if (!paymentMethod) {
   const [shipmentOption, setShipmentOption] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<number>(1);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
   const router = useRouter();
-  useEffect(() => {
-    const token = JSON.parse(localStorage.getItem("user") || '{}');
-    if (!token?._id) router.replace("/");
-    else
-      console.log("hii its ok to see")
-  }, []);
+ useEffect(()=>{
+          const token=JSON.parse(localStorage.getItem("user")||'{}');
+     if (!token?._id) router.push("/");
+     else
+        console.log("hii its ok to see")
+}, []);
   const countryOptions = countries.map(item => {
     return {
       value: item.isoCode, label: item.name
@@ -273,23 +283,75 @@ if (!paymentMethod) {
     const countryName = Country.getCountryByCode(code)?.name || "";
     const phoneCode = Country.getCountryByCode(code)?.phonecode || "";
 
-
   };
   const availableCartItems = cartItems.filter(
   (item: any) => item.quantity <= item.productId.stockQuantity
 );
 
+<<<<<<< HEAD
+  const totalAmount = (cartItems || []).reduce((total, item: any) => {
+=======
   const totalAmount = availableCartItems.reduce((total, item: any) => {
+>>>>>>> 01f04a061d41f0c4e70493d1d400980f5bd0a97e
 
     const price =
       item.productId.discountPrice > 0
-        ? item.productId.price - item.productId.discountPrice
+        ? item.productId.discountPrice
         : item.productId.price;
-
     return total + price * item.quantity;
   }, 0);
+  const applyCoupon = async () => {
+
+  try {
+
+    const res = await fetch(API.applyCoupon, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code: couponCode,
+        totalAmount,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      setDiscountAmount(data.discountAmount);
+
+      Swal.fire({
+        icon: "success",
+        title: "Coupon Applied",
+        text: data.message,
+      });
+
+    } else {
+
+      setDiscountAmount(0);
+
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Coupon",
+        text: data.message,
+      });
+
+    }
+
+  } catch (error) {
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong",
+    });
+
+  }
+
+};
   const shippingPrice = Number(selectedShipment?.price ?? 0);
-  const finalTotal = totalAmount + shippingPrice;
+  const finalTotal = totalAmount + shippingPrice - discountAmount;
   
 
   return (
@@ -326,8 +388,20 @@ if (!paymentMethod) {
             couponOption ? <div className="border border-[var(--border-color)] p-[2rem] rounded-[0.8rem]">
               <p className="text-[0.8rem] font-semibold text-[var(--black)] mb-[2rem]">If you have a coupon code, please apply it below.</p>
               <form>
-                <input type="text" placeholder="Enter Coupon Code..." className="w-full rounded-[0.3rem] py-[0.6rem] px-[1rem] placeholder:text-[0.8rem] border border-[var(--border-color)]  font-semibold outline-0 mb-[1rem]" />
-                <button type="button" className="bg-[var(--primary)] rounded-[0.3rem] px-[1.3rem] text-center py-[0.7rem] font-semibold text-[var(--white)] hover:bg-[var(--primary-hover)] cursor-pointer">Apply Coupon</button>
+                <input
+                  type="text"
+                  placeholder="Enter Coupon Code..."
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="w-full rounded-[0.3rem] py-[0.6rem] px-[1rem] placeholder:text-[0.8rem] border border-[var(--border-color)] font-semibold outline-0 mb-[1rem]"
+                />
+                <button
+                  type="button"
+                  onClick={applyCoupon}
+                  className="bg-[var(--primary)] rounded-[0.3rem] px-[1.3rem] text-center py-[0.7rem] font-semibold text-[var(--white)] hover:bg-[var(--primary-hover)] cursor-pointer"
+                >
+                  Apply Coupon
+                </button>
               </form>
             </div> : ""
           }
@@ -409,8 +483,9 @@ if (!paymentMethod) {
             <tbody>
               {availableCartItems.map((item: any) => {
                 const price =
-                  item.productId.price -
-                  item.productId.price * (item.productId.discountPrice / 100);
+                  item.productId.discountPrice > 0
+                    ? item.productId.discountPrice
+                    : item.productId.price;
 
                 return (
                   <tr key={item._id} className="block md:table-row  mb-4 md:mb-0">
@@ -445,6 +520,20 @@ if (!paymentMethod) {
               <tr>
                 <td className="text-center py-[0.4rem]  border border-[var(--border-color)] text-[var(--black)] font-semibold"><span>SubTotal</span></td>
                 <td className="text-center  text-[var(--black)] font-semibold border border-[var(--border-color)]" colSpan={2}><span>${totalAmount.toFixed(2)}</span></td>
+              </tr>
+              <tr>
+                <td className="text-center py-[0.4rem] border border-[var(--border-color)] text-[var(--black)] font-semibold">
+                  <span>Discount</span>
+                </td>
+
+                <td
+                  className="text-center py-[0.4rem] border border-[var(--border-color)] text-[var(--black)] font-semibold"
+                  colSpan={2}
+                >
+                  <span className="text-red-500">
+                    ${discountAmount.toFixed(2)}
+                  </span>
+                </td>
               </tr>
               <tr>
                 <td className="text-center py-[0.4rem]  border border-[var(--border-color)] text-[var(--black)] font-semibold"><span>Shipping</span></td>

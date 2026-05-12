@@ -83,12 +83,29 @@ export default function AccountPage() {
       const user = JSON.parse(storedUser);
       setIsLoggedIn(true);
       setFormData((prev) => ({
-        ...prev,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-        displayName: user.displayName || user.firstName || "",
-      }));
+      ...prev,
+
+      firstName:
+        user.firstName ||
+        user.given_name ||
+        user.name?.split(" ")[0] ||
+        "",
+
+      lastName:
+        user.lastName ||
+        user.family_name ||
+        user.name?.split(" ").slice(1).join(" ") ||
+        "",
+
+      email: user.email || "",
+
+      displayName:
+        user.username ||
+        user.displayName ||
+        user.name ||
+        `${user.given_name || ""} ${user.family_name || ""}`.trim() ||
+        "",
+    }));
     }
   }, []);
 
@@ -296,13 +313,29 @@ export default function AccountPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       setFormData({
-        ...formData,
-        firstName: data.user.firstName || "",
-        lastName: data.user.lastName || "",
-        email: data.user.email || "",
-        displayName: data.user.displayName || data.user.firstName || "",
-      });
+       ...formData,
 
+firstName:
+  data.user.firstName ||
+  data.user.given_name ||
+  data.user.name?.split(" ")[0] ||
+  "",
+
+lastName:
+  data.user.lastName ||
+  data.user.family_name ||
+  data.user.name?.split(" ").slice(1).join(" ") ||
+  "",
+
+email: data.user.email || "",
+
+displayName:
+  data.user.username ||
+  data.user.displayName ||
+  data.user.name ||
+  `${data.user.given_name || ""} ${data.user.family_name || ""}`.trim() ||
+  "",
+});
       setIsLoggedIn(true);
       setIsLoggingIn(false);
       setIsChangingPassword(false);

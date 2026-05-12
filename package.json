@@ -16,6 +16,7 @@
     "clsx": "^2.1.1",
     "country-list": "^2.4.1",
     "country-state-city": "^3.2.1",
+    "firebase": "^12.12.1",
     "leaflet": "^1.9.4",
     "libphonenumber-js": "^1.12.38",
     "lucide-react": "^0.574.0",
