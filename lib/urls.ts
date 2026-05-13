@@ -111,6 +111,7 @@ createOrder: `${ROOTURL}admin/orders/`,
 createOrderCheckout:`${ROOTURL}admin/orders/createOrder`,
 verifyPayment:`${ROOTURL}admin/orders/verifyPayment`,
 paymentFail:`${ROOTURL}admin/orders/paymentFail`,
+applyCoupon: `${ROOTURL}admin/coupon/apply`,
  
   //blog endpoints
    listBlogs: `${ROOTURL}admin/blogs/`,
