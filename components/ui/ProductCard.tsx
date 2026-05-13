@@ -119,12 +119,12 @@ const finalHoverImageSrc = rawHoverPath
         }
         try {
             await addCart({
-                quantity: 1,
-                selectedColor: product.colors?.[0] || null,
-                selectedSize: product.size || null,
-                totalPrice: finalPrice,
-                product,
-                userId: token._id
+                "quantity": 1,
+                "color": product.colors?.[0] || null,
+                "size": product.size || null,
+                "price": finalPrice,
+                'productId':product._id,
+                "userId": token._id
             });
             await getAllCart(token._id);
             toast.success('Added to cart!', {

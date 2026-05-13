@@ -288,9 +288,9 @@ const Header = () => {
     "Home",
     "About",
     "Shop",
-    "Mega menu",
-    "Blog",
-    "Pages",
+    // "Mega menu",
+    // "Blog",
+    // "Pages",
     "Contact",
   ];
 // const cartItems = [
@@ -681,10 +681,13 @@ const CategoryMegaMenu = () => {
                   key={i}
                   className="relative group flex items-center gap-1 cursor-pointer hover:text-[var(--primary)] transition"
                 >
-                  {item}
-                  {item !== "Contact" && item !== "About" && <ChevronDown size={12} />}
+                  {item=='Home'&& <Link href={'/'}>{item}</Link>}
+                  {item=='Shop'&& <Link href={'/product-view-full'}>{item}</Link>}
+                  {item=='About'&& <Link href={'/about'}>{item}</Link>}
+                  {item=='Contact'&& <Link href={'/contact'}>{item}</Link>}
+                  {/* {item !== "Contact" && item !== "About" && <ChevronDown size={12} />} */}
 
-                  {item === "Home" && (
+                  {/* {item === "Home" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">Home 1</li>
@@ -693,9 +696,9 @@ const CategoryMegaMenu = () => {
                         <li className="px-4 py-2 hover:bg-gray-100">Home 4</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Shop" && (
+                  {/* {item === "Shop" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop Grid – Right Sidebar</li>
@@ -724,9 +727,9 @@ const CategoryMegaMenu = () => {
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop – Compare</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Pages" && (
+                  {/* {item === "Pages" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">About Us</li>
@@ -737,9 +740,9 @@ const CategoryMegaMenu = () => {
                         <li className="px-4 py-2 hover:bg-gray-100">404 Page</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Blog" && (
+                  {/* {item === "Blog" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Blog Category Grid</li>
@@ -761,9 +764,9 @@ const CategoryMegaMenu = () => {
                         </li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Mega menu" && (
+                  {/* {item === "Mega menu" && (
                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-6 w-260 max-w-7xl bg-white shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-8">
 
                       <div className="grid grid-cols-4 gap-10">
@@ -829,7 +832,7 @@ const CategoryMegaMenu = () => {
 
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </li>
               ))}
             </ul>
@@ -934,105 +937,122 @@ const CategoryMegaMenu = () => {
             {navItems.map((item, i) => {
               const hasDropdown = item !== "Contact" && item !== "About";
               const isItemOpen = openMobileSubMenu === item;
+              // <div>
+              //   <div
+              //       className="flex justify-between items-center cursor-pointer hover:text-[var(--primary)] transition py-1"
+              //       onClick={() => {
+              //         if (hasDropdown) {
+              //           setOpenMobileSubMenu(isItemOpen ? null : item);
+              //         }
+              //       }}
+              //     >
+              //       <span>{item}</span>
+              //       {hasDropdown && (
+              //         <ChevronDown
+              //           size={14}
+              //           className={`transition-transform duration-300 ${isItemOpen ? "rotate-180 text-[var(--primary)]" : ""}`}
+              //         />
+              //       )}
+              //     </div>
 
+              //     {hasDropdown && isItemOpen && (
+              //       <ul className="mt-2 ml-4 flex flex-col gap-3 text-sm font-normal text-gray-600 border-l border-gray-100 pl-4 animate-in fade-in slide-in-from-top-1 duration-200">
+              //         {item === "Home" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">Home 1</li>
+              //             <li className="hover:text-[var(--primary)]">Home 2</li>
+              //             <li className="hover:text-[var(--primary)]">Home 3</li>
+              //             <li className="hover:text-[var(--primary)]">Home 4</li>
+              //           </>
+              //         )}
+              //         {item === "Shop" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">Shop Grid – Right Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop Grid – Left Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop List – Right Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop List – Left Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Wide</li>
+              //             <li className="hover:text-[var(--primary)]">Single Product</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Filter</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Wishlist</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Cart</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Checkout</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Compare</li>
+              //           </>
+              //         )}
+              //         {item === "Mega menu" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)]">Fashion</li>
+              //             <li className="hover:text-[var(--primary)]">Dresses</li>
+              //             <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)] mt-1">Technology</li>
+              //             <li className="hover:text-[var(--primary)]">Smartphones</li>
+              //           </>
+              //         )}
+              //         {item === "Blog" && (
+              //           <ul className="pl-4 space-y-2">
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Grid</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category List</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Big</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Wide</li>
+
+              //             {/* Nested Dropdown Trigger */}
+              //             <li className="group">
+              //               <div
+              //                 className="flex items-center justify-between hover:text-[var(--primary)] cursor-pointer"
+              //                 onClick={() => setIsSinglePostOpen(!isSinglePostOpen)}
+              //               >
+              //                 <span>Single Product Layout</span>
+              //                 <span className={`transform transition-transform ${isSinglePostOpen ? 'rotate-180' : ''}`}>
+              //                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              //                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              //                   </svg>
+              //                 </span>
+              //               </div>
+
+              //               {/* Nested Items */}
+              //               {isSinglePostOpen && (
+              //                 <ul className="pl-6 mt-2 space-y-2 text-gray-600 border-l-2 border-gray-100">
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">Left Sidebar</li>
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">Right Sidebar</li>
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">No Sidebar</li>
+              //                 </ul>
+              //               )}
+              //             </li>
+              //           </ul>
+              //         )}
+              //         {item === "Pages" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">About Us</li>
+              //             <li className="hover:text-[var(--primary)]">Contact</li>
+              //             <li className="hover:text-[var(--primary)]">My Account</li>
+              //             <li className="hover:text-[var(--primary)]">login/register</li>
+              //             <li className="hover:text-[var(--primary)]">Purchase Guide</li>
+              //             <li className="hover:text-[var(--primary)]">Privacy Policy</li>
+              //             <li className="hover:text-[var(--primary)]">Terms of Service</li>
+              //             <li className="hover:text-[var(--primary)]">404 Page</li>
+              //           </>
+              //         )}
+              //       </ul>
+              //     )}
+              // </div>
               return (
-                <li key={i} className="flex flex-col">
-                  <div
-                    className="flex justify-between items-center cursor-pointer hover:text-[var(--primary)] transition py-1"
-                    onClick={() => {
-                      if (hasDropdown) {
-                        setOpenMobileSubMenu(isItemOpen ? null : item);
-                      }
-                    }}
-                  >
-                    <span>{item}</span>
-                    {hasDropdown && (
-                      <ChevronDown
-                        size={14}
-                        className={`transition-transform duration-300 ${isItemOpen ? "rotate-180 text-[var(--primary)]" : ""}`}
-                      />
-                    )}
-                  </div>
-
-                  {hasDropdown && isItemOpen && (
-                    <ul className="mt-2 ml-4 flex flex-col gap-3 text-sm font-normal text-gray-600 border-l border-gray-100 pl-4 animate-in fade-in slide-in-from-top-1 duration-200">
-                      {item === "Home" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">Home 1</li>
-                          <li className="hover:text-[var(--primary)]">Home 2</li>
-                          <li className="hover:text-[var(--primary)]">Home 3</li>
-                          <li className="hover:text-[var(--primary)]">Home 4</li>
-                        </>
-                      )}
-                      {item === "Shop" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">Shop Grid – Right Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop Grid – Left Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop List – Right Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop List – Left Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Wide</li>
-                          <li className="hover:text-[var(--primary)]">Single Product</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Filter</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Wishlist</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Cart</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Checkout</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Compare</li>
-                        </>
-                      )}
-                      {item === "Mega menu" && (
-                        <>
-                          <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)]">Fashion</li>
-                          <li className="hover:text-[var(--primary)]">Dresses</li>
-                          <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)] mt-1">Technology</li>
-                          <li className="hover:text-[var(--primary)]">Smartphones</li>
-                        </>
-                      )}
-                      {item === "Blog" && (
-                        <ul className="pl-4 space-y-2">
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Grid</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category List</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Big</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Wide</li>
-
-                          {/* Nested Dropdown Trigger */}
-                          <li className="group">
-                            <div
-                              className="flex items-center justify-between hover:text-[var(--primary)] cursor-pointer"
-                              onClick={() => setIsSinglePostOpen(!isSinglePostOpen)}
-                            >
-                              <span>Single Product Layout</span>
-                              <span className={`transform transition-transform ${isSinglePostOpen ? 'rotate-180' : ''}`}>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </span>
-                            </div>
-
-                            {/* Nested Items */}
-                            {isSinglePostOpen && (
-                              <ul className="pl-6 mt-2 space-y-2 text-gray-600 border-l-2 border-gray-100">
-                                <li className="hover:text-[var(--primary)] cursor-pointer">Left Sidebar</li>
-                                <li className="hover:text-[var(--primary)] cursor-pointer">Right Sidebar</li>
-                                <li className="hover:text-[var(--primary)] cursor-pointer">No Sidebar</li>
-                              </ul>
-                            )}
-                          </li>
-                        </ul>
-                      )}
-                      {item === "Pages" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">About Us</li>
-                          <li className="hover:text-[var(--primary)]">Contact</li>
-                          <li className="hover:text-[var(--primary)]">My Account</li>
-                          <li className="hover:text-[var(--primary)]">login/register</li>
-                          <li className="hover:text-[var(--primary)]">Purchase Guide</li>
-                          <li className="hover:text-[var(--primary)]">Privacy Policy</li>
-                          <li className="hover:text-[var(--primary)]">Terms of Service</li>
-                          <li className="hover:text-[var(--primary)]">404 Page</li>
-                        </>
-                      )}
-                    </ul>
-                  )}
+                <li key={i}>
+  <Link
+    href={
+      item === "Home"
+        ? "/"
+        : item === "Shop"
+        ? "/product-view-full"
+        : item === "About"
+        ? "/about"
+        : item === "Contact"
+        ? "/contact"
+        : "#"
+    }
+    className="flex justify-between items-center py-1 hover:text-[var(--primary)] transition"
+  >
+    {item}
+  </Link>
                 </li>
               );
             })}
