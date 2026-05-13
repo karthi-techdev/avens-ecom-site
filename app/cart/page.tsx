@@ -6,6 +6,7 @@ import { getNames } from "country-list";
 import Link from "next/link";
 import {toast,Bounce,ToastContainer} from 'react-toastify';
 import { useCartStore } from "../../store/cartStore";
+import URLs from "@/lib/urls";
 import Swal from "sweetalert2";
 export default function CartPage() {
   const countries = getNames();
@@ -152,7 +153,7 @@ transition={Bounce}
                     <td className="block md:table-cell text-center !py-4 border-b md:border-r border-[var(--border-color)]">
                       <div className="flex justify-center">
                         <div className="w-24 h-24 bg-gray-100 rounded flex-shrink-0">
-                          <img src={`http://localhost:5000${item.productId.thumbnail}`} alt={item.name} className="w-full h-full object-cover rounded" />
+                          <img src={`http:localhost${item.productId.thumbnail}`} alt={item.name} className="w-full h-full object-cover rounded" />
                         </div>
                       </div>
                     </td>

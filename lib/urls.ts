@@ -73,6 +73,8 @@ export const API = {
   getAllCart:`${ROOTURL}cart/`,
   deleteCart:`${ROOTURL}cart/`,
   updateCart:`${ROOTURL}cart/updateCart/`,
+  cartStats:`${ROOTURL}cart/getstats/`,
+  clearCart:`${ROOTURL}cart/clearCart/`,
 
   listReviews: `${ROOTURL}reviews`, // GET
   addReviews: `${ROOTURL}reviews`, //POST
@@ -101,6 +103,24 @@ export const API = {
 
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
+
+  // Shipping endpoints
+listShippingMethods: `${ROOTURL}admin/shipment-methods`,
+
+createOrder: `${ROOTURL}admin/orders/`,
+createOrderCheckout:`${ROOTURL}admin/orders/createOrder`,
+verifyPayment:`${ROOTURL}admin/orders/verifyPayment`,
+paymentFail:`${ROOTURL}admin/orders/paymentFail`,
+ 
+  //blog endpoints
+   listBlogs: `${ROOTURL}admin/blogs/`,
+
+  //blog-category endpoints
+  listBlogsCategory: `${ROOTURL}admin/blog-category/`,
+
+  //subscribe endpoints
+  addSubscribe: `${ROOTURL}admin/subscribe/`,
+
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };

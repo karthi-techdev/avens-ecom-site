@@ -120,13 +120,13 @@ export default function AuthPage() {
       }
 
       localStorage.setItem("loginSuccess", "true");
-      localStorage.setItem("showLoginAlert", "true"); 
+      sessionStorage.setItem("showLoginAlert", "true"); 
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
 
       router.push("/"); 
       
-      setTimeout(() => router.push("/"), 1500);
+      // setTimeout(() => router.push("/"), 1500);
     } catch {
       Swal.fire("Error", "Server error", "error");
     }
