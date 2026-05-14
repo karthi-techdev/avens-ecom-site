@@ -171,7 +171,10 @@ if (!paymentMethod) {
       productId: item.productId._id,
       productName: item.productId.name,
       quantity: item.quantity,
-      price: item.productId.price
+      price:
+        item.productId.discountPrice > 0
+          ? item.productId.discountPrice
+          : item.productId.price
     }));
 
     const orderData = {
@@ -511,7 +514,14 @@ if (!paymentMethod) {
               </tr>
               <tr>
                 <td className="text-center py-[0.4rem] border border-[var(--border-color)] text-[var(--black)] font-semibold">
-                  <span>Discount</span>
+                  <span>
+                    Discount
+                    {discountAmount > 0 && couponCode && (
+                      <span className="text-[var(--primary)] ml-1 uppercase">
+                        ({couponCode})
+                      </span>
+                    )}
+                  </span>
                 </td>
 
                 <td
