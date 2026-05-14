@@ -6,6 +6,7 @@ import { getNames } from "country-list";
 import Link from "next/link";
 import { toast, Bounce, ToastContainer } from 'react-toastify';
 import { useCartStore } from "../../store/cartStore";
+import URLs from "@/lib/urls";
 import Swal from "sweetalert2";
 export default function CartPage() {
   const countries = getNames();

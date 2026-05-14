@@ -6,11 +6,145 @@ import { Country, State, City } from "country-state-city";
 import Select from "react-select";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import product1 from '../../public/home/product-1-1.jpg';
+import Image from "next/image";
 import { useCartStore } from "../../store/cartStore";
 import { useProductStore } from "../../store/useProductStore";
 import { useShippingStore } from "../../store/shippingStore";
 import { API } from "@/lib/urls";
 import Swal from "sweetalert2";
+import { title } from "process";
+import { text } from "stream/consumers";
+export default function checkoutPage(){
+      const [countries] = useState(Country.getAllCountries());
+       const [loginOption,setLoginOption]=useState(false);
+    const [couponOption,setCouponOption]=useState(false);
+    const [accountOption,setAccountOption]=useState(false);
+    const [shipmentOption,setShipmentOption]=useState(false);
+    const [paymentMethod,setPaymentMethod]=useState("");
+     const router = useRouter();
+     const [userToken, setUserToken] = useState<any>(null);
+     useEffect(()=>{
+          const token=JSON.parse(localStorage.getItem("user")||'{}');
+     if (!token?._id) router.push("/");
+     
+      setUserToken(token);
+        console.log("hii its ok to see")
+}, []);
+      const countryOptions = countries.map(item => {
+  return {
+     value: item.isoCode, label: item.name 
+  }
+})
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+const handleRazorpayPayment = async (razorpayorderid:string,orderData:any) => {
+  const isLoaded = await loadRazorpay();
+  let paymentFailed=false;
+  let paymentSuccess=false;
+  if (!isLoaded) {
+    Swal.fire({
+      icon:'error',
+      title:"Payment Failed",
+      text:'Razorpay failed to load'
+    })
+    return;
+  }
+
+  const options = {
+    key: "rzp_test_SlJuOsHUU2L0Uo", 
+    amount: finalTotal * 100, 
+    currency: "INR",
+    name: "Avens Ecom",
+    description: "Test Payment",
+    order_id:razorpayorderid,
+     method: {
+    upi: true,
+    card: true,
+    netbanking: true,
+    wallet: true,
+  },
+  modal:{
+    ondismiss:async function(){
+      if(paymentFailed)
+        return;
+      if(paymentSuccess)
+        return
+        Swal.fire({
+          icon:'warning',
+      title:"Payment Cancelled"
+        })
+    }
+  },
+    handler: async function(response: any) {
+      orderData={...orderData, razorpayOrderId:response.razorpay_order_id,
+          razorpayPaymentId:response.razorpay_payment_id,
+          razorpaySignature:response.razorpay_signature,}
+      const verify=await fetch(API.verifyPayment,{
+        method:'PUT',
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(orderData)
+      })
+      const paymentVerifyData=await verify.json();
+      if(paymentVerifyData.status===true){
+        paymentSuccess=true
+        await Swal.fire({
+        icon: "success",
+        title: "Payment Successful 🎉",
+        text: "Your order has been placed successfully",
+      });
+      await clearCart(userToken._id)
+      router.push('/')
+      }
+      else{
+        Swal.fire({
+        icon: "error",
+        title: "Payment Failed 🎉",
+        text: "Payment verification has been failed",
+      });
+      }
+
+    },
+
+    prefill: {
+      name: orderData.customerName,
+      email: orderData.customerEmail,
+      contact: orderData.customerPhone,
+    },
+
+    theme: {
+      color: "#3BB77E",
+    },
+  };
+
+  const paymentObject = new (window as any).Razorpay(options);
+  paymentObject.on("payment.failed",async function(response:any){
+    paymentFailed=true;
+    if(paymentSuccess)
+        return
+    Swal.fire({
+      icon:'error',
+      title:"Payment Failed",
+      text:response.error.description
+    })
+  })
+  paymentObject.open(); 
+};
+const onCountryChange = (selectedCountryItem: any) => {
+    const code = selectedCountryItem.value;
+    const countryName = Country.getCountryByCode(code)?.name || "";
+    const phoneCode = Country.getCountryByCode(code)?.phonecode || "";
+
+  };
 
 const staticAddresses = [
   {
@@ -22,7 +156,7 @@ const staticAddresses = [
     state: "Andhra Pradesh",
     country: "India",
     pincode: "607002",
-    phone: "+91 8825607688"
+    phone: "+91 7305324233"
   },
   {
     id: 2,
@@ -136,7 +270,6 @@ const staticAddresses = [
   }
     
 ];
-export default function checkoutPage() {
 
   const handlePlaceOrder = async () => {
   try {
@@ -147,7 +280,7 @@ export default function checkoutPage() {
   return;
 }
 
-if (!selectedShipment) {
+if (!selectedShipment){
   Swal.fire("Error", "Please select shipping method", "warning");
   return;
 }
@@ -184,12 +317,23 @@ if (!paymentMethod) {
       customerPhone: address.phone,
       shippingAddress: `${address.street}, ${address.city}, ${address.state}, ${address.country} - ${address.pincode}`,
       products,
-      totalAmount: finalTotal,
+      totalAmount:finalTotal ,
       shippingMethod: selectedShipment.name,
       shippingPrice: selectedShipment.price,
       paymentMethod: paymentMethod,
     };
-
+    if(paymentMethod==='bank'){
+      const result=await fetch(API.createOrderCheckout,{
+        method:'POST',
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({totalAmount}),
+      }
+      );
+      const resultData=await result.json();
+  return handleRazorpayPayment(resultData.data,orderData);
+}
     const res = await fetch(API.createOrder, {
       method: "POST",
       headers: {
@@ -216,6 +360,8 @@ if (!paymentMethod) {
     text: "Your order has been placed successfully 🎉",
     confirmButtonColor: "var(--primary)",
   });
+   await clearCart(userToken._id)
+  router.push('/')
     } else {
       alert(data.message);
     }
@@ -240,7 +386,7 @@ if (!paymentMethod) {
   useEffect(() => {
     fetchShipmentMethods();
   }, []);
-  const { cartItems = [], getAllCart,removeCart } = useCartStore();
+  const { cartItems = [], getAllCart,removeCart,clearCart } = useCartStore();
   const { fetchProducts } = useProductStore();
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -252,33 +398,17 @@ if (!paymentMethod) {
 
     getAllCart(user._id);
   }, []);
-  const [countries] = useState(Country.getAllCountries());
-  const [loginOption, setLoginOption] = useState(false);
-  const [couponOption, setCouponOption] = useState(false);
-  const [accountOption, setAccountOption] = useState(false);
-  const [shipmentOption, setShipmentOption] = useState(false);
+  
   const [selectedAddress, setSelectedAddress] = useState<number>(1);
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
-  const router = useRouter();
  useEffect(()=>{
           const token=JSON.parse(localStorage.getItem("user")||'{}');
      if (!token?._id) router.push("/");
      else
         console.log("hii its ok to see")
 }, []);
-  const countryOptions = countries.map(item => {
-    return {
-      value: item.isoCode, label: item.name
-    }
-  })
-  const onCountryChange = (selectedCountryItem: any) => {
-    const code = selectedCountryItem.value;
-    const countryName = Country.getCountryByCode(code)?.name || "";
-    const phoneCode = Country.getCountryByCode(code)?.phonecode || "";
-
-  };
+ 
   const availableCartItems = cartItems.filter(
   (item: any) => item.quantity <= item.productId.stockQuantity
 );
@@ -586,7 +716,7 @@ if (!paymentMethod) {
             <label className="flex justify-between items-center border border-[var(--border-color)] p-[1rem] rounded-[0.5rem] mb-[1rem] cursor-pointer md:w-[80%] sm:w-full">
               <div className="flex items-start gap-2">
                 <input type="radio" name="payment" value="bank" className="mt-1" onChange={(e) => setPaymentMethod(e.target.value)}/>
-                <p className="font-semibold">Direct Bank Transfer</p>
+                <p className="font-semibold">Razorpay</p>
               </div>
             </label>
 
@@ -598,13 +728,13 @@ if (!paymentMethod) {
               </div>
             </label>
 
-            {/* Paypal */}
+            {/* Paypal
             <label className="flex justify-between items-center border border-[var(--border-color)] p-[1rem] rounded-[0.5rem] mb-[1rem] cursor-pointer md:w-[80%] sm:w-full">
               <div className="flex items-start gap-2">
                 <input type="radio" name="payment" value="paypal" className="mt-1" onChange={(e) => setPaymentMethod(e.target.value)} />
                 <p className="font-semibold">Paypal</p>
               </div>
-            </label>
+            </label> */}
 
           </div>
           <div className="mt-[2rem]">

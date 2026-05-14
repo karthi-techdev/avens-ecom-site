@@ -10,6 +10,7 @@ import { productImages, colors, sizes } from '@/lib/constants';
 
 interface QuickViewModalProps {
     isOpen: boolean;
+     product: any;
     onClose: () => void;
 }
 

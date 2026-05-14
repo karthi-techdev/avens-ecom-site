@@ -1,20 +1,63 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ChevronRight, ShoppingCart, Headphones, X } from "lucide-react";
-
-
+import { useCartStore } from "@/store/cartStore";
+import { toast, Bounce, ToastContainer } from 'react-toastify';
 export default function WishlistPage() {
 
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [showAlert, setShowAlert] = useState(false);
-
-
+  const {addCart,getAllCart}=useCartStore();
+   const [token, setToken] = useState<any>(null);
   useEffect(() => {
     const savedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     setWishlistItems(savedWishlist);
   }, []);
-
-
+ useEffect(() => {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        setToken(user);
+    }, []);
+  const addToCart=async(id:any)=>{
+          try{
+            console.log(wishlistItems,'wishlist items ')
+    const product=wishlistItems.find(item=>item._id==id)
+    const originalPrice = product?.price || 0;
+    const discountPercent = product?.discountPrice || 0;
+    const finalPrice = discountPercent > 0
+        ? Math.round(originalPrice - (originalPrice * discountPercent) / 100)
+        : originalPrice;
+        const color=JSON.parse(product?.colors)
+    console.log(product,color)
+      const data={
+         "userId": token._id,
+    "quantity":1,
+    'color':color?.[0]||null,
+    'size':product?.sizes||null,
+    'price':finalPrice,
+    'productId':product._id
+      }
+      await addCart(data);
+      const updatedData= wishlistItems.filter((item: any) => (item._id || item.id) !== id);
+    setWishlistItems(updatedData);
+    localStorage.setItem('wishlist', JSON.stringify(updatedData));
+       await getAllCart(token._id)
+            toast.success('Added to cart!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            })
+          }
+            catch (error: any) {
+            console.log(error, 'in the page of card');
+            toast.warn(error.message);
+        }
+  }
   const removeFromWishlist = (id: string) => {
     const updated = wishlistItems.filter((item: any) => (item._id || item.id) !== id);
     setWishlistItems(updated);
@@ -26,6 +69,7 @@ export default function WishlistPage() {
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 3000);
   };
+
 
 
   // 1. CHANGE: id handle pandrathula chinna logic update
@@ -132,7 +176,7 @@ export default function WishlistPage() {
                       <td className="block md:table-cell text-center !py-4 border-b md:border-r border-[var(--border-color)]">
                         <div className="flex justify-center px-2 mx-auto" style={{ width: '156px' }}>
                           {item.stockQuantity > 0 ? (
-                            <button className="flex items-center justify-center gap-2 bg-[#3BB77E] hover:bg-[#2fa36d] text-white px-2 py-2.5 rounded shadow-sm transition-all text-sm font-bold w-full h-[45px]">
+                            <button className="flex items-center justify-center gap-2 bg-[#3BB77E] hover:bg-[#2fa36d] text-white px-2 py-2.5 rounded shadow-sm transition-all text-sm font-bold w-full h-[45px]" onClick={()=>addToCart(item._id)} >
                               <ShoppingCart size={18} />
                               Add to cart
                             </button>
