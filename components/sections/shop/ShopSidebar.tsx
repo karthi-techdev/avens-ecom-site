@@ -1,12 +1,13 @@
-
 'use client';
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Filter } from 'lucide-react';
 import { useProductStore } from '@/store/useProductStore';
+import { useReviewStore } from '@/store/useReviewStore';
 import URLs from "../../../lib/urls";
 import { Category } from '@/store/useCategoryStore';
+import { MdStarPurple500 } from "react-icons/md";
 import { usePathname, useRouter } from 'next/navigation';
-
 
 interface ShopSidebarProps {
     priceRange: number[];
@@ -16,31 +17,48 @@ interface ShopSidebarProps {
     onCategoryChange: (id: string | null) => void;
 }
 
-const ShopSidebar: React.FC<ShopSidebarProps> = ({
-    priceRange,
-    setPriceRange,
-    categories = [],
+const ShopSidebar: React.FC<ShopSidebarProps> = ({ 
+    priceRange = [0, 2000],           
+    setPriceRange,         
+    categories = [],                  
     selectedCategoryId,
-    onCategoryChange
+    onCategoryChange 
 }) => {
     const { products } = useProductStore();
+    const { reviews, fetchReviews } = useReviewStore();
     const pathname = usePathname();
-        const router = useRouter(); 
+    const router = useRouter(); 
+
     const isProductViewPage = pathname?.includes('product-view');
-    const max = 2000;
+    const max = 2000; 
+
+    // Fetch reviews from backend to display dynamic ratings in the sidebar
+    useEffect(() => {
+        fetchReviews(1, 50); 
+    }, [fetchReviews]);
 
     const handleProductClick = (slug: string) => {
         router.push(`/product-view/${slug}`);
     };
 
+    // Sort products by date to get the 3 newest arrivals
     const latestProducts = [...products]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 3);
 
+    // Helper function to calculate average rating for a specific product
+    const getProductRating = (productId: string, initialRating: number) => {
+        const productReviews = reviews.filter(r => r.productId === productId && r.status === 'active');
+        if (productReviews.length === 0) return initialRating || 0;
+        const sum = productReviews.reduce((acc, rev) => acc + rev.rating, 0);
+        return sum / productReviews.length;
+    };
+
     return (
         <div className="!space-y-6 lg:!space-y-8 max-w-[300px] w-full">
-            {/* Dynamic Category Widget */}
-            <div className="border rounded-xl !p-6 shadow-sm bg-white" style={{ borderColor: 'var(--border-color)' }}>
+            
+            {/* --- Category Widget --- */}
+            <div className="border rounded-xl !p-6 shadow-sm bg-white border-[var(--border-color)]">
                 <div className="relative !mb-5">
                     <h5 className="font-bold text-lg !pb-3 border-b text-[#253D4E]">Category</h5>
                     <span className="absolute bottom-0 left-0 w-20 h-[2px] bg-[#3BB77E]"></span>
@@ -64,16 +82,15 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                 </ul>
             </div>
 
-            {/* Price Filter Widget */}
+            {/* --- Price Filter Widget (Hidden on Product View) --- */}
             {!isProductViewPage && (
-                <div className="border rounded-xl !p-6 shadow-sm bg-white overflow-hidden" style={{ borderColor: 'var(--border-color)' }}>
+                <div className="border rounded-xl !p-6 shadow-sm bg-white overflow-hidden border-[var(--border-color)]">
                     <div className="relative !mb-6">
                         <h5 className="font-bold text-lg !pb-3 border-b uppercase text-[#253D4E]">Fill by Price</h5>
                         <span className="absolute bottom-0 left-0 w-20 h-[2px] bg-[#3BB77E]"></span>
                     </div>
 
                     <div className="!mb-6 px-1">
-                        {/* Slider Container */}
                         <div className="relative h-1.5 w-full bg-[#e2e8f0] rounded-full mt-8">
                             {/* The Green Progress Bar */}
                             <div
@@ -121,72 +138,71 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
                 </div>
             )}
 
-            {/* New Products Widget */}
-            <div className="border rounded-xl !p-6 shadow-sm bg-white" style={{ borderColor: 'var(--border-color)' }}>
+            {/* --- New Products Widget --- */}
+            <div className="border rounded-xl !p-6 shadow-sm bg-white border-[var(--border-color)]">
                 <div className="relative !mb-5">
                     <h5 className="font-bold text-lg !pb-3 border-b text-[#253D4E]">New Products</h5>
                     <span className="absolute bottom-0 left-0 w-20 h-[2px] bg-[#3BB77E]"></span>
                 </div>
                 <div className="!space-y-5">
                     {latestProducts.map((product: any) => {
-
                         const originalPrice = product?.price || 0;
                         const discountPercent = product?.discountPrice || 0;
-
                         const finalPrice = discountPercent > 0
                             ? Math.round(originalPrice - (originalPrice * discountPercent) / 100)
                             : originalPrice;
-
-                        const hasDiscount = discountPercent > 0;
+                        
+                        const currentAvgRating = getProductRating(product._id, product.rating);
 
                         return (
-                            <div key={product._id}  onClick={() => handleProductClick(product.slug)} className="flex gap-4 items-center cursor-pointer">
-
+                            <div 
+                                key={product._id} 
+                                onClick={() => handleProductClick(product.slug)} 
+                                className="flex gap-4 items-center group cursor-pointer"
+                            >
                                 {/* Image */}
-                                <div className="w-20 h-20 bg-[#f7f8f9] rounded-lg overflow-hidden">
-                                    <img
-                                        src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`}
-                                        alt={product?.name}
-                                        className="w-full h-full object-contain"
+                                <div className="relative w-20 h-20 bg-[#f7f8f9] rounded-lg overflow-hidden flex-shrink-0">
+                                    <img 
+                                        src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`} 
+                                        alt={product?.name} 
+                                        className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
                                     />
                                 </div>
 
-                                <div>
-                                    <h4 className="text-[14px] font-bold text-[#3BB77E] line-clamp-1">
+                                <div className="flex-1">
+                                    <h4 className="text-[14px] font-bold text-[#3BB77E] line-clamp-1 group-hover:text-[#29A56C] transition-colors">
                                         {product.name}
                                     </h4>
-
-                                    {/*  PRICE UI */}
+                                    
                                     <div className="flex flex-col mt-1">
-
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[16px] font-bold text-[#253D4E]">
-                                                ₹{finalPrice}
-                                            </span>
-
-                                            {hasDiscount && (
-                                                <span className="text-[#F74B81] text-[11px] font-bold">
-                                                    {discountPercent}% OFF
-                                                </span>
+                                            <span className="text-[16px] font-bold text-[#253D4E]">₹{finalPrice}</span>
+                                            {discountPercent > 0 && (
+                                                <span className="text-[#F74B81] text-[11px] font-bold">{discountPercent}% OFF</span>
                                             )}
                                         </div>
-
-                                        {hasDiscount && (
-                                            <span className="line-through text-[#7E7E7E] text-[13px]">
-                                                ₹{originalPrice}
-                                            </span>
+                                        {discountPercent > 0 && (
+                                            <span className="line-through text-[#7E7E7E] text-[13px]">₹{originalPrice}</span>
                                         )}
+                                    </div>
 
+                                    {/* Dynamic Star Rating */}
+                                    <div className="flex gap-0.5 mt-1">
+                                        {[...Array(5)].map((_, i) => (
+                                            <MdStarPurple500 
+                                                key={i} 
+                                                size={12} 
+                                                className={i < Math.round(currentAvgRating) ? "text-yellow-400" : "text-gray-200"} 
+                                            />
+                                        ))}
                                     </div>
                                 </div>
-
                             </div>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Injected styles for the range thumbs */}
             <style jsx>{`
                 .range-input::-webkit-slider-thumb {
                     pointer-events: auto;
@@ -215,5 +231,3 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
 };
 
 export default ShopSidebar;
-
-

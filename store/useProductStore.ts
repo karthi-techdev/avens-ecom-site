@@ -12,59 +12,73 @@ export interface Product {
   discountPrice?: number;
   stockQuantity: number;
   brandId: string;
-  mainCategoryId: string;
+  mainCategoryId?: string | { name: string };
   subCategoryId?: string;
-  categoryId?: string;
+  categoryId?: string | { name: string };
   images: string[];
   colors?: string[];
-  sizes?: string;
+  sizes?: string[] | string;
+  badge?: string;
+  shortDescription?: string;
   status: "active" | "inactive";
   isDeleted: boolean;
   isActive: boolean;
-  createdAt: string; // Added for sorting
-  rating?: number; // Added as optional
+  createdAt: string;
+  rating?: number;
 }
 
 interface ProductState {
   products: Product[];
+  selectedProduct: Product | null; // For Quick View functionality
   isLoading: boolean;
   error: string | null;
-  activeTab: string; // New State
-  setActiveTab: (tab: string) => void; // New Function
-  fetchProducts: (tab?: string) => Promise<void>; // Updated to accept tab
-  // fetchProducts: () => Promise<void>;
+  activeTab: string; // Tab filtering state
+  setActiveTab: (tab: string) => void;
+  setSelectedProduct: (product: Product | null) => void;
+  fetchProducts: (tab?: string) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
   products: [],
+  selectedProduct: null,
   isLoading: false,
   error: null,
   activeTab: "featured",
+
+  // Set the product currently viewed in a modal/quickview
+  setSelectedProduct: (product) => set({ selectedProduct: product }),
 
   // Logic for setting active tab
   setActiveTab: (tab: string) => {
     set({ activeTab: tab });
   },
 
-  fetchProducts: async () => {
+  fetchProducts: async (tab) => {
     set({ isLoading: true, error: null });
+    
+    // If a specific tab was requested, update it in the state
+    if (tab) set({ activeTab: tab });
+
     try {
       const response = await apiClient.get(
-        `${API.fetchProducts}?status=active&limit=100`,
+        `${API.fetchProducts}?status=active&limit=100`
       );
 
+      // Handle various response structures safely
       let productData = [];
-      if (response.data.data && Array.isArray(response.data.data)) {
+      if (response.data?.data && Array.isArray(response.data.data)) {
         productData = response.data.data;
       } else if (Array.isArray(response.data)) {
         productData = response.data;
-      } else if (response.data.data && response.data.data.data) {
+      } else if (response.data?.data?.data && Array.isArray(response.data.data.data)) {
         productData = response.data.data.data;
       }
 
+      // Filter for active products only
       const activeProducts = productData.filter(
-        (product: Product) => product.isActive !== false,
+        (product: Product) => product.isActive !== false && !product.isDeleted
       );
+
       set({ products: activeProducts, isLoading: false });
     } catch (error: any) {
       set({
@@ -74,5 +88,3 @@ export const useProductStore = create<ProductState>((set) => ({
     }
   },
 }));
-
-
