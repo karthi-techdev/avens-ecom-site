@@ -1,24 +1,20 @@
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'; 
+import { useSearchParams, useRouter } from 'next/navigation';
 import ShopSidebar from '@/components/sections/shop/ShopSidebar';
 import ShopHeader from '@/components/sections/shop/ShopHeader';
 import ProductCard from '@/components/ui/ProductCard';
 import QuickViewModal from '@/components/ui/QuickViewModal';
-import { useProductStore } from '../../store/useProductStore';
-import { useCategoryStore } from '../../store/useCategoryStore'; 
-import { useMainCategoryStore } from '../../store/useMainCategoryStore';
-import { useSubCategoryStore } from '../../store/useSubCategoryStore';
-import { useOfferStore } from '../../store/useOfferStore';
+import { useProductStore } from '@/store/useProductStore';
+import { useCategoryStore } from '@/store/useCategoryStore';
+import { useMainCategoryStore } from '@/store/useMainCategoryStore';
+import { useSubCategoryStore } from '@/store/useSubCategoryStore';
+import { useOfferStore } from '@/store/useOfferStore';
+
 export default function ProductShowPage() {
     return (
-        <Suspense fallback={
-            <div className="text-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#3BB77E] mx-auto"></div>
-                <p className="mt-4 text-gray-500">Loading Shop...</p>
-            </div>
-        }>
+        <Suspense fallback={<div className="text-center py-20">Loading...</div>}>
             <ProductListContent />
         </Suspense>
     );
@@ -27,22 +23,25 @@ export default function ProductShowPage() {
 function ProductListContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
+
     const categoryQuery = searchParams.get('category');
-    const offerIdFromUrl = searchParams.get('offerId'); 
+    const offerIdFromUrl = searchParams.get('offerId');
+    const searchTerm = searchParams.get('search') || "";
+
     const [view, setView] = useState<'grid' | 'list'>('grid');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOption, setSortOption] = useState('Release Date');
-    const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
-    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+    
+    // CHANGE 1: Increase max price default to ensure products aren't hidden
+    const [priceRange, setPriceRange] = useState<number[]>([0, 100000]); 
 
     const { products, isLoading, fetchProducts } = useProductStore();
     const { mainCategories, fetchMainCategories } = useMainCategoryStore();
     const { subCategories, fetchSubCategories } = useSubCategoryStore();
     const { categories, fetchCategories } = useCategoryStore();
-    const { offers, fetchOffers } = useOfferStore(); 
+    const { offers, fetchOffers } = useOfferStore();
 
     useEffect(() => {
         fetchProducts();
@@ -50,103 +49,71 @@ function ProductListContent() {
         fetchSubCategories();
         fetchCategories();
         fetchOffers();
-    }, [fetchProducts, fetchMainCategories, fetchSubCategories, fetchCategories,fetchOffers]);
-
+    }, []);
 
     const filteredAndSortedProducts = useMemo(() => {
         if (!products || products.length === 0) return [];
 
         let items = [...products];
 
-        if (categoryQuery) {
-            const allCats = [...(mainCategories || []), ...(subCategories || []), ...(categories || [])];
-            const matchingCat: any = allCats.find(c => c.slug?.toLowerCase() === categoryQuery.toLowerCase());
+        // 1. Search Filter
+        if (searchTerm) {
+            items = items.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // 2. Category Filter
+        if (categoryQuery && categoryQuery !== "All Categories") {
+            const allCats = [...mainCategories, ...subCategories, ...categories];
+            const matchingCat = allCats.find(c => c.slug?.toLowerCase() === categoryQuery.toLowerCase());
 
             if (matchingCat) {
                 const targetId = matchingCat._id.toString();
-
                 items = items.filter((product: any) => {
-    
-    const targetId = matchingCat._id.toString();
-
-  
-    const pMainId = (product.mainCategoryId?._id || product.mainCategoryId || "").toString();
-    const pSubId = (product.subCategoryId?._id || product.subCategoryId || "").toString();
-    const pChildId = (product.categoryId?._id || product.categoryId || "").toString();
-
-  
-    return (
-        pMainId === targetId || 
-        pSubId === targetId || 
-        pChildId === targetId
-    );
-});
+                    // Extract IDs safely whether they are objects or strings
+                    const pMainId = (product.mainCategoryId?._id || product.mainCategoryId || "").toString();
+                    const pSubId = (product.subCategoryId?._id || product.subCategoryId || "").toString();
+                    const pChildId = (product.categoryId?._id || product.categoryId || "").toString();
+                    
+                    return pMainId === targetId || pSubId === targetId || pChildId === targetId;
+                });
             } else {
-                if (mainCategories.length > 0) items = [];
+                // CHANGE 2: Don't empty the items if the category isn't found immediately 
+                // while data is still loading
+                if (mainCategories.length > 0) items = []; 
             }
         }
 
-        // Price filter
-        items = items.filter(p => {
-            const price = p.discountPrice || p.price || 0;
-            return price >= priceRange[0] && price <= priceRange[1];
-        });
-
-        // Sort filter
-if (offerIdFromUrl && offers.length > 0) {
-    const targetOffer = offers.find(o => String(o._id) === String(offerIdFromUrl));
-    const offerProducts = (targetOffer as any)?.products;
-
-    if (offerProducts && Array.isArray(offerProducts)) {
-        items = items.filter(product => 
-            offerProducts.some((p: any) => {
-                const pId = typeof p === 'object' ? p._id : p;
-                return String(pId) === String(product._id);
-            })
-        );
-    }
-}
-
-        // Filter by Category
-        if (selectedCategoryId) {
-            items = items.filter(product => {
-                const rawId = product.categoryId || (product as any).mainCategoryId || (product as any).category;
-                if (!rawId) return false;
-                const productCatId = typeof rawId === 'object' ? rawId?._id : rawId;
-                return String(productCatId) === String(selectedCategoryId);
-            });
-        }
-
-        //  Filter by Price
+        // 3. Price Filter
         items = items.filter(product => {
-            const price = product.discountPrice || product.price || 0;
+            // Ensure we use the correct price (discounted or original)
+            const price = product.discountPrice > 0 
+                ? Math.round(product.price - (product.price * product.discountPrice) / 100)
+                : (product.price || 0);
             return price >= priceRange[0] && price <= priceRange[1];
         });
 
-        // Sort Logic
+        // 4. Sorting
         items.sort((a, b) => {
-            const pA = a.discountPrice || a.price || 0;
-            const pB = b.discountPrice || b.price || 0;
+            const pA = a.discountPrice > 0 ? a.price - (a.price * a.discountPrice / 100) : a.price;
+            const pB = b.discountPrice > 0 ? b.price - (b.price * b.discountPrice / 100) : b.price;
             if (sortOption === 'Price: Low to High') return pA - pB;
             if (sortOption === 'Price: High to Low') return pB - pA;
             return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
         });
 
         return items;
-    }, [products,offers, categoryQuery, priceRange, selectedCategoryId,sortOption,offerIdFromUrl, mainCategories, subCategories, categories]);
-   
-    const sidebarItems = useMemo(() => {
-   
-    return mainCategories.map((cat: any) => ({
-        ...cat,
-        
-        _id: cat.slug, 
-        name: cat.name, 
-        status: 'active'
-    }));
-}, [mainCategories]);
+    }, [products, searchTerm, categoryQuery, priceRange, sortOption, mainCategories, subCategories, categories]);
 
-    // Pagination
+    const sidebarItems = useMemo(() => {
+        return mainCategories.map((cat: any) => ({
+            ...cat,
+            _id: cat.slug, 
+            name: cat.name
+        }));
+    }, [mainCategories]);
+
     const itemsPerPage = view === 'grid' ? 12 : 6;
     const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
     const currentProducts = filteredAndSortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -158,17 +125,13 @@ if (offerIdFromUrl && offers.length > 0) {
             </div>
         );
     }
-    const handleQuickView = (product: any) => {
-        setSelectedProduct(product);
-        setIsQuickViewOpen(true);
-    };
 
     return (
-        <main className="w-full !overflow-x-hidden !mt-9">
-            <div className='max-w-[1600px] !mx-auto !px-4 sm:!px-6 lg:!px-10 !py-6'>
+        <main className="w-full overflow-x-hidden mt-9">
+            <div className='max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 py-6'>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
-                    {/* Sidebar Section */}
-                    <aside className={`col-span-12 lg:col-span-3 ${isSidebarOpen ? "block" : "hidden"} lg:block`}>
+                    
+                    <aside className="col-span-12 lg:col-span-3">
                         <ShopSidebar
                             priceRange={priceRange}
                             setPriceRange={setPriceRange}
@@ -176,40 +139,48 @@ if (offerIdFromUrl && offers.length > 0) {
                             selectedCategoryId={categoryQuery}
                             onCategoryChange={(slug) => {
                                 const params = new URLSearchParams(searchParams.toString());
-                                if (slug) params.set('category', slug); else params.delete('category');
+                                if (slug) params.set('category', slug); 
+                                else params.delete('category');
                                 router.push(`?${params.toString()}`);
                             }}
                         />
                     </aside>
 
-                    <div className={`col-span-12 ${isSidebarOpen ? "lg:col-span-9" : "lg:col-span-12"}`}>
+                    <div className="col-span-12 lg:col-span-9 transition-all duration-300">
                         <ShopHeader
                             totalItems={filteredAndSortedProducts.length}
                             view={view}
-                            setView={(v) => { setView(v); setCurrentPage(1); }}
+                            setView={setView}
                             sortSelected={sortOption}
                             setSortSelected={setSortOption}
                         />
 
                         {filteredAndSortedProducts.length === 0 ? (
-                            <div className="text-center py-20 bg-gray-50 rounded-2xl">
-                                <p className="text-lg text-gray-600">No products found for this category.</p>
-                                <button onClick={() => router.push('?')} className="text-[#3BB77E] underline font-bold mt-2">
-                                    Reset all filters
+                            <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                                <p className="text-lg text-gray-600">
+                                    No products found matching your filters.
+                                </p>
+                                <button 
+                                    onClick={() => router.push('/product-list')} 
+                                    className="text-[#3BB77E] underline font-bold mt-2"
+                                >
+                                    Clear all filters
                                 </button>
                             </div>
                         ) : (
-                            <div className={view === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6" : "flex flex-col gap-6"}>
+                            <div className={view === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" : "flex flex-col gap-6"}>
                                 {currentProducts.map((product) => (
-                                    <ProductCard
-                                        key={product._id}
-                                        product={product}
-                                        onQuickView={() => { setSelectedProduct(product); setIsQuickViewOpen(true); }}
-                                        view={view}
+                                    <ProductCard 
+                                        key={product._id} 
+                                        product={product} 
+                                        onQuickView={() => { setSelectedProduct(product); setIsQuickViewOpen(true); }} 
+                                        view={view} 
                                     />
                                 ))}
                             </div>
                         )}
+                        
+                        {/* Pagination component here... */}
                     </div>
                 </div>
             </div>
