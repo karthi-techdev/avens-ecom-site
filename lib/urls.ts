@@ -68,8 +68,8 @@ export const API = {
   filterProducts: `${ROOTURL}admin/products/filter`,
   newProducts: `${ROOTURL}admin/products/new`,
 
-  listReviews: `${ROOTURL}reviews`, // GET
-  addReviews: `${ROOTURL}reviews`, //POST
+  // listReviews: `${ROOTURL}reviews`, // GET
+  // addReviews: `${ROOTURL}reviews`, //POST
   //  Blog endpoints
   addBlog: `${ROOTURL}admin/blogs/`,
   listBlog: `${ROOTURL}admin/blogs/`,
@@ -93,8 +93,18 @@ export const API = {
   `${ROOTURL}admin/comments/${blogId}`,
   deleteComment: (id: string) => `${ROOTURL}admin/comments/${id}`,
 
+    listReviews: 'reviews',      // Matches GET /api/v1/reviews
+  addReview: 'reviews',       // Matches POST /api/v1/reviews (FIXED NAME)
+  getReviewById: (id: string) => `reviews/getReviewById/${id}`,
+  deleteReview: (id: string) => `reviews/${id}`,
+  updateReviewStatus: (id: string) => `reviews/updateStatus/${id}`,
+  activeReviews: (productId: string) => `reviews/active/${productId}`,
+
   //addinfo endpoints
   listAddInfos: `${ROOTURL}admin/product/add-info`,
+
+  searchHistory: '/api/search-history',
+  addSearchHistory: '/api/search-history/add'
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };

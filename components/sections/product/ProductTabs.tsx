@@ -1,51 +1,32 @@
+
 'use client';
 import { useState, useEffect } from 'react';
-import { Star, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
+import { Star, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAddInfoStore } from "@/store/useAddInfoStore";
+import { useReviewStore } from "@/store/useReviewStore";
 
 interface ProductTabsProps {
     description?: string;
     product?: any;
 }
 
-interface Review {
-    _id: string;
-    name: string;
-    rating: number;
-    comment: string;
-    status: string;
-    userId: string;
-    createdAt?: string;
-}
-
 const formatReviewDate = (dateString: string) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
-
-    const datePart = new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    }).format(date);
-
-    const timePart = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+    }).format(date) + " at " + new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric', minute: 'numeric', hour12: true
     }).format(date).toLowerCase();
-
-    return `${datePart} at ${timePart}`;
 };
-
 
 const ProductTabs = ({ description, product }: ProductTabsProps) => {
     const [activeTab, setActiveTab] = useState("DESCRIPTION");
-    const [reviews, setReviews] = useState<Review[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [rating, setRating] = useState(0);
     const [hover, setHover] = useState(0);
-    const [guestId, setGuestId] = useState("");
+    const [currentUserId, setCurrentUserId] = useState("");
+    
     const [form, setForm] = useState({
         name: '',
         email: '',
@@ -54,59 +35,41 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
     });
     const [errors, setErrors] = useState<any>({});
 
+    const { addInfos, fetchAddInfos, isLoading: isInfoLoading } = useAddInfoStore();
+    
+    // Extract actions from store (Naming matches the Store Interface now)
+    const { 
+        activeProductReviews, 
+        fetchActiveReviews, 
+        addReview, 
+        removeReview, 
+        isLoading: isReviewLoading 
+    } = useReviewStore();
+
     useEffect(() => {
-        let id = localStorage.getItem("guestId");
-
-        if (!id) {
-            id = "guest_" + Date.now();
-            localStorage.setItem("guestId", id);
+        if (typeof window !== "undefined") {
+            const userData = localStorage.getItem("user");
+            const user = userData ? JSON.parse(userData) : null;
+            let id = user?._id || user?.id || localStorage.getItem("guestId");
+            if (!id) {
+                id = "guest_" + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem("guestId", id);
+            }
+            setCurrentUserId(id);
         }
-
-        setGuestId(id);
-    }, []);
+        fetchAddInfos();
+    }, [fetchAddInfos]);
 
     useEffect(() => {
-        const fetchReviews = async () => {
-            if (!product || !product._id) {
-                return;
-            }
-
-            try {
-                const response = await axios.get(`http://localhost:5000/api/v1/admin/reviews?productId=${product._id}`);
-                const reviewData = response.data?.data?.data || [];
-                const activeReviews = reviewData.filter((r: Review) => r.status === "active");
-
-                const onlyActive = reviewData.filter((r: Review) => r.status === "active");
-                setReviews(onlyActive);
-
-                // setReviews(reviewData);
-            } catch (error: any) {
-                console.error("Reviews load error:", error.response?.status);
-            }
-        };
-
-        if (activeTab === "REVIEWS") {
-            fetchReviews();
+        if (activeTab === "REVIEWS" && product?._id) {
+            fetchActiveReviews(product._id);
         }
-    }, [activeTab, product?._id]);
+    }, [activeTab, product?._id, fetchActiveReviews]);
 
     const handleDelete = async (reviewId: string) => {
-        try {
-            await axios.delete(
-                `http://localhost:5000/api/v1/admin/reviews/${reviewId}`,
-                { data: { userId: guestId } }
-            );
-
-            // UI update
-            setReviews(prev => prev.filter(r => r._id !== reviewId));
-        } catch (error: any) {
-            console.error("Delete failed:", error.response?.data);
+        if (window.confirm("Are you sure you want to delete this review?")) {
+            await removeReview(reviewId, currentUserId);
         }
-    };
-
-    const handleChange = (e: any) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
     };
 
     const validate = () => {
@@ -115,61 +78,37 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
         if (!form.comment.trim()) newErrors.comment = "Comment is required";
         if (!form.name.trim()) newErrors.name = "Name is required";
         if (!form.email.trim()) newErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = "Invalid email";
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async () => {
-        if (!validate()) return;
+        if (!validate() || !product?._id) return;
 
-        if (!product?._id) {
-            alert("Error: Product ID is missing. Cannot submit review.");
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        const newReviewData = {
+        const payload = {
+            productId: product._id,
+            userId: currentUserId,
             name: form.name,
             email: form.email,
             rating: rating,
             comment: form.comment,
-            website: form.website || "",
-            productId: product._id,
-            userId: guestId,
-            status: "active"
+            website: form.website,
+            status: "active" as const // FIX: Added 'as const' to fix the TypeScript error
         };
 
         try {
-
-            const response = await axios.post('http://localhost:5000/api/v1/admin/reviews', newReviewData);
-
-            console.log("Backend Response:", response.data);
-
-            if (response.status === 201 || response.status === 200) {
-                const savedReview = response.data.data;
-                setReviews(prev => [savedReview, ...prev]);
-                setForm({ name: '', email: '', comment: '', website: '' });
-                setRating(0);
-                setShowSuccess(true);
-                setTimeout(() => setShowSuccess(false), 3000);
-            }
-        } catch (error: any) {
-
-            console.error("Submission failed:", error.response?.data);
-            alert("Database-la save aagala: " + (error.response?.data?.message || "Unknown error"));
-        } finally {
-            setIsSubmitting(false);
+            await addReview(payload);
+            setForm({ name: '', email: '', comment: '', website: '' });
+            setRating(0);
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 5000);
+            fetchActiveReviews(product._id);
+        } catch (error) {
+            console.error("Submission failed", error);
         }
     };
-     const { addInfos, fetchAddInfos, isLoading } = useAddInfoStore();
-       useEffect(() => {
-        fetchAddInfos();
-    }, [fetchAddInfos]);
 
-    if (isLoading) return <div>Loading details...</div>;
+    if (isInfoLoading) return <div className="p-10 text-center text-gray-400">Loading...</div>;
 
     return (
         <div className="mt-10">
@@ -178,13 +117,13 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`pb-3 font-semibold text-sm transition-all ${activeTab === tab
+                        className={`pb-3 font-semibold text-sm transition-all outline-none ${activeTab === tab
                             ? "text-green-600 border-b-2 border-green-600"
-                            : "text-gray-400"
-                            }`}
+                            : "text-gray-400 hover:text-gray-600"
+                        }`}
                     >
                         {tab === "ADDITIONAL" ? "ADDITIONAL INFO" : tab}
-                        {tab === "REVIEWS" && ` (${reviews.length})`}
+                        {tab === "REVIEWS" && ` (${activeProductReviews.length})`}
                     </button>
                 ))}
             </div>
@@ -192,173 +131,79 @@ const ProductTabs = ({ description, product }: ProductTabsProps) => {
             <div className="min-h-[200px]">
                 {activeTab === "DESCRIPTION" && (
                     <p className="text-gray-500 leading-relaxed max-w-3xl">
-                        {description || "No description available"}
+                        {description || "No description available."}
                     </p>
                 )}
 
                 {activeTab === "ADDITIONAL" && (
-                <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
-                    <table className="w-full text-sm">
-                        <tbody>
-                            {addInfos.length > 0 ? (
-                                addInfos.map((item, index) => (
-                                    <tr 
-                                        key={item._id || index} 
-                                        className={`border-b border-[#ececec]`}
-                                    >
-                                        <td className="p-4 font-medium w-1/3 border-r border-[#ececec]">
-                                            {item.key} 
-                                        </td>
-                                        <td className="p-4 text-gray-600">
-                                            {item.value}
-                                        </td>
+                    <div className="overflow-hidden border rounded-lg border-[#ececec] max-w-3xl">
+                        <table className="w-full text-sm">
+                            <tbody>
+                                {addInfos.map((item, index) => (
+                                    <tr key={index} className="border-b last:border-0 border-[#ececec]">
+                                        <td className="p-4 font-semibold text-[#253D4E] w-1/3 bg-gray-50/50">{item.key}</td>
+                                        <td className="p-4 text-gray-600">{item.value}</td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td className="p-4 text-gray-400">No additional information available.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
 
                 {activeTab === "REVIEWS" && (
                     <div className="max-w-3xl">
-                        <h3 className="font-semibold text-lg mb-4">Customer Reviews</h3>
-
-                        {reviews.length > 0 ? (
-                            reviews.map((rev) => (
-                                <div key={rev._id} className="border-b border-[#ececec] pb-6 mb-6 flex gap-6">
+                        {isReviewLoading ? (
+                             <div className="flex items-center gap-2 text-gray-400 py-10"><Loader2 className="animate-spin" /> Loading...</div>
+                        ) : (
+                            activeProductReviews.map((rev) => (
+                                <div key={rev._id} className="border border-[#ececec] p-6 rounded-xl mb-6 flex gap-6">
                                     <div className="flex flex-col items-center gap-2 flex-shrink-0 w-24">
-                                        <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
-                                            <img
-                                                src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
-                                                alt="User"
-                                                className="w-full h-full object-cover opacity-70"
-                                            />
-                                        </div>
-                                        <span className="font-bold text-xs text-gray-800 text-center break-words w-full">
-                                            {rev.name}
-                                        </span>
+                                        <img src={`https://ui-avatars.com/api/?name=${rev.name}&background=random`} className="w-12 h-12 rounded-full" alt="avatar" />
+                                        <span className="font-bold text-xs text-[#253D4E]">{rev.name}</span>
                                     </div>
-
-                                    <div className="flex-1 pt-1">
-                                        <div className="flex mb-2">
-                                            {[...Array(5)].map((_, index) => (
-                                                <Star
-                                                    key={index}
-                                                    size={14}
-                                                    stroke="none"
-                                                    fill={index < rev.rating ? "#ffc107" : "#dddddd"}
-                                                />
-                                            ))}
+                                    <div className="flex-1">
+                                        <div className="flex justify-between">
+                                            <div className="flex">
+                                                {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < rev.rating ? "#ffc107" : "#dddddd"} stroke="none" />)}
+                                            </div>
+                                            <span className="text-xs text-gray-400">{formatReviewDate(rev.createdAt)}</span>
                                         </div>
-
-                                        <span className="text-xs text-gray-400 mb-2 block font-medium">
-                                            {rev.createdAt ? formatReviewDate(rev.createdAt) : 'Recent'}
-                                        </span>
-                                        <p className="text-sm text-gray-600 leading-relaxed">{rev.comment}</p>
+                                        <p className="text-sm text-gray-600 mt-2">{rev.comment}</p>
+                                        {rev.userId === currentUserId && (
+                                            <button onClick={() => handleDelete(rev._id)} className="text-red-400 text-xs mt-2 hover:underline">Delete my review</button>
+                                        )}
                                     </div>
-
-                                    {rev.userId === guestId && (
-                                        <button
-                                            onClick={() => handleDelete(rev._id)}
-                                            className="text-red-500 text-xs ml-4"
-                                        >
-                                            Delete
-                                        </button>
-                                    )}
                                 </div>
                             ))
-                        ) : (
-                            <p className="text-gray-400 mb-4">No reviews yet.</p>
                         )}
 
-                        <div className="mt-8 p-6 bg-gray-50 rounded-lg relative">
-                            <h3 className="font-semibold text-lg mb-3">Add a review</h3>
-
-                            {showSuccess && (
-                                <div className="flex items-center gap-2 mb-4 p-3 bg-green-100 text-green-700 border border-green-200 rounded-md">
-                                    <CheckCircle2 size={18} />
-                                    <span className="text-sm font-medium">Review submitted successfully!</span>
-                                </div>
-                            )}
-
-                            <div className="flex mb-4 items-center gap-2">
-                                <span className="text-sm font-medium">Your Rating:</span>
+                        {/* Review Form */}
+                        <div className="mt-12 p-8 border border-[#ececec] rounded-2xl bg-white">
+                            <h3 className="font-bold text-2xl text-[#253D4E] mb-4">Add a review</h3>
+                            {showSuccess && <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg">Review submitted successfully!</div>}
+                            
+                            <div className="flex mb-6 items-center gap-4">
+                                <span className="text-sm font-bold">Your Rating:</span>
                                 <div className="flex">
-                                    {[...Array(5)].map((_, i) => {
-                                        const value = i + 1;
-                                        return (
-                                            <Star
-                                                key={i}
-                                                size={20}
-                                                className="cursor-pointer"
-                                                stroke={value <= (hover || rating) ? "#ffc107" : "#dddddd"}
-                                                fill={value <= (hover || rating) ? "#ffc107" : "none"}
-                                                onClick={() => setRating(value)}
-                                                onMouseEnter={() => setHover(value)}
-                                                onMouseLeave={() => setHover(0)}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                            {errors.rating && <p className="text-red-500 text-xs mb-2">{errors.rating}</p>}
-
-                            <textarea
-                                name="comment"
-                                value={form.comment}
-                                onChange={handleChange}
-                                placeholder="Write Comment *"
-                                className="w-full border border-[#ececec] p-3 mb-4 h-32 focus:outline-none focus:border-green-500 bg-white"
-                            />
-                            {errors.comment && <p className="text-red-500 text-xs mb-2">{errors.comment}</p>}
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={form.name}
-                                        onChange={handleChange}
-                                        placeholder="Name *"
-                                        className="border border-[#ececec] p-3 w-full focus:outline-none focus:border-green-500 bg-white"
-                                    />
-                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                                </div>
-                                <div>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={form.email}
-                                        onChange={handleChange}
-                                        placeholder="Email *"
-                                        className="border border-[#ececec] p-3 w-full focus:outline-none focus:border-green-500 bg-white"
-                                    />
-                                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                    {[1, 2, 3, 4, 5].map((v) => (
+                                        <Star key={v} size={22} className="cursor-pointer"
+                                            fill={v <= (hover || rating) ? "#ffc107" : "none"}
+                                            stroke={v <= (hover || rating) ? "#ffc107" : "#dddddd"}
+                                            onClick={() => setRating(v)}
+                                            onMouseEnter={() => setHover(v)}
+                                            onMouseLeave={() => setHover(0)}
+                                        />
+                                    ))}
                                 </div>
                             </div>
 
-                            <div className="mb-6">
-                                <input
-                                    type="text"
-                                    name="website"
-                                    value={form.website}
-                                    onChange={handleChange}
-                                    placeholder="Website"
-                                    className="w-full border border-[#ececec] p-3 focus:outline-none focus:border-green-500 bg-white"
-                                />
+                            <textarea name="comment" value={form.comment} onChange={(e) => setForm({...form, comment: e.target.value})} placeholder="Write Comment *" className="w-full border p-4 mb-4 h-32 rounded-xl focus:border-green-400 outline-none" />
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <input type="text" placeholder="Name *" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="border p-4 rounded-xl outline-none" />
+                                <input type="email" placeholder="Email *" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} className="border p-4 rounded-xl outline-none" />
                             </div>
-
-                            <button
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className={`bg-green-600 text-white px-8 py-3 font-semibold hover:bg-green-700 transition rounded shadow-sm ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                            >
-                                {isSubmitting ? "Submitting..." : "Submit Review"}
+                            <button onClick={handleSubmit} disabled={isReviewLoading} className="bg-[#3BB77E] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#29A56C]">
+                                {isReviewLoading ? "Submitting..." : "Submit Review"}
                             </button>
                         </div>
                     </div>

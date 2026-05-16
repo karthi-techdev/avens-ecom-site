@@ -1,20 +1,46 @@
 'use client';
-import { useState } from 'react';
-import { Star, ShoppingBag, Heart, RefreshCw, BadgeCheck, RefreshCcw } from 'lucide-react';
-import { Check } from 'lucide-react';
-import {toast,Bounce,ToastContainer} from 'react-toastify';
+import { useState, useEffect, useMemo } from 'react';
+import { Star, ShoppingBag, Heart, RefreshCw, BadgeCheck, RefreshCcw, Check } from 'lucide-react';
+import { toast, Bounce } from 'react-toastify';
 import { useCartStore } from '../../../store/cartStore';
+import { useReviewStore } from '@/store/useReviewStore'; // 1. Import Review Store
+
 interface ProductInfoProps {
     product: any;
 }
+
 const ProductInfo = ({ product }: ProductInfoProps) => {
-    const {addCart,getAllCart}=useCartStore();
+    const { addCart, getAllCart } = useCartStore();
+    
+    // 2. Extract Review data and fetch action
+    const { activeProductReviews, fetchActiveReviews } = useReviewStore();
+
     const [quantity, setQuantity] = useState(1);
     const [selectedSize, setSelectedSize] = useState('M');
     const [selectedColor, setSelectedColor] = useState('#3bb77e');
 
     const colors = ['#f74877', '#3bb77e', '#2196f3', '#ff9800'];
     const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+
+    // 3. Fetch Reviews from Backend when product changes
+    useEffect(() => {
+        if (product?._id) {
+            fetchActiveReviews(product._id);
+        }
+    }, [product?._id, fetchActiveReviews]);
+
+    // 4. Calculate Average Rating and Count dynamically from Store
+    const { avgRating, reviewCount } = useMemo(() => {
+        const count = activeProductReviews.length;
+        if (count === 0) {
+            return { avgRating: product?.rating || 0, reviewCount: 0 };
+        }
+        const totalRating = activeProductReviews.reduce((sum, rev) => sum + rev.rating, 0);
+        return { 
+            avgRating: totalRating / count, 
+            reviewCount: count 
+        };
+    }, [activeProductReviews, product?.rating]);
 
     // Calculation: Discounted Price and Original Price based on Quantity
     const unitPrice = product.price - (product.price * (product.discountPrice || 0) / 100);
@@ -25,54 +51,50 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     const originalPrice = product.discountPrice ? product.price : null;
     const discountPercent = originalPrice ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100) : 0;
 
+    // Safety check for user token
+    const getUserToken = () => {
+        if (typeof window !== 'undefined') {
+            const userData = localStorage.getItem("user");
+            return userData ? JSON.parse(userData) : {};
+        }
+        return {};
+    };
+    const token = getUserToken();
 
-    const token=JSON.parse(localStorage.getItem("user")||'{}');
-    const increaseFunc=()=>{
-        if(quantity<product.stockQuantity){
-            setQuantity(quantity+1);
-        }
-        else{
+    const increaseFunc = () => {
+        if (quantity < product.stockQuantity) {
+            setQuantity(quantity + 1);
+        } else {
             toast.warn('Stock max reached!', {
-position: "top-right",
-autoClose: 5000,
-hideProgressBar: false,
-closeOnClick: false,
-pauseOnHover: true,
-draggable: true,
-progress: undefined,
-theme: "light",
-transition: Bounce,
-});
+                position: "top-right",
+                autoClose: 5000,
+                transition: Bounce,
+            });
         }
     }
-    const addToCart=async()=>{
-      try {
-         await addCart({
-      quantity,
-      selectedColor,
-      selectedSize,
-      totalPrice,
-      product,
-      userId:token._id
-    });
-    await getAllCart(token._id)
-    
-toast.success('Added to cart!', {
-position: "top-right",
-autoClose: 5000,
-hideProgressBar: false,
-closeOnClick: false,
-pauseOnHover: true,
-draggable: true,
-progress: undefined,
-theme: "light",
-transition: Bounce,
-})
-      } catch (error) {
-        console.log(error)
-      }
+
+    const addToCart = async () => {
+        try {
+            await addCart({
+                quantity,
+                selectedColor,
+                selectedSize,
+                totalPrice,
+                product,
+                userId: token._id
+            });
+            await getAllCart(token._id)
+
+            toast.success('Added to cart!', {
+                position: "top-right",
+                autoClose: 5000,
+                transition: Bounce,
+            })
+        } catch (error) {
+            console.log(error)
+        }
     }
-    
+
     return (
         <div className="flex flex-col gap-6">
 
@@ -88,10 +110,19 @@ transition: Bounce,
 
                 <div className="flex items-center gap-4">
                     <div className="flex items-center text-[#ffb703] gap-1">
+                        {/* Dynamic Star Rendering */}
                         {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={14} fill="currentColor" />
+                            <Star 
+                                key={i} 
+                                size={16} 
+                                // Fills star if index is less than the rounded average
+                                fill={i < Math.round(avgRating) ? "currentColor" : "none"} 
+                                className={i < Math.round(avgRating) ? "text-[#ffb703]" : "text-gray-300"}
+                            />
                         ))}
-                        <span className="text-sm text-[var(--text-muted)] ml-1">(32 reviews)</span>
+                        <span className="text-sm text-[var(--text-muted)] ml-1">
+                            ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
+                        </span>
                     </div>
                 </div>
             </div>
@@ -99,7 +130,7 @@ transition: Bounce,
             {/* PRICE SECTION  */}
             <div className="flex items-center gap-4 py-4 border-y border-[var(--border-color)]">
                 <span className="text-4xl font-bold text-[var(--primary)]">
-                    ₹{product.discountPrice}
+                    ₹{product.discountPrice || product.price}
                 </span>
 
                 {product.discountPrice > 0 && (
@@ -113,12 +144,14 @@ transition: Bounce,
                     </div>
                 )}
             </div>
+
             {/* DESCRIPTION */}
             <p className="text-[var(--text-muted)] line-clamp-3">
                 {product.shortDescription || "No description available"}
             </p>
+
             {/* COLORS SECTION */}
-            <div className="mt-6">
+            <div className="mt-2">
                 <p className="text-sm font-bold text-[#253d4e] mb-3">Color</p>
                 <div className="flex flex-wrap gap-3">
                     {colors.map((color) => (
@@ -158,26 +191,28 @@ transition: Bounce,
                 </div>
             </div>
 
-            {/* QUANTITY SECTION - Updated for both Increase/Decrease */}
+            {/* QUANTITY SECTION */}
             <div className="flex flex-wrap items-center gap-4 py-4">
                 <div className="flex items-center border border-[var(--border-color)] rounded-lg px-4 py-2">
-                    {/* Decrease Button: Price reduces when clicked */}
                     <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 font-bold">-</button>
                     <span className="w-12 text-center font-bold">{quantity}</span>
-                    {/* Increase Button: Price increases when clicked */}
                     <button onClick={increaseFunc} className="px-2 font-bold">+</button>
                 </div>
 
-                <button onClick={addToCart} className={`flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold ${token?'cursor-pointer':'disabled:cursor-not-allowed'}`}  disabled={!token || !token._id}>
+                <button 
+                    onClick={addToCart} 
+                    className={`flex-1 min-w-[200px] h-14 bg-[var(--primary)] text-white rounded-lg flex items-center justify-center gap-2 font-bold ${token?._id ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}  
+                    disabled={!token || !token._id}
+                >
                     <ShoppingBag size={20} />
                     Add to Cart
                 </button>
 
                 <div className="flex gap-2">
-                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center">
+                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors">
                         <Heart size={20} />
                     </button>
-                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center">
+                    <button className="w-14 h-14 border rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
                         <RefreshCw size={20} />
                     </button>
                 </div>
@@ -197,9 +232,9 @@ transition: Bounce,
 
             {/* META */}
             <div className="space-y-1 text-sm pt-4 border-t border-[var(--border-color)]">
-                <p><span className="font-semibold">SKU:</span> {product.sku}</p>
-                <p><span className="font-semibold">Category:</span> {product.mainCategoryId}</p>
-                <p><span className="font-semibold">Stock:</span> {product.stockQuantity}</p>
+                <p><span className="font-semibold text-[var(--text-main)]">SKU:</span> {product.sku || "N/A"}</p>
+                <p><span className="font-semibold text-[var(--text-main)]">Category:</span> {product.mainCategoryId?.name || product.mainCategoryId || "General"}</p>
+                <p><span className="font-semibold text-[var(--text-main)]">Stock:</span> {product.stockQuantity} Items In Stock</p>
             </div>
 
         </div>
