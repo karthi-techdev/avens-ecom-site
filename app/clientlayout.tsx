@@ -1,114 +1,10 @@
-// "use client";
-
-// import Header from "@/components/Header/Header";
-// import Footer from "@/components/Footer/Footer";
-// import { usePathname, useRouter } from "next/navigation";
-// import { useEffect, useState } from "react";
-
-// export default function ClientLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   const pathname = usePathname();
-//   const router = useRouter();
-
-//   const hideLayout = pathname === "/login" || pathname === "/register";
-//   const [checkingAuth, setCheckingAuth] = useState(true);
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("loginSuccess");
-
-//     if (!token && pathname !== "/login" && pathname !== "/register") {
-//       router.replace("/login");
-//       router.replace("/");
-//       // router.replace("/product-list");
-//       // router.replace("/login");
-
-//     }
-
-//     if (token && (pathname === "/login" || pathname === "/register")) {
-//       router.replace("/");
-//     }
-
-//     setCheckingAuth(false);
-//   }, [pathname]);
-
-//   if (checkingAuth) return null;
-
-//   return (
-//     <>
-//       {!hideLayout && <Header />}
-//       {children}
-//       {!hideLayout && <Footer />}
-//     </>
-//   );
-// }
-
-// "use client";
-
-// import Header from "@/components/Header/Header";
-// import Footer from "@/components/Footer/Footer";
-// import { usePathname, useRouter } from "next/navigation";
-// import { useEffect, useState } from "react";
-
-// export default function ClientLayout({
-//   children,
-// }: Readonly<{
-//   children: React.ReactNode;
-// }>) {
-//   const pathname = usePathname();
-//   const router = useRouter();
-
-//   // Pages accessible without token
-//   const publicRoutes = ["/", "/product-list", "/login", "/product-view-full","/product-view", "/register"];
-
-//   const hideLayout =
-//     pathname === "/login" || pathname === "/register";
-
-//   const [checkingAuth, setCheckingAuth] = useState(true);
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("loginSuccess");
-
-//     // Check if current page is public
-//     const isPublicRoute = publicRoutes.includes(pathname);
-
-//     // No token + protected route
-//     if (!token && !isPublicRoute) {
-//       router.replace("/login");
-//       return;
-//     }
-
-//     // Token exists + trying to access login/register
-//     if (
-//       token &&
-//       (pathname === "/login" || pathname === "/register")
-//     ) {
-//       router.replace("/");
-//       return;
-//     }
-
-//     setCheckingAuth(false);
-//   }, [pathname, router]);
-
-//   if (checkingAuth) return null;
-
-//   return (
-//     <>
-//       {!hideLayout && <Header />}
-//       {children}
-//       {!hideLayout && <Footer />}
-//     </>
-//   );
-// }
-
 "use client";
 
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 export default function ClientLayout({
   children,
@@ -117,46 +13,60 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname();
   const router = useRouter();
-
-  // Pages accessible without token
-  const publicRoutes = ["/", "/product-list", "/login", "/product-view-full", "/product-view", "/register"];
-
-  const hideLayout = pathname === "/login" || pathname === "/register";
-
   const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Pages accessible without a token (Public)
+  const publicRoutes = ["/", "/product-list", "/product-view-full", "/product-view"];
+  
+  // Auth-specific pages (Hidden Header/Footer and redirected if logged in)
+  const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+
+  // Determine if we should hide Header and Footer
+  const hideLayout = authRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
     const token = localStorage.getItem("loginSuccess");
 
-    // FIX: Check if the current pathname matches or starts with any of the public routes
-    // We use .some() to check if the current path starts with a public route prefix
-    const isPublicRoute = publicRoutes.some((route) => {
-      if (route === "/") return pathname === "/"; // Strict check for home page
-      return pathname.startsWith(route); // Prefix check for dynamic routes like /product-view/[slug]
-    });
+    // Check if the current path is a public route or an auth route
+    const isPublic = publicRoutes.some((route) => 
+      route === "/" ? pathname === "/" : pathname.startsWith(route)
+    );
+    
+    const isAuthPage = authRoutes.some((route) => pathname.startsWith(route));
 
-    // No token + protected route
-    if (!token && !isPublicRoute) {
+    // Logic 1: No token + trying to access a protected route
+    if (!token && !isPublic && !isAuthPage) {
       router.replace("/login");
-      return;
-    }
-
-    // Token exists + trying to access login/register
-    if (token && (pathname === "/login" || pathname === "/register")) {
+    } 
+    // Logic 2: Token exists + trying to access login/register/forgot-password
+    else if (token && isAuthPage) {
       router.replace("/");
-      return;
+    } 
+    // Logic 3: All good
+    else {
+      setCheckingAuth(false);
     }
-
-    setCheckingAuth(false);
   }, [pathname, router]);
 
+  // Prevent UI flicker while checking authentication
   if (checkingAuth) return null;
 
   return (
     <>
       {!hideLayout && <Header />}
-      {children}
+      <main>{children}</main>
       {!hideLayout && <Footer />}
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+      />
     </>
   );
 }

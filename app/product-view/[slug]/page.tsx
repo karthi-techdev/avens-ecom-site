@@ -1,48 +1,47 @@
-
 'use client';
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
 import ProductGallery from '@/components/sections/product/ProductGallery';
 import ProductInfo from '@/components/sections/product/ProductInfo';
 import ProductTabs from '@/components/sections/product/ProductTabs';
 import ShopSidebar from '@/components/sections/shop/ShopSidebar';
 import ProductCard from '@/components/ui/ProductCard';
-import { shopProducts } from '@/lib/constants'; // Using your existing constants for related products
 import { useCategoryStore } from "@/store/useCategoryStore";
+import { useProductStore } from "@/store/useProductStore";
 
 export default function ProductPage() {
     const params = useParams();
     const router = useRouter();
     const slug = params?.slug as string;
 
+    // Local States
     const [product, setProduct] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
 
-    // Get categories from store to populate the sidebar
+    // Store Actions
     const { categories, fetchCategories } = useCategoryStore();
+    const { products, fetchProducts } = useProductStore();
 
-    // Static Related Products (First 4 products from your constants)
-    const relatedProducts = shopProducts.slice(0, 4);
-
+    // 1. Initial Data Fetching (Global Stores)
     useEffect(() => {
-        // Fetch categories for the sidebar
         fetchCategories();
+        fetchProducts();
+    }, [fetchCategories, fetchProducts]);
 
+    // 2. Fetch Specific Product by Slug
+    useEffect(() => {
         if (!slug) return;
 
-        const fetchProduct = async () => {
+        const fetchProductBySlug = async () => {
+            setLoading(true);
             try {
                 const res = await fetch(
                     `http://localhost:5000/api/v1/admin/products/getProductBySlug/${slug}`
                 );
                 const data = await res.json();
-
-                if (data?.data) {
-                    setProduct(data.data);
-                } else {
-                    setProduct(null);
-                }
+                setProduct(data?.data || null);
             } catch (err) {
                 console.error("ERROR FETCHING PRODUCT:", err);
                 setProduct(null);
@@ -51,9 +50,22 @@ export default function ProductPage() {
             }
         };
 
-        fetchProduct();
-    }, [slug, fetchCategories]);
+        fetchProductBySlug();
+    }, [slug]);
 
+    // 3. Related Products Logic
+    const relatedProducts = useMemo(() => {
+        if (!products || !product) return [];
+        
+        return products
+            .filter((p: any) => 
+                p.slug !== slug && 
+                (p.mainCategoryId === product.mainCategoryId?._id || p.categoryId === product.categoryId?._id)
+            )
+            .slice(0, 4);
+    }, [products, product, slug]);
+
+    // 4. Loading & Error States
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -77,9 +89,10 @@ export default function ProductPage() {
         );
     }
 
+    // Prepare Gallery Images
     const galleryImages = [
-        `http://localhost:5000${product.thumbnail}`,
-        ...(product.images || []).map((img: string) => `http://localhost:5000${img}`)
+        product.thumbnail?.startsWith('http') ? product.thumbnail : `http://localhost:5000${product.thumbnail}`,
+        ...(product.images || []).map((img: string) => img.startsWith('http') ? img : `http://localhost:5000${img}`)
     ];
 
     return (
@@ -101,7 +114,7 @@ export default function ProductPage() {
                         {product?.mainCategoryId?.name || product?.categoryId?.name || "Shop"}
                     </span>
                     <span className="text-gray-400">/</span>
-                    <span className="text-gray-500">{product.name}</span>
+                    <span className="text-gray-500 truncate max-w-[200px] sm:max-w-none">{product.name}</span>
                 </div>
             </div>
 
@@ -110,7 +123,6 @@ export default function ProductPage() {
 
                     {/* --- LEFT CONTENT (Product Details) --- */}
                     <div className="col-span-12 lg:col-span-9">
-                        {/* Image Gallery and Basic Info */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
                             <ProductGallery images={galleryImages} />
                             <ProductInfo product={product} />
@@ -118,37 +130,41 @@ export default function ProductPage() {
 
                         {/* Description and Review Tabs */}
                         <ProductTabs
-                            description={product.longDescription}
+                            description={product.longDescription || product.description}
                             product={product}
                         />
 
                         {/* Related Products Section */}
-                        <div className="mt-16 mb-20">
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-bold text-[#253D4E]">Related Products</h2>
-                                <div className="flex-1 h-[1px] bg-gray-200 ml-8"></div>
+                        {relatedProducts.length > 0 && (
+                            <div className="mt-16 mb-20">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-2xl font-bold text-[#253D4E]">Related Products</h2>
+                                    <div className="flex-1 h-[1px] bg-gray-200 ml-8"></div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {relatedProducts.map((item: any) => (
+                                        <ProductCard key={item._id} product={item} />
+                                    ))}
+                                </div>
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {relatedProducts.map(item => (
-                                    <ProductCard key={item.id} product={item} />
-                                ))}
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* --- RIGHT SIDEBAR --- */}
                     <aside className="hidden lg:block lg:col-span-3">
                         <ShopSidebar 
-                            priceRange={[0, 2000]} // Default safe values
-                            setPriceRange={() => {}} // No-op for detail page
+                            priceRange={priceRange} 
+                            setPriceRange={setPriceRange} 
                             categories={categories}
-                            selectedCategoryId={product?.mainCategoryId?._id || product?.categoryId?._id}
-                            onCategoryChange={(id) => {
-                                // Navigate back to shop with the selected category filter
-                                router.push(`/product-list?category=${id}`);
+                            selectedCategoryId={null}
+                            onCategoryChange={(slug) => {
+                                // Navigate back to shop with the selected category slug
+                                if(slug) router.push(`/product-list?category=${slug}`);
                             }}
                         />
                     </aside>
+
                 </div>
             </div>
         </main>

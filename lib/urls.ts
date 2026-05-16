@@ -70,6 +70,16 @@ export const API = {
 
   // listReviews: `${ROOTURL}reviews`, // GET
   // addReviews: `${ROOTURL}reviews`, //POST
+  //cart endpoints
+  addCart:`${ROOTURL}cart/addtocart`,
+  getAllCart:`${ROOTURL}cart/`,
+  deleteCart:`${ROOTURL}cart/`,
+  updateCart:`${ROOTURL}cart/updateCart/`,
+  cartStats:`${ROOTURL}cart/getstats/`,
+  clearCart:`${ROOTURL}cart/clearCart/`,
+
+  // listReviews: `${ROOTURL}reviews`, // GET
+  addReviews: `${ROOTURL}reviews`, //POST
   //  Blog endpoints
   addBlog: `${ROOTURL}admin/blogs/`,
   listBlog: `${ROOTURL}admin/blogs/`,
@@ -104,7 +114,25 @@ export const API = {
   listAddInfos: `${ROOTURL}admin/product/add-info`,
 
   searchHistory: '/api/search-history',
-  addSearchHistory: '/api/search-history/add'
+  addSearchHistory: '/api/search-history/add',
+  // Shipping endpoints
+listShippingMethods: `${ROOTURL}admin/shipment-methods`,
+
+createOrder: `${ROOTURL}admin/orders/`,
+createOrderCheckout:`${ROOTURL}admin/orders/createOrder`,
+verifyPayment:`${ROOTURL}admin/orders/verifyPayment`,
+paymentFail:`${ROOTURL}admin/orders/paymentFail`,
+applyCoupon: `${ROOTURL}admin/coupon/apply`,
+ 
+  //blog endpoints
+   listBlogs: `${ROOTURL}admin/blogs/`,
+
+  //blog-category endpoints
+  listBlogsCategory: `${ROOTURL}admin/blog-category/`,
+
+  //subscribe endpoints
+  addSubscribe: `${ROOTURL}admin/subscribe/`,
+
 };
 
 const URLs = { API, LIVEURL, FILEURL, SETTINGS_ID };
