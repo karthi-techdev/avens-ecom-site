@@ -52,14 +52,15 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
     const addToCart = async () => {
         try {
+            
             await addCart({
-                quantity,
-                selectedColor,
-                selectedSize,
-                totalPrice,
-                product,
-                userId: token._id
-            });
+                 userId: token._id,
+    quantity,
+    'color':selectedColor,
+    'size':selectedSize,
+    'price':totalPrice,
+    'productId':product._id
+            })
             await getAllCart(token._id)
             toast.success('Added to cart!', {
                 position: "top-right",

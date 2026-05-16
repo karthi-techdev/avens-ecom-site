@@ -68,6 +68,14 @@ export const API = {
   filterProducts: `${ROOTURL}admin/products/filter`,
   newProducts: `${ROOTURL}admin/products/new`,
 
+  //cart endpoints
+  addCart:`${ROOTURL}cart/addtocart`,
+  getAllCart:`${ROOTURL}cart/`,
+  deleteCart:`${ROOTURL}cart/`,
+  updateCart:`${ROOTURL}cart/updateCart/`,
+  cartStats:`${ROOTURL}cart/getstats/`,
+  clearCart:`${ROOTURL}cart/clearCart/`,
+
   listReviews: `${ROOTURL}reviews`, // GET
   addReviews: `${ROOTURL}reviews`, //POST
   //  Blog endpoints
@@ -100,6 +108,10 @@ export const API = {
 listShippingMethods: `${ROOTURL}admin/shipment-methods`,
 
 createOrder: `${ROOTURL}admin/orders/`,
+createOrderCheckout:`${ROOTURL}admin/orders/createOrder`,
+verifyPayment:`${ROOTURL}admin/orders/verifyPayment`,
+paymentFail:`${ROOTURL}admin/orders/paymentFail`,
+applyCoupon: `${ROOTURL}admin/coupon/apply`,
  
   //blog endpoints
    listBlogs: `${ROOTURL}admin/blogs/`,

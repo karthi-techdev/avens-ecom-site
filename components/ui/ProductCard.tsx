@@ -45,6 +45,15 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
         ? Math.round(originalPrice - (originalPrice * discountPercent) / 100)
         : originalPrice;
 
+
+const baseUrl = (URLs.FILEURL || "http://localhost:5000").replace(/\/$/, "");
+   const rawPath = product?.thumbnail || 
+               (product?.images && product?.images.length > 0 ? product.images[0] : "") || 
+               product?.image || "";
+
+const finalImageSrc = rawPath 
+    ? (rawPath.startsWith('http') ? rawPath : `${baseUrl}/${rawPath.replace(/^\/+/, "")}`)
+    : "/placeholder.jpg";
     const hasDiscount = discountPercent > 0;
     const categoryName = product?.categoryId?.name || product?.mainCategoryId?.name || "Category";
     const imagePath =
@@ -53,6 +62,13 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
         product?.thumb ||              
         product?.images?.[0] ||        
         "";
+
+
+    //hover img
+     const rawHoverPath = (product?.images && product?.images.length > 1) ? product.images[1] : "";
+const finalHoverImageSrc = rawHoverPath 
+    ? (rawHoverPath.startsWith('http') ? rawHoverPath : `${baseUrl}/${rawHoverPath.replace(/^\/+/, "")}`)
+    : null;
 
     const imageUrl = imagePath
         ? `${URLs.FILEURL}${imagePath.replace(/^\/+/, "")}`
@@ -73,13 +89,17 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
         if (!product?._id) return;
 
         fetch(`http://localhost:5000/api/v1/admin/reviews/rating-summary/${product._id}`)
-            .then(res => res.json())
-            .then(data => {
-                setRating(data?.data?.avgRating || 0);
-                setPercentage(data?.data?.percentage || 0);
+            .then(res => {
+                if (!res.ok) return null; 
+                return res.json();
             })
-            .catch(err => console.log(err));
-
+            .then(data => {
+                if (data && data.data) {
+                    setRating(data?.data?.avgRating || 0);
+                    setPercentage(data?.data?.percentage || 0);
+                }
+            })
+            .catch(err => console.log("No reviews yet for this product"));
     }, [product?._id]);
 
     useEffect(() => {
@@ -99,12 +119,12 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
         }
         try {
             await addCart({
-                quantity: 1,
-                selectedColor: product.colors?.[0] || null,
-                selectedSize: product.size || null,
-                totalPrice: finalPrice,
-                product,
-                userId: token._id
+                "quantity": 1,
+                "color": product.colors?.[0] || null,
+                "size": product.size || null,
+                "price": finalPrice,
+                'productId':product._id,
+                "userId": token._id
             });
             await getAllCart(token._id);
             toast.success('Added to cart!', {
@@ -175,8 +195,15 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
         </div>
     );
 
+
     // ================= LIST VIEW =================
     if (view === 'list') {
+        // Calculate second image for hover if it exists
+        const rawHoverPath = product?.images?.[1] || "";
+        const finalHoverImageSrc = rawHoverPath 
+            ? (rawHoverPath.startsWith('http') ? rawHoverPath : `${baseUrl}/${rawHoverPath.replace(/^\/+/, "")}`)
+            : null;
+
         return (
             <div className="group relative w-full bg-white rounded-2xl overflow-hidden transition-all duration-300 flex flex-col md:flex-row p-4 sm:p-6 border border-[var(--border-color)] hover:shadow-lg">
 
@@ -186,18 +213,23 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                     </span>
                 )}
 
-                <div className="relative w-full md:w-64 aspect-square overflow-hidden rounded-xl bg-white cursor-pointer p-3" onClick={handleProductClick}>
+                <div className="relative w-full md:w-64 aspect-square overflow-hidden rounded-xl bg-white cursor-pointer p-3">
                     <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover:scale-110">
+                       
                         <img
-                        src={imageUrl} 
-                        alt={product?.name}
-                        className="w-full h-full object-contain"
-                    />
-                        {/* <img
-                            src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`}
+                            src={finalImageSrc}
                             alt={product?.name || "product"}
                             className="w-full h-full object-contain"
-                        /> */}
+                        />
+                        
+                       
+                        {finalHoverImageSrc && (
+                            <img
+                                src={finalHoverImageSrc}
+                                alt={product?.name || "product"}
+                                className="absolute inset-0 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                            />
+                        )}
                     </div>
 
                     <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/5">
@@ -243,7 +275,9 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                         </span>
                     </div>
 
-                    <p className="text-sm text-gray-500 mb-6 line-clamp-3">{product?.shortDescription || "No description"}</p>
+                    <p className="text-sm text-gray-500 mb-6 line-clamp-3">
+                        {product?.shortDescription || product?.description || "No description available"}
+                    </p>
 
                     <div className="flex items-center justify-between">
                         <button className="px-6 py-2 bg-[var(--primary)] text-white rounded-lg flex items-center gap-2 hover:bg-[#29A56C] transition-colors" onClick={addToCart}>
@@ -299,26 +333,23 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                 </span>
             )}
 
-            {/* Product Image - Handled for redirection */}
-            <div className="relative aspect-square overflow-hidden rounded-xl bg-white p-3 cursor-pointer" onClick={handleProductClick}>
+            <div className="relative aspect-square overflow-hidden rounded-xl bg-white p-3 cursor-pointer">
                 <div className="w-full h-full transition-transform duration-700 ease-in-out group-hover/card:scale-110">
-                    {/* <img
-                        src={`${URLs.FILEURL}${product?.images?.[0]?.replace(/^\/+/, "")}`}
+                  
+                    <img
+                        src={finalImageSrc}
                         alt={product?.name || "product"}
                         className="w-full h-full object-contain rounded-[20px]"
-                    /> */}
-                     <img
-                    src={imageUrl} 
-                    alt={product?.name}
-                    className="w-full h-full object-contain"
-                />
-                    {/* {product?.images?.[1] && (
+                    />
+                    
+              
+                    {finalHoverImageSrc && (
                         <img
-                            src={`${URLs.FILEURL}${product?.images?.[1]?.replace(/^\/+/, "")}`}
+                            src={finalHoverImageSrc}
                             alt={product?.name || "product"}
                             className="absolute inset-0 w-full h-full object-contain opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 rounded-[20px]"
                         /> 
-                    )} */}
+                    )}
                 </div>
 
                 {/* Hover Icons */}
@@ -363,14 +394,12 @@ const ProductCard = ({ product, onQuickView, view = 'grid' }: ProductCardProps) 
                             <span className="text-lg font-bold text-green-600">
                                 ₹{finalPrice}
                             </span>
-
                             {hasDiscount && (
                                 <span className="text-red-500 text-xs font-bold">
                                     {discountPercent}% OFF
                                 </span>
                             )}
                         </div>
-
                         {hasDiscount && (
                             <span className="line-through text-gray-400 text-sm mt-1">
                                 ₹{originalPrice}

@@ -1,3 +1,4 @@
+import { API } from '@/lib/urls';
 import {create} from 'zustand';
 interface ProductDetails{
      name: string;
@@ -20,28 +21,22 @@ interface CartState{
     removeCart:(id:string)=>Promise<void>;
     updateQuantity: (id: string, quantity: number) => void;
     updateCart:(id:string,data:any)=>Promise<void>;
+    clearCart:(id:string)=>Promise<void>;
 }
 export const useCartStore=create<CartState>((set,get)=>({
     cartItems:[],
     error:null,
     addCart:async(data:any)=>{
        try {
-       const cart=  await  fetch("http://localhost:5000/api/v1/cart/addtocart", {
+       const cart=  await  fetch(`${API.addCart}`, {
   method: "POST",
-  body: JSON.stringify({
-    userId: data.userId,
-    quantity:data.quantity,
-    'color':data.selectedColor,
-    'size':data.selectedSize,
-    'price':data.totalPrice,
-    'productId':data.product._id
-  }),
+  body: JSON.stringify(data),
   headers: {
     "Content-type": "application/json; charset=UTF-8"
   }
 });
           const res=await cart.json();
-          console.log(res,'check response');
+          
           if (!cart.ok) {
       throw new Error(res.message);
     }
@@ -55,8 +50,9 @@ export const useCartStore=create<CartState>((set,get)=>({
     },
     getAllCart:async(userId:string)=>{
         try {
-            const res=await fetch(`http://localhost:5000/api/v1/cart/${userId}`);
+            const res=await fetch(`${API.getAllCart}${userId}`);
         const data=await res.json();
+        console.log(data,'response')
         set({cartItems:data.data});
         } catch (error) {
             console.error(error);
@@ -64,13 +60,24 @@ export const useCartStore=create<CartState>((set,get)=>({
     },
     removeCart:async(id:string)=>{
         try {
-              const data= await fetch(`http://localhost:5000/api/v1/cart/${id}`,{
+              const data= await fetch(`${API.deleteCart}${id}`,{
       method:"DELETE"
      });
      set((state)=>({cartItems:state.cartItems.filter(item=>item._id!==id)}))
         } catch (error) {
             console.log(error)
         }
+    },
+    clearCart:async(id:string)=>{
+      try {
+        console.log(id,'from clearcart');
+        const res=await fetch(`${API.clearCart}${id}`,{
+          method:"DELETE",
+        })
+        set({cartItems:[],error:null})
+      } catch (error) {
+         console.log(error)
+      }
     },
     updateQuantity: (id, quantity) => {
   set((state) => ({
@@ -81,8 +88,7 @@ export const useCartStore=create<CartState>((set,get)=>({
 },
 updateCart:async(id:string,data:any)=>{
   try {
-    console.log(id,data,'in cart store')
-      await  fetch(`http://localhost:5000/api/v1/cart/updateCart/${id}`, {
+      await  fetch(`${API.updateCart}${id}`, {
   method: "PATCH",
   body: JSON.stringify({
     userId: data.userId,

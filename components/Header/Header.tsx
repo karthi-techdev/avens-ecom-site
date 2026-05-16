@@ -25,7 +25,62 @@ import { LucideIcon } from "lucide-react";
 
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useCartStore } from "@/store/cartStore";
-import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+interface MainCategory {
+  _id: string;
+  name: string;
+  icon?: string;
+  slug: string;
+  image?: string;
+}
+
+interface SubCategory {
+  _id: string;
+  name: string;
+  mainCategoryId: any;
+}
+
+interface Category {
+  _id: string;
+  name: string;
+  subCategoryId: any;
+  mainCategoryId: any;
+}
+
+
+const CategoryIcon = ({ name, size = 18 }: { name: string; size?: number }) => {
+  const props = { size, strokeWidth: 1.5, className: "group-hover:text-[var(--primary)] transition-colors" };
+  switch (name) {
+    case "Women's Clothing":
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={props.className}>
+          <path d="M6 3c0 2.5 1.5 3 1.5 3S6 7 6 9.5s2 4.5 2 4.5L6 21h12l-2-7s2-2 2-4.5S16.5 6 16.5 6s1.5-.5 1.5-3H6z" />
+        </svg>
+      );
+    case "Men's Clothing": return <Shirt {...props} />;
+    case "Cellphones": return <Smartphone {...props} />;
+    case "Computer & Office": return <Laptop {...props} />;
+    case "Consumer Electronics": return <Speaker {...props} />;
+    case "Jewelry & Accessories":
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={props.className}>
+          <path d="M6 3h12l3 6-9 13L3 9l3-6zM3 9h18M12 3v19M4.5 7.5L12 22l7.5-14.5" />
+        </svg>
+      );
+    case "Home & Garden": return <Home {...props} />;
+    case "Shoes": return <Footprints {...props} />;
+    case "Mother & Kids": return <Baby {...props} />;
+    case "Outdoor fun":
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={props.className}>
+          <path d="M12 2l7 7-7 7-7-7 7-7zM12 16v6l-3-2" />
+        </svg>
+      );
+    default: return <LayoutGrid {...props} />;
+  }
+};
 
 //login 
 const Header = () => {
@@ -50,6 +105,19 @@ const Header = () => {
   const [token, setToken] = useState<any>(null);
   const visibleCategories = showAll ? mainCategories : mainCategories.slice(0, 10);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const [openMobileMain, setOpenMobileMain] = useState<string | null>(null); 
+
+   const formatUrl = (slug: string) => `/product-list?category=${slug}`;
+  const getID = (item: any) => (typeof item === "object" ? item?._id : item);
+  
+   const getImageUrl = (path: string | undefined) => {
+    if (!path) return "";
+     if (path.startsWith("http")) return path;
+    const baseUrl = URLs.FILEURL.replace(/\/$/, ""); 
+    const cleanPath = path.startsWith("/") ? path : `/${path}`; 
+    return `${baseUrl}${cleanPath}`;
+  };
 
   useEffect(() => {
     fetchMainCategories();
@@ -120,6 +188,7 @@ const Header = () => {
 
   const maincategories = mainCategories.map((cat, index) => ({
     name: cat.name,
+    icon: cat.icon
   }));
   const filteredSubCategories = subCategories.filter(
     (sub) => sub.mainCategoryId === selectedMainCategory?._id
@@ -219,9 +288,9 @@ const Header = () => {
     "Home",
     "About",
     "Shop",
-    "Mega menu",
-    "Blog",
-    "Pages",
+    // "Mega menu",
+    // "Blog",
+    // "Pages",
     "Contact",
   ];
 // const cartItems = [
@@ -248,172 +317,82 @@ const Header = () => {
     }
   };
 
-  // const cartItems = [
-  //     { id: 1, name: "Daisy Casual Bag", price: 800, qty: 1, img: "wish1.jpg" },
-  //     { id: 2, name: "Corduroy Shirts", price: 3200, qty: 1, img: "wish2.jpg" },
-  //   ];
 
-  const CategoryMegaMenu = () => {
+const CategoryMegaMenu = () => {
+  const getID = (item: any) => (typeof item === "object" ? item?._id : item);
 
-    const maincategories = mainCategories.map((cat, index) => ({
-      name: cat.name,
-    }));
+  const activeSubCategories = subCategories.filter(
+    (sub: any) => getID(sub.mainCategoryId) === selectedMainCategory?._id
+  );
 
-    const validSubCategories = subCategories.filter((sub: any) =>
-      categories.some(
-        (cat: any) =>
-          cat.mainCategoryId?._id === selectedMainCategory?._id &&
-          cat.subCategoryId?._id === sub._id
-      )
-    );
-    const hasSubContent = validSubCategories.length > 0;
-    const half = Math.ceil(validSubCategories.length / 2);
-    const col1 = validSubCategories.slice(0, half);
-    const col2 = validSubCategories.slice(half);
-    const filteredSubWithImages = validSubCategories.filter(
-      (sub: any) => sub.image
-    );
-    const validCol1 = col1.filter((sub) =>
-      categories.some(
-        (cat: any) =>
-          cat.mainCategoryId?._id === selectedMainCategory._id &&
-          cat.subCategoryId?._id === sub._id
-      )
-    );
+  const hasSubCategories = (mainId: string) => {
+    return subCategories.some((sub: any) => getID(sub.mainCategoryId) === mainId);
+  };
 
-    const validCol2 = col2.filter((sub) =>
-      categories.some(
-        (cat: any) =>
-          cat.mainCategoryId?._id === selectedMainCategory._id &&
-          cat.subCategoryId?._id === sub._id
-      )
-    );
+  const hasSubContent = selectedMainCategory && activeSubCategories.length > 0;
 
-    const handleLogout = () => {
-      localStorage.removeItem("loginSuccess");
-      setIsLoggedIn(false);
-      router.push("/login");
-    };
+  return (
+    <div 
+      className={`absolute top-full left-0 mt-0 bg-white border border-gray-200 shadow-2xl flex rounded-b-md z-[100] transition-all duration-300 ${hasSubContent ? "w-[1050px]" : "w-[260px]"}`}
+      onMouseLeave={() => setIsCategoryOpen(false)}
+    >
 
-
-    return (
-      <>
-        <div className={`absolute top-full left-0 mt-2 bg-white border border-gray-200 shadow-xl flex rounded-sm z-[100] 
-    ${hasSubContent ? "w-[1000px]" : "w-[250px]"}`}>
-
-          {/* LEFT SIDEBAR (Main Categories) - Always visible */}
-          <div className={`${hasSubContent ? "w-1/4" : "w-full"} border-r border-gray-100 py-2`}>
-            <ul className="text-sm text-gray-700">
-              {visibleCategories.map((cat) => {
-                const IconComponent = Icons[cat.icon as keyof typeof Icons] as LucideIcon;
-                console.log("ICON:", cat.icon);
-                return (
-                  <li
-                    key={cat._id}
-                    onClick={() => setSelectedMainCategory(cat)}
-                    className={`group flex justify-between items-center px-4 py-[10.5px] cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 hover:text-[var(--primary)] 
-            ${selectedMainCategory?._id === cat._id ? "text-[var(--primary)] bg-gray-50" : ""}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span> {IconComponent ? (<IconComponent className="text-gray-400" size={18} />) : (<Icons.LayoutGrid size={18} />)}</span>
-                      <span className="font-medium">{cat.name}</span>
-                    </div>
-                    {/* Optional: Add an arrow icon if sub-content exists */}
-                  </li>
-                )
-              })}
-              {mainCategories.length > 10 && (
-                <li
-                  onClick={() => setShowAll(!showAll)}
-                  className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold"
-                >
-                  {showAll ? "- Show Less" : "+ See More"}
-                </li>
-              )}
-            </ul>
-          </div>
-
-          {/* RIGHT CONTENT - Only shows if there is data */}
-          {
-            selectedMainCategory && hasSubContent && (
-              <div className={`w-3/4 p-8 grid gap-8 ${filteredSubWithImages.length > 0
-                ? validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-3" : "grid-cols-2"
-                : validCol1.length > 0 && validCol2.length > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
-                {/* COLUMN 1 */}
-                {validCol1.length > 0 && (
-                  <div>
-                    {validCol1.map((sub) => {
-                      const filteredCategories = categories.filter(
-                        (cat: any) =>
-                          cat.mainCategoryId?._id === selectedMainCategory._id &&
-                          cat.subCategoryId?._id === sub._id
-                      );
-                      if (filteredCategories.length === 0) return null;
-                      return (
-                        <div key={sub._id} className="mb-4">
-                          <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
-                            {sub.name}
-                          </h3>
-                          <ul className="space-y-2 text-sm text-gray-600">
-                            {filteredCategories.map((item: any) => (
-                              <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
-                                {item.name}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )};
-        </div>
-
-        <div className="absolute top-full left-0 mt-2 w-[1000px] bg-white border border-gray-200 shadow-xl rounded-sm z-[100] flex">
-
-          <div className="w-1/4 border-r border-gray-100 py-2">
-            <ul className="text-sm text-gray-700">
-              {
-                categories.map((cat, index) => (
-                  <li
-                    key={index}
-                    className="group flex justify-between items-center px-4 py-[10.5px] hover:bg-gray-50 hover:text-[var(--primary)] cursor-pointer border-b border-gray-50 last:border-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg opacity-80">{cat.icon}</span>
-                      <span className="font-medium">{cat.name}</span>
-                    </div>
-                    {cat.hasSub && <span className="text-[10px] text-gray-400 group-hover:text-[var(--primary)]">❯</span>}
-                  </li>
-                ))
-              }
-              <li className="px-4 py-3 text-xs text-gray-500 hover:text-[var(--primary)] cursor-pointer text-center font-bold">
-                + See More
+      <div className={`${hasSubContent ? "w-[250px]" : "w-full"} border-r border-gray-100 py-2 bg-white`}>
+        <ul className="text-[14px] text-gray-700">
+          {visibleCategories.map((cat: any) => {
+            const showArrow = hasSubCategories(cat._id);
+            return (
+              <li
+                key={cat._id}
+                onMouseEnter={() => setSelectedMainCategory(cat)}
+                onClick={() => {
+                  router.push(formatUrl(cat.slug));
+                  setIsCategoryOpen(false);
+                }}
+                className={`group flex justify-between items-center px-5 py-[11px] cursor-pointer transition-colors
+                ${selectedMainCategory?._id === cat._id ? "text-[var(--primary)] bg-gray-50 font-semibold" : "hover:text-[var(--primary)] hover:bg-gray-50 text-gray-700"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <CategoryIcon name={cat.name} size={18} />
+                  <span>{cat.name}</span>
+                </div>
+                {showArrow && <span className="text-[10px] opacity-30">❯</span>}
               </li>
-            </ul >
-          </div >
+            );
+          })}
+        </ul>
+      </div>
 
-          {/* COLUMN 2 */}
-          {
-            validCol2.length > 0 && (
-              <div>
-                {validCol2.map((sub) => {
-                  const filteredCategories = categories.filter(
-                    (cat: any) =>
-                      cat.mainCategoryId?._id === selectedMainCategory._id &&
-                      cat.subCategoryId?._id === sub._id
-                  );
-                  if (filteredCategories.length === 0) return null;
+    
+      <div className="flex-1 overflow-hidden bg-white">
+        <AnimatePresence mode="wait">
+          {hasSubContent ? (
+            <motion.div
+              key={selectedMainCategory?._id} 
+              initial={{ opacity: 0, rotateY: -10, x: 20 }}
+              animate={{ opacity: 1, rotateY: 0, x: 0 }}
+              exit={{ opacity: 0, rotateY: 10, x: -20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="flex p-8 gap-8 h-full"
+              style={{ perspective: "1000px" }} // Added for 3D flip effect
+            >
+              
+              <div className="flex-1 grid grid-cols-2 gap-x-8 gap-y-10">
+                {activeSubCategories.slice(0, 4).map((sub: any) => {
+                  const relatedCategories = categories.filter((c: any) => getID(c.subCategoryId) === sub._id);
                   return (
-                    <div key={sub._id} className="mb-4">
-                      <h3 className="text-[var(--primary)] font-bold text-base mb-2 border-b pb-2">
+                    <div key={sub._id}>
+                      <h3 
+                        onClick={() => { router.push(formatUrl(sub.slug)); setIsCategoryOpen(false); }}
+                        className="text-[var(--primary)] font-bold text-[15px] mb-4 cursor-pointer hover:underline uppercase">
                         {sub.name}
                       </h3>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        {filteredCategories.map((item: any) => (
-                          <li key={item._id} className="hover:text-[var(--primary)] cursor-pointer">
-                            {item.name}
+                      <ul className="space-y-2">
+                        {relatedCategories.map((catItem: any) => (
+                          <li key={catItem._id} 
+                              onClick={() => { router.push(formatUrl(catItem.slug)); setIsCategoryOpen(false); }}
+                              className="text-gray-600 hover:text-[var(--primary)] text-[14px] cursor-pointer transition-colors">
+                            {catItem.name}
                           </li>
                         ))}
                       </ul>
@@ -421,25 +400,49 @@ const Header = () => {
                   );
                 })}
               </div>
-            )
-          }
-          {/* COLUMN 3 (Images) */}
 
-          <div className="space-y-4">
-            {filteredSubWithImages.slice(0, 2).map((sub: any) => (
-              <div key={sub._id} className="relative rounded-md h-40 overflow-hidden">
-                <img
-                  src={`${URLs.FILEURL}${sub.image.replace(/^\/+/, "")}`}
-                  alt={sub.name}
-                  className="w-full h-full object-cover"
-                />
+              {/* Promo Banners */}
+              <div className="w-[320px] flex flex-col gap-4">
+                <div className="relative overflow-hidden rounded-xl h-[180px] group/banner bg-[#f0f4f7]">
+                  {selectedMainCategory?.image && (
+                    <img 
+                      src={getImageUrl(selectedMainCategory.image)} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/banner:scale-105"
+                      alt="Banner" 
+                    />
+                  )}
+                  <div className="absolute inset-0 p-6 flex flex-col justify-center bg-black/5">
+                    <span className="text-gray-700 text-xs font-bold uppercase tracking-wider">New Arrival</span>
+                    <h4 className="text-xl font-extrabold text-[#253D4E] mt-1 leading-tight">{selectedMainCategory?.name}</h4>
+                    <Link href={`/product-list?category=${selectedMainCategory?.slug}`} className="text-[var(--primary)] text-sm font-bold mt-2 underline">Shop Now</Link>
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden rounded-xl h-[180px] group/banner bg-[#fef1f1]">
+                  {activeSubCategories[0]?.image && (
+                    <img 
+                      src={getImageUrl(activeSubCategories[0].image)} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/banner:scale-105"
+                      alt="Sub Banner" 
+                    />
+                  )}
+                   <div className="absolute inset-0 p-6 flex flex-col justify-center bg-black/5">
+                    <span className="text-gray-700 text-xs font-bold uppercase tracking-wider">Hot Deal</span>
+                    <h4 className="text-xl font-extrabold text-[#253D4E] mt-1 leading-tight">Flash Sale</h4>
+                    <Link href="#" className="text-[var(--primary)] text-sm font-bold mt-2 underline">View More</Link>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div >
-      </>
-    )
-  };
+            </motion.div>
+          ) : (
+             // Placeholder when no sub-content to keep layout stable
+             <div className="w-full h-full bg-white" />
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
 
   return (
     <header className="w-full relative ">
@@ -499,12 +502,12 @@ const Header = () => {
 
           <div className="flex items-center gap-2">
             <img
-              key={siteLogoUrl} // Important: Forces the image to swap immediately on update
+              key={siteLogoUrl} 
               src={siteLogoUrl}
               alt="Site Logo"
               className="h-8 object-contain"
               onError={(e) => {
-                // Extra safety: if the image fails to load, revert to fallback
+                
                 (e.target as HTMLImageElement).src = "/evara.svg";
               }}
             />
@@ -512,7 +515,7 @@ const Header = () => {
           </div>
 
           <div className="hidden lg:flex items-center w-full max-w-[700px] border-b-3 border-gray-800 bg-transparent relative h-[45px] ml-10">
-            {/* Category Dropdown Toggle */}
+    
             <div className="relative h-full">
               <button
                 onClick={() => setListIsOpen(!listIsOpen)}
@@ -522,7 +525,7 @@ const Header = () => {
                 <ChevronDown size={14} className={`transition-transform duration-300 ${listIsOpen ? 'rotate-180' : ''} text-gray-400`} />
               </button>
 
-              {/* The Dropdown Menu */}
+        
               {listIsOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setListIsOpen(false)}></div>
@@ -549,12 +552,12 @@ const Header = () => {
               )}
             </div>
 
-            {/* Vertical Separator - Thin and subtle like the image */}
+          
             <div className="h-4 w-[1px] bg-gray-300 mx-2"></div>
             <span className="text-gray-400">
               <Search size={20} strokeWidth={1.5} />
             </span>
-            {/* Search Input */}
+            
             <input
               type="text"
               placeholder="Search for items..."
@@ -564,68 +567,78 @@ const Header = () => {
 
   <div className="flex items-center gap-6">
 
-            {/* Icons */}
-            <div className="flex items-center gap-6">
-              {/* Wishlist Link - LINE 360 UPDATED HERE */}
-              <Link href="/wishlist" className="relative cursor-pointer group flex items-center gap-2">
-                <div className="relative">
-                  <Heart
-                    size={28}
-                    fill="none"
-                    stroke="#253D4E"
-                    className="transition-all duration-300 group-hover:stroke-[#3BB77E]"
-                  />
-                  {/*  UPDATED: dynamic count */}
-                  <span className="absolute -top-1 -right-1 bg-[#3BB77E] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                </div>
-                {/* <span className="hidden xl:block text-sm text-gray-600 mt-1">Wishlist</span> */}
-              </Link>
-              <div className={`${token ? 'relative group py-4' : 'hidden'}`}>
-                <div className="relative cursor-pointer">
-                  <ShoppingCart size={24} />
-                  <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                    {cartItems ? cartItems.length : 0}
-                  </span>
-                </div>
+            
+<div className="flex items-center gap-6">
 
-                <div className={`${token ? 'absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50' : 'hidden'}`}>
-                  <ul className="space-y-4">
-                    {cartItems ? cartItems.map((item: any) => (
-                      <li key={item._id} className="flex items-center justify-between gap-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                          <img src={` http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
-                          <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price / item.quantity).toFixed(2)}</p>
-                        </div>
-                        <button className="text-gray-400 hover:text-red-500" onClick={() => deleteCart(item._id)}>
-                          <X size={16} />
-                        </button>
-                      </li>
-                    )) : <div></div>}
-                  </ul>
+ {/* //wishlistiocn  */}
+   <Link href="/wishlist" className="relative cursor-pointer group flex items-center gap-2">
+    <div className="relative">
+      <Heart
+        size={28}
+        fill="none"
+        stroke="#253D4E"
+        className="transition-all duration-300 group-hover:stroke-[#3BB77E]"
+      />
+      <span className="absolute -top-1 -right-1 bg-[#3BB77E] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+        {wishlistCount}
+      </span>
+    </div>
+  </Link>
 
-                  <div className="mt-6 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-gray-500 font-medium">Total</span>
-                      <span className="text-[#3BB77E] font-bold text-lg">{"$" + (cartItems ? cartItems.reduce((acc, item: any) => acc + item.price, 0) : 0).toFixed(2)}</span>
-                    </div>
+{/* //user icon */}
+  <div 
+    className="relative cursor-pointer group flex items-center transition-all duration-300 hover:text-[#3BB77E]" 
+    onClick={() => router.push("/account")}
+  >
+    <CiUser size={28} strokeWidth={0.5} />
+  </div>
 
-                    <div className="flex gap-2">
-                      <Link href='/cart' className="flex-1 !text-center border border-[#3BB77E] !text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:!text-white transition-colors">
-                        View cart
-                      </Link>
-                      <Link href='/checkout' className="flex-1 text-center bg-[#3BB77E] !text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
-                        Checkout
-                      </Link>
-                    </div >
-                  </div >
-                </div >
-              </div>
+{/* //shoppin cart */}
+  <div className={`${token ? 'relative group py-4' : 'hidden'}`}>
+    <div className="relative cursor-pointer">
+      <ShoppingCart size={24} className="group-hover:text-[#3BB77E] transition-colors" />
+      <span className="absolute -top-2 -right-2 bg-[#3BB77E] text-white text-[10px] px-1.5 py-0.5 rounded-full">
+        {cartItems ? cartItems.length : 0}
+      </span>
+    </div>
+
+    {/* Cart Dropdown Menu */}
+    <div className="absolute right-0 top-full hidden group-hover:block w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-5 z-50">
+      <ul className="space-y-4">
+        {cartItems ? cartItems.map((item: any) => (
+          <li key={item._id} className="flex items-center justify-between gap-4">
+            <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+              <img src={`http://localhost:5000${item.productId.thumbnail}`} alt={item.productId.name} className="w-full h-full object-cover" />
             </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-[#3BB77E] truncate w-32">{item.productId.name}</h4>
+              <p className="text-gray-500 text-xs">{item.quantity} × ${(item.price / item.quantity).toFixed(2)}</p>
+            </div>
+            <button className="text-gray-400 hover:text-red-500" onClick={() => deleteCart(item._id)}>
+              <X size={16} />
+            </button>
+          </li>
+        )) : <div>No items</div>}
+      </ul>
+
+      <div className="mt-6 pt-4 border-t border-gray-100">
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-gray-500 font-medium">Total</span>
+          <span className="text-[#3BB77E] font-bold text-lg">{"$" + (cartItems ? cartItems.reduce((acc, item: any) => acc + item.price, 0) : 0).toFixed(2)}</span>
+        </div>
+        <div className="flex gap-2">
+          <Link href='/cart' className="flex-1 !text-center border border-[#3BB77E] !text-[#3BB77E] py-2 rounded text-sm font-medium hover:bg-[#3BB77E] hover:!text-white transition-colors">
+            View cart
+          </Link>
+          <Link href='/checkout' className="flex-1 text-center bg-[#3BB77E] !text-white py-2 rounded text-sm font-medium hover:bg-[#2fa36f] transition-colors">
+            Checkout
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div> 
 
             <button
               onClick={() => setIsOpen(true)}
@@ -639,17 +652,12 @@ const Header = () => {
       </div>
     
 
-    <div className="relative cursor-pointer" onClick={() => router.push("/account")}>
-    <CiUser size={24} />
-   </div>
-
-
-  <button
+  {/* <button
     onClick={() => setIsOpen(true)}
     className="lg:hidden"
   >
     <Menu size={28} />
-  </button>
+  </button> */}
 
 
       <div className="hidden lg:block border-t border-gray-200 px-10">
@@ -673,10 +681,13 @@ const Header = () => {
                   key={i}
                   className="relative group flex items-center gap-1 cursor-pointer hover:text-[var(--primary)] transition"
                 >
-                  {item}
-                  {item !== "Contact" && item !== "About" && <ChevronDown size={12} />}
+                  {item=='Home'&& <Link href={'/'}>{item}</Link>}
+                  {item=='Shop'&& <Link href={'/product-view-full'}>{item}</Link>}
+                  {item=='About'&& <Link href={'/about'}>{item}</Link>}
+                  {item=='Contact'&& <Link href={'/contact'}>{item}</Link>}
+                  {/* {item !== "Contact" && item !== "About" && <ChevronDown size={12} />} */}
 
-                  {item === "Home" && (
+                  {/* {item === "Home" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">Home 1</li>
@@ -685,9 +696,9 @@ const Header = () => {
                         <li className="px-4 py-2 hover:bg-gray-100">Home 4</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Shop" && (
+                  {/* {item === "Shop" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop Grid – Right Sidebar</li>
@@ -716,9 +727,9 @@ const Header = () => {
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Shop – Compare</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Pages" && (
+                  {/* {item === "Pages" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100">About Us</li>
@@ -729,9 +740,9 @@ const Header = () => {
                         <li className="px-4 py-2 hover:bg-gray-100">404 Page</li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Blog" && (
+                  {/* {item === "Blog" && (
                     <div className="absolute top-full left-0 mt-4 w-56 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                       <ul className="py-2 text-sm text-gray-700">
                         <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Blog Category Grid</li>
@@ -753,9 +764,9 @@ const Header = () => {
                         </li>
                       </ul>
                     </div>
-                  )}
+                  )} */}
 
-                  {item === "Mega menu" && (
+                  {/* {item === "Mega menu" && (
                     <div className="absolute left-1/2 -translate-x-1/2 top-full mt-6 w-260 max-w-7xl bg-white shadow-xl rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-8">
 
                       <div className="grid grid-cols-4 gap-10">
@@ -821,7 +832,7 @@ const Header = () => {
 
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </li>
               ))}
             </ul>
@@ -891,121 +902,157 @@ const Header = () => {
 
             </div>
 
-            {isCategoriesOpen && (
-              <ul className="px-6 pb-4 space-y-4 animate-fadeIn">
-                {categories.map((cat, index) => (
-                  <li key={index} className="flex items-center gap-3 text-gray-700 hover:text-[var(--primary)] cursor-pointer text-sm">
-                    <span className="text-gray-400">{cat.icon}</span>
-                    {cat.name}
-                  </li>
-                ))}
-              </ul>
-            )}
+ {isCategoriesOpen && (
+  <ul className="px-4 pb-4 animate-fadeIn space-y-1">
+    {mainCategories.map((main: any) => (
+      <li key={main._id} className="border-b border-gray-50 last:border-0">
+        <div className="flex justify-between items-center py-3 px-2">
+          <div 
+            className="flex items-center gap-3 flex-1 cursor-pointer"
+            onClick={() => {
+              router.push(formatUrl(main.slug));
+              setIsOpen(false);
+            }}
+          >
+            {/* FIXED: Removed image, using Icon Helper for mobile too */}
+            <CategoryIcon name={main.name} size={20} />
+            <span className="font-semibold text-gray-800 text-sm">{main.name}</span>
+          </div>
+          
+          {/* Arrow toggle for mobile - Logic remains same */}
+          {subCategories.some(sub => getID(sub.mainCategoryId) === main._id) && (
+             <div className="p-2 cursor-pointer" onClick={() => setOpenMobileMain(openMobileMain === main._id ? null : main._id)}>
+               <ChevronDown size={14} className={openMobileMain === main._id ? "rotate-180" : ""} />
+             </div>
+          )}
+        </div>
+        {/* ... mobile sub-categories accordion logic ... */}
+      </li>
+    ))}
+  </ul>
+)}
           </div>
 
           <ul className="flex flex-col px-6 py-4 space-y-4 text-gray-800 font-medium">
             {navItems.map((item, i) => {
               const hasDropdown = item !== "Contact" && item !== "About";
               const isItemOpen = openMobileSubMenu === item;
+              // <div>
+              //   <div
+              //       className="flex justify-between items-center cursor-pointer hover:text-[var(--primary)] transition py-1"
+              //       onClick={() => {
+              //         if (hasDropdown) {
+              //           setOpenMobileSubMenu(isItemOpen ? null : item);
+              //         }
+              //       }}
+              //     >
+              //       <span>{item}</span>
+              //       {hasDropdown && (
+              //         <ChevronDown
+              //           size={14}
+              //           className={`transition-transform duration-300 ${isItemOpen ? "rotate-180 text-[var(--primary)]" : ""}`}
+              //         />
+              //       )}
+              //     </div>
 
+              //     {hasDropdown && isItemOpen && (
+              //       <ul className="mt-2 ml-4 flex flex-col gap-3 text-sm font-normal text-gray-600 border-l border-gray-100 pl-4 animate-in fade-in slide-in-from-top-1 duration-200">
+              //         {item === "Home" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">Home 1</li>
+              //             <li className="hover:text-[var(--primary)]">Home 2</li>
+              //             <li className="hover:text-[var(--primary)]">Home 3</li>
+              //             <li className="hover:text-[var(--primary)]">Home 4</li>
+              //           </>
+              //         )}
+              //         {item === "Shop" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">Shop Grid – Right Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop Grid – Left Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop List – Right Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop List – Left Sidebar</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Wide</li>
+              //             <li className="hover:text-[var(--primary)]">Single Product</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Filter</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Wishlist</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Cart</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Checkout</li>
+              //             <li className="hover:text-[var(--primary)]">Shop - Compare</li>
+              //           </>
+              //         )}
+              //         {item === "Mega menu" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)]">Fashion</li>
+              //             <li className="hover:text-[var(--primary)]">Dresses</li>
+              //             <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)] mt-1">Technology</li>
+              //             <li className="hover:text-[var(--primary)]">Smartphones</li>
+              //           </>
+              //         )}
+              //         {item === "Blog" && (
+              //           <ul className="pl-4 space-y-2">
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Grid</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category List</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Big</li>
+              //             <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Wide</li>
+
+              //             {/* Nested Dropdown Trigger */}
+              //             <li className="group">
+              //               <div
+              //                 className="flex items-center justify-between hover:text-[var(--primary)] cursor-pointer"
+              //                 onClick={() => setIsSinglePostOpen(!isSinglePostOpen)}
+              //               >
+              //                 <span>Single Product Layout</span>
+              //                 <span className={`transform transition-transform ${isSinglePostOpen ? 'rotate-180' : ''}`}>
+              //                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              //                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              //                   </svg>
+              //                 </span>
+              //               </div>
+
+              //               {/* Nested Items */}
+              //               {isSinglePostOpen && (
+              //                 <ul className="pl-6 mt-2 space-y-2 text-gray-600 border-l-2 border-gray-100">
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">Left Sidebar</li>
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">Right Sidebar</li>
+              //                   <li className="hover:text-[var(--primary)] cursor-pointer">No Sidebar</li>
+              //                 </ul>
+              //               )}
+              //             </li>
+              //           </ul>
+              //         )}
+              //         {item === "Pages" && (
+              //           <>
+              //             <li className="hover:text-[var(--primary)]">About Us</li>
+              //             <li className="hover:text-[var(--primary)]">Contact</li>
+              //             <li className="hover:text-[var(--primary)]">My Account</li>
+              //             <li className="hover:text-[var(--primary)]">login/register</li>
+              //             <li className="hover:text-[var(--primary)]">Purchase Guide</li>
+              //             <li className="hover:text-[var(--primary)]">Privacy Policy</li>
+              //             <li className="hover:text-[var(--primary)]">Terms of Service</li>
+              //             <li className="hover:text-[var(--primary)]">404 Page</li>
+              //           </>
+              //         )}
+              //       </ul>
+              //     )}
+              // </div>
               return (
-                <li key={i} className="flex flex-col">
-                  <div
-                    className="flex justify-between items-center cursor-pointer hover:text-[var(--primary)] transition py-1"
-                    onClick={() => {
-                      if (hasDropdown) {
-                        setOpenMobileSubMenu(isItemOpen ? null : item);
-                      }
-                    }}
-                  >
-                    <span>{item}</span>
-                    {hasDropdown && (
-                      <ChevronDown
-                        size={14}
-                        className={`transition-transform duration-300 ${isItemOpen ? "rotate-180 text-[var(--primary)]" : ""}`}
-                      />
-                    )}
-                  </div>
-
-                  {hasDropdown && isItemOpen && (
-                    <ul className="mt-2 ml-4 flex flex-col gap-3 text-sm font-normal text-gray-600 border-l border-gray-100 pl-4 animate-in fade-in slide-in-from-top-1 duration-200">
-                      {item === "Home" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">Home 1</li>
-                          <li className="hover:text-[var(--primary)]">Home 2</li>
-                          <li className="hover:text-[var(--primary)]">Home 3</li>
-                          <li className="hover:text-[var(--primary)]">Home 4</li>
-                        </>
-                      )}
-                      {item === "Shop" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">Shop Grid – Right Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop Grid – Left Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop List – Right Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop List – Left Sidebar</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Wide</li>
-                          <li className="hover:text-[var(--primary)]">Single Product</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Filter</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Wishlist</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Cart</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Checkout</li>
-                          <li className="hover:text-[var(--primary)]">Shop - Compare</li>
-                        </>
-                      )}
-                      {item === "Mega menu" && (
-                        <>
-                          <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)]">Fashion</li>
-                          <li className="hover:text-[var(--primary)]">Dresses</li>
-                          <li className="hover:text-[var(--primary)] font-bold text-[var(--primary)] mt-1">Technology</li>
-                          <li className="hover:text-[var(--primary)]">Smartphones</li>
-                        </>
-                      )}
-                      {item === "Blog" && (
-                        <ul className="pl-4 space-y-2">
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Grid</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category List</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Big</li>
-                          <li className="hover:text-[var(--primary)] cursor-pointer">Blog Category Wide</li>
-
-                          {/* Nested Dropdown Trigger */}
-                          <li className="group">
-                            <div
-                              className="flex items-center justify-between hover:text-[var(--primary)] cursor-pointer"
-                              onClick={() => setIsSinglePostOpen(!isSinglePostOpen)}
-                            >
-                              <span>Single Product Layout</span>
-                              <span className={`transform transition-transform ${isSinglePostOpen ? 'rotate-180' : ''}`}>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </span>
-                            </div>
-
-                            {/* Nested Items */}
-                            {isSinglePostOpen && (
-                              <ul className="pl-6 mt-2 space-y-2 text-gray-600 border-l-2 border-gray-100">
-                                <li className="hover:text-[var(--primary)] cursor-pointer">Left Sidebar</li>
-                                <li className="hover:text-[var(--primary)] cursor-pointer">Right Sidebar</li>
-                                <li className="hover:text-[var(--primary)] cursor-pointer">No Sidebar</li>
-                              </ul>
-                            )}
-                          </li>
-                        </ul>
-                      )}
-                      {item === "Pages" && (
-                        <>
-                          <li className="hover:text-[var(--primary)]">About Us</li>
-                          <li className="hover:text-[var(--primary)]">Contact</li>
-                          <li className="hover:text-[var(--primary)]">My Account</li>
-                          <li className="hover:text-[var(--primary)]">login/register</li>
-                          <li className="hover:text-[var(--primary)]">Purchase Guide</li>
-                          <li className="hover:text-[var(--primary)]">Privacy Policy</li>
-                          <li className="hover:text-[var(--primary)]">Terms of Service</li>
-                          <li className="hover:text-[var(--primary)]">404 Page</li>
-                        </>
-                      )}
-                    </ul>
-                  )}
+                <li key={i}>
+  <Link
+    href={
+      item === "Home"
+        ? "/"
+        : item === "Shop"
+        ? "/product-view-full"
+        : item === "About"
+        ? "/about"
+        : item === "Contact"
+        ? "/contact"
+        : "#"
+    }
+    className="flex justify-between items-center py-1 hover:text-[var(--primary)] transition"
+  >
+    {item}
+  </Link>
                 </li>
               );
             })}
