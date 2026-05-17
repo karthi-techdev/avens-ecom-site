@@ -309,7 +309,7 @@ if (!paymentMethod) {
 
     const orderData = {
       customerId: user._id,
-      customerName: address.fullName,
+      customerName: user.username,
       customerEmail: user.email, 
       customerPhone: address.phone,
       shippingAddress: `${address.street}, ${address.city}, ${address.state}, ${address.country} - ${address.pincode}`,
