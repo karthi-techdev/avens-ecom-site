@@ -13,6 +13,7 @@ import { useProductStore } from "../../store/useProductStore";
 import { useShippingStore } from "../../store/shippingStore";
 import { API } from "@/lib/urls";
 import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
 import { title } from "process";
 import { text } from "stream/consumers";
 export default function checkoutPage(){
@@ -30,6 +31,16 @@ export default function checkoutPage(){
      
       setUserToken(token);
         console.log("hii its ok to see")
+}, []);
+useEffect(() => {
+  const savedCoupon = localStorage.getItem("appliedCoupon");
+
+  if (savedCoupon) {
+    const parsedCoupon = JSON.parse(savedCoupon);
+
+    setCouponCode(parsedCoupon.code || "");
+    setDiscountAmount(parsedCoupon.discountAmount || 0);
+  }
 }, []);
       const countryOptions = countries.map(item => {
   return {
@@ -102,6 +113,7 @@ const handleRazorpayPayment = async (razorpayorderid:string,orderData:any) => {
         title: "Payment Successful 🎉",
         text: "Your order has been placed successfully",
       });
+      localStorage.removeItem("appliedCoupon");
       await clearCart(userToken._id)
       router.push('/')
       }
@@ -304,7 +316,10 @@ if (!paymentMethod) {
       productId: item.productId._id,
       productName: item.productId.name,
       quantity: item.quantity,
-      price: item.productId.price
+      price:
+        item.productId.discountPrice > 0
+          ? item.productId.discountPrice
+          : item.productId.price
     }));
 
     const orderData = {
@@ -318,6 +333,7 @@ if (!paymentMethod) {
       shippingMethod: selectedShipment.name,
       shippingPrice: selectedShipment.price,
       paymentMethod: paymentMethod,
+      couponCode: couponCode,
     };
     if(paymentMethod==='bank'){
       const result=await fetch(API.createOrderCheckout,{
@@ -357,6 +373,7 @@ if (!paymentMethod) {
     text: "Your order has been placed successfully 🎉",
     confirmButtonColor: "var(--primary)",
   });
+  localStorage.removeItem("appliedCoupon");
    await clearCart(userToken._id)
   router.push('/')
     } else {
@@ -438,22 +455,21 @@ if (!paymentMethod) {
     if (data.success) {
 
       setDiscountAmount(data.discountAmount);
-
-      Swal.fire({
-        icon: "success",
-        title: "Coupon Applied",
-        text: data.message,
-      });
+        localStorage.setItem(
+          "appliedCoupon",
+          JSON.stringify({
+            code: couponCode,
+            discountAmount: data.discountAmount,
+          })
+        );
+        toast.success("Coupon applied successfully");
 
     } else {
 
       setDiscountAmount(0);
+      localStorage.removeItem("appliedCoupon");
 
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Coupon",
-        text: data.message,
-      });
+      toast.error("Invalid Coupon");
 
     }
 
@@ -473,6 +489,8 @@ if (!paymentMethod) {
   
 
   return (
+      <>
+
     <main className="!py-[3rem] !mx-[2rem] md:!mx-[3rem] lg:!mx-[6rem]">
       <div className="flex flex-col lg:flex-row gap-[3rem] justify-between ">
         <div className="flex flex-col w-full gap-[2rem]">
@@ -641,7 +659,14 @@ if (!paymentMethod) {
               </tr>
               <tr>
                 <td className="text-center py-[0.4rem] border border-[var(--border-color)] text-[var(--black)] font-semibold">
-                  <span>Discount</span>
+                  <span>
+                    Discount
+                    {discountAmount > 0 && couponCode && (
+                      <span className="text-[var(--primary)] ml-1 uppercase">
+                        ({couponCode})
+                      </span>
+                    )}
+                  </span>
                 </td>
 
                 <td
@@ -740,6 +765,12 @@ if (!paymentMethod) {
         </div>
       </div>
     </main>
+     <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+    />
+    </> 
   )
 
 }
