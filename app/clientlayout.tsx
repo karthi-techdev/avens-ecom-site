@@ -13,32 +13,60 @@ export default function ClientLayout({
 }>) {
   const pathname = usePathname();
   const router = useRouter();
-
-  const hideLayout = pathname === "/login" || pathname === "/register" ||  pathname === "/forgot-password" || pathname === "/reset-password";
   const [checkingAuth, setCheckingAuth] = useState(true);
+
+  // Pages accessible without a token (Public)
+  const publicRoutes = ["/", "/product-list", "/product-view-full", "/product-view"];
+  
+  // Auth-specific pages (Hidden Header/Footer and redirected if logged in)
+  const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+
+  // Determine if we should hide Header and Footer
+  const hideLayout = authRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
     const token = localStorage.getItem("loginSuccess");
 
-    if (!token && pathname !== "/login" && pathname !== "/register" && pathname !== "/forgot-password" && pathname !== "/reset-password") {
+    // Check if the current path is a public route or an auth route
+    const isPublic = publicRoutes.some((route) => 
+      route === "/" ? pathname === "/" : pathname.startsWith(route)
+    );
+    
+    const isAuthPage = authRoutes.some((route) => pathname.startsWith(route));
+
+    // Logic 1: No token + trying to access a protected route
+    if (!token && !isPublic && !isAuthPage) {
       router.replace("/login");
-    }
-
-    if (token && (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") && !pathname.startsWith("/reset-password")) {
+    } 
+    // Logic 2: Token exists + trying to access login/register/forgot-password
+    else if (token && isAuthPage) {
       router.replace("/");
+    } 
+    // Logic 3: All good
+    else {
+      setCheckingAuth(false);
     }
+  }, [pathname, router]);
 
-    setCheckingAuth(false);
-  }, [pathname]);
-
+  // Prevent UI flicker while checking authentication
   if (checkingAuth) return null;
 
   return (
     <>
       {!hideLayout && <Header />}
-      {children}
+      <main>{children}</main>
       {!hideLayout && <Footer />}
-      <ToastContainer position="top-right" />
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+      />
     </>
   );
 }
